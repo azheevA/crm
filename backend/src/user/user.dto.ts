@@ -7,8 +7,10 @@ import {
   IsString,
   MaxLength,
   MinLength,
+  IsNotEmpty,
 } from 'class-validator';
-class PhotoDto {
+
+export class PhotoDto {
   @ApiProperty()
   id: number;
 
@@ -30,28 +32,36 @@ export class UserDto {
 
   @ApiProperty({ type: PhotoDto, nullable: true })
   photo?: PhotoDto;
-}
 
+  @Exclude()
+  hash?: string;
+}
 export class CreateUserDto {
-  @ApiProperty({ example: 'test@test.com', description: 'Email of the user' })
-  @IsEmail({}, { message: 'Invalid email format' })
+  @ApiProperty({ example: 'test@test.com', description: 'Email пользователя' })
+  @IsEmail({}, { message: 'Неверный формат email' })
+  @IsNotEmpty()
   email: string;
 
-  @ApiProperty({ example: 'John Doe', description: 'Name of the user' })
+  @ApiProperty({
+    example: 'John Doe',
+    description: 'Имя пользователя',
+    minLength: 2,
+    maxLength: 50,
+  })
   @IsString()
   @IsOptional()
-  @MinLength(3, { message: 'Name must be at least 3 characters long' })
-  @MaxLength(50, { message: 'Name must be less 50 characters long' })
-  name: string;
-
-  @ApiProperty({ example: '13123213' })
-  @IsString()
-  @Exclude()
-  hash: string;
-
-  @ApiProperty({ example: '13123213' })
-  @IsString()
-  @Exclude()
-  salt: string;
+  @MinLength(2, { message: 'Имя должно быть не короче 2 символов' })
+  @MaxLength(50, { message: 'Имя не должно превышать 50 символов' })
+  name?: string;
 }
+
 export class UpdateUserDto extends PartialType(CreateUserDto) {}
+
+export class UpdateProfileDto {
+  @ApiProperty({ example: 'John Doe', required: false })
+  @IsOptional()
+  @IsString()
+  @MinLength(2)
+  @MaxLength(50)
+  name?: string;
+}
