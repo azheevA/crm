@@ -3,34 +3,34 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { unlink } from 'fs/promises';
 import { join } from 'path';
+import { Photo } from '@prisma/generated';
 
 @Injectable()
 export class PhotoService {
   constructor(private readonly prisma: PrismaService) {}
 
-  // async AddPhoto(
-  //   itemId: number,
-  //   files: Express.Multer.File[],
-  // ): Promise<Array<Photo>> {
-  //   const item = await this.prisma.item.findUnique({
-  //     where: { id: itemId },
-  //   });
-
-  //   if (!item) {
-  //     throw new NotFoundException(`Item с ID ${itemId} не найден`);
-  //   }
-  //   const createPromises = files.map((file) =>
-  //     this.prisma.photo.create({
-  //       data: {
-  //         url: `/static/${file.filename}`,
-  //         filename: file.filename,
-  //         originalName: file.originalname,
-  //         itemId: itemId,
-  //       },
-  //     }),
-  //   );
-  //   return await Promise.all(createPromises);
-  // }
+  async AddUserPhoto(
+    itemId: number,
+    files: Express.Multer.File[],
+  ): Promise<Array<Photo>> {
+    const user = await this.prisma.user.findUnique({
+      where: { id: itemId },
+    });
+    if (!user) {
+      throw new NotFoundException(`Item с ID ${itemId} не найден`);
+    }
+    const createPromises = files.map((file) =>
+      this.prisma.photo.create({
+        data: {
+          url: `/static/${file.filename}`,
+          filename: file.filename,
+          originalName: file.originalname,
+          id: itemId,
+        },
+      }),
+    );
+    return await Promise.all(createPromises);
+  }
   async deletePhoto(phodoId: number) {
     const photo = await this.prisma.photo.findUnique({
       where: { id: phodoId },

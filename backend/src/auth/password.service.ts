@@ -5,7 +5,7 @@ import { hash, verify } from 'argon2';
 export class PasswordService {
   async getHash(password: string): Promise<string> {
     try {
-      return (await hash(password)) as string;
+      return await hash(password);
     } catch (error) {
       console.error('Argon2 ошибка хеша:', error);
       throw new InternalServerErrorException('Error processing password');
@@ -14,7 +14,7 @@ export class PasswordService {
 
   async compare(hash: string, plain: string): Promise<boolean> {
     try {
-      return (await verify(hash, plain)) as boolean;
+      return await verify(hash, plain);
     } catch (e) {
       console.error('Error comparing password hash:', e);
       return false;

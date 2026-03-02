@@ -54,7 +54,7 @@ export class PhotoController {
     @UploadedFiles() files: Express.Multer.File[],
     @Body('itemId') itemId: string,
   ) {
-    return this.photoService.AddPhoto(Number(itemId), files);
+    return this.photoService.AddUserPhoto(Number(itemId), files);
   }
 
   @Delete(':id')
