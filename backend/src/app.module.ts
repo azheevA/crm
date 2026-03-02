@@ -6,9 +6,13 @@ import { UserModule } from './user/user.module';
 import { AccountModule } from './account/account.module';
 import { PhotoModule } from './photo/photo.module';
 import { ChatModule } from './chat/chat.module';
-
+import { ConfigModule } from '@nestjs/config';
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: '.env',
+    }),
     PrismaModule,
     AuthModule,
     EmailModule,
