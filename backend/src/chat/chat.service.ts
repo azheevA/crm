@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { Message } from '@prisma/generated';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { SendMessageDto } from './chat.dto';
 
@@ -26,16 +25,20 @@ export class ChatService {
       },
     });
   }
-  async getMessage(): Promise<Message[]> {
+  async getMessages(limit: number = 20, cursorId?: number) {
     return await this.prisma.message.findMany({
+      take: limit,
+      skip: cursorId ? 1 : 0,
+      cursor: cursorId ? { id: cursorId } : undefined,
+      orderBy: {
+        id: 'desc',
+      },
       include: {
         author: {
           select: {
             id: true,
             name: true,
-            avatar: {
-              select: { url: true },
-            },
+            avatar: { select: { url: true } },
           },
         },
         files: true,
