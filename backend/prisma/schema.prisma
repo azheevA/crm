@@ -23,24 +23,26 @@ model User{
   resetCode String?
   resetCodeExp DateTime?
   items Message[]
-  photo Photo? @relation("UserPhoto")
+  avatar Photo? @relation("UserAvatar")
   account Account?
 }
 model Message {
   id        Int      @default(autoincrement()) @id
-  title     String
-  published Boolean? @default(false)
+  text      String
   author    User?    @relation(fields: [authorId], references: [id])
   authorId  Int?
   createdAt DateTime @default(now())
+  files     Photo[]   @relation("MessageFiles")
 }
 model Photo {
-  id Int @id @default(autoincrement())
-  url String
+  id           Int      @id @default(autoincrement())
+  url          String
   filename     String
   originalName String
   userId       Int?     @unique
-  user         User?    @relation("UserPhoto", fields: [userId], references: [id], onDelete: Cascade)
+  user         User?    @relation("UserAvatar", fields: [userId], references: [id], onDelete: Cascade)
+  messageId    Int?
+  message      Message? @relation("MessageFiles", fields: [messageId], references: [id], onDelete: Cascade)
 }
 model Account{
   id Int @id @default(autoincrement())

@@ -17,7 +17,7 @@ export class UserService {
     return await this.prisma.user.findUnique({
       where: userWhereUniqueInput,
       include: {
-        photo: true,
+        avatar: true,
       },
     });
   }
@@ -37,7 +37,7 @@ export class UserService {
       where,
       orderBy,
       include: {
-        photo: true,
+        avatar: true,
       },
     });
   }
@@ -61,7 +61,7 @@ export class UserService {
       data,
       where,
       include: {
-        photo: true,
+        avatar: true,
       },
     });
   }

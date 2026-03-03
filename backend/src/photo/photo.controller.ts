@@ -6,9 +6,10 @@ import {
   UploadedFiles,
   Delete,
   Param,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
-import { ApiConsumes, ApiBody, ApiTags, ApiOperation } from '@nestjs/swagger';
+import { ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
 import { PhotoService } from './photo.service';
@@ -30,15 +31,10 @@ export class PhotoController {
       }),
     }),
   )
-  @ApiConsumes('multipart/form-data')
   @ApiBody({
     schema: {
       type: 'object',
       properties: {
-        itemId: {
-          type: 'string',
-          example: '1',
-        },
         files: {
           type: 'array',
           items: {
@@ -47,19 +43,16 @@ export class PhotoController {
           },
         },
       },
-      required: ['itemId', 'files'],
+      required: ['files'],
     },
   })
-  async uploadPhoto(
-    @UploadedFiles() files: Express.Multer.File[],
-    @Body('itemId') itemId: string,
-  ) {
-    return this.photoService.AddUserPhoto(Number(itemId), files);
+  @ApiConsumes('multipart/form-data')
+  async uploadPhoto(@UploadedFiles() files: Express.Multer.File[]) {
+    return this.photoService.uploadGallery(files);
   }
 
   @Delete(':id')
-  @ApiOperation({ summary: 'Удалить фотографию по ID' })
-  async removePhoto(@Param('id') id: string) {
-    return await this.photoService.deletePhoto(Number(id));
+  async removePhoto(@Param('id', ParseIntPipe) id: number) {
+    return await this.photoService.deletePhoto(id);
   }
 }

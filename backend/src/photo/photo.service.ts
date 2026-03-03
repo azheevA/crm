@@ -1,71 +1,24 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-// import { Photo } from 'generated/prisma/client';
-import { PrismaService } from 'src/prisma/prisma.service';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import { Photo } from '@prisma/generated';
 import { unlink } from 'fs/promises';
 import { join } from 'path';
-import { Photo } from '@prisma/generated';
+import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class PhotoService {
   constructor(private readonly prisma: PrismaService) {}
-
-  async AddUserPhoto(
-    itemId: number,
-    files: Express.Multer.File[],
-  ): Promise<Array<Photo>> {
-    const user = await this.prisma.user.findUnique({
-      where: { id: itemId },
-    });
-    if (!user) {
-      throw new NotFoundException(`Item с ID ${itemId} не найден`);
-    }
-    const createPromises = files.map((file) =>
-      this.prisma.photo.create({
-        data: {
-          url: `/static/${file.filename}`,
-          filename: file.filename,
-          originalName: file.originalname,
-          id: itemId,
-        },
-      }),
-    );
-    return await Promise.all(createPromises);
-  }
-  async deletePhoto(phodoId: number) {
-    const photo = await this.prisma.photo.findUnique({
-      where: { id: phodoId },
-    });
-    if (!photo) {
-      throw new NotFoundException(`Фото с ID ${phodoId} не найдено`);
-    }
-    const filePath = join(process.cwd(), 'uploads', photo.filename);
-    try {
-      await unlink(filePath);
-    } catch (err) {
-      console.error(`Файл не найден для удаления код ошибки ${err}`);
-    }
-    return await this.prisma.photo.delete({
-      where: { id: phodoId },
-    });
-  }
-  async addUserPhoto(userId: number, file: Express.Multer.File) {
-    const userExists = await this.prisma.user.findUnique({
-      where: { id: userId },
-    });
-    if (!userExists) {
-      throw new NotFoundException(
-        `Пользователь с ID ${userId} не найден в базе данных`,
-      );
-    }
-    const oldPhoto = await this.prisma.photo.findUnique({
-      where: { userId: userId },
-    });
-
+  async uploadAvatar(userId: number, file: Express.Multer.File) {
+    const oldPhoto = await this.prisma.photo.findUnique({ where: { userId } });
     if (oldPhoto) {
       await this.deletePhysicalFile(oldPhoto.filename, 'user-uploads');
       await this.prisma.photo.delete({ where: { id: oldPhoto.id } });
     }
-    return await this.prisma.photo.create({
+
+    return this.prisma.photo.create({
       data: {
         url: `/static/users/${file.filename}`,
         filename: file.filename,
@@ -74,12 +27,39 @@ export class PhotoService {
       },
     });
   }
-  public async deletePhysicalFile(filename: string, folder: string) {
+  async uploadGallery(files: Express.Multer.File[]): Promise<Photo[]> {
+    if (!files || files.length === 0) {
+      throw new BadRequestException('Файлы не были переданы');
+    }
+
+    return Promise.all(
+      files.map((file) =>
+        this.prisma.photo.create({
+          data: {
+            url: `/static/${file.filename}`,
+            filename: file.filename,
+            originalName: file.originalname,
+          },
+        }),
+      ),
+    );
+  }
+  async deletePhoto(photoId: number) {
+    const photo = await this.prisma.photo.findUnique({
+      where: { id: photoId },
+    });
+    if (!photo) throw new NotFoundException('Фото не найдено');
+    const folder = photo.userId ? 'user-uploads' : 'uploads';
+    await this.deletePhysicalFile(photo.filename, folder);
+
+    return this.prisma.photo.delete({ where: { id: photoId } });
+  }
+  private async deletePhysicalFile(filename: string, folder: string) {
     const filePath = join(process.cwd(), folder, filename);
     try {
       await unlink(filePath);
     } catch (e) {
-      console.log(e);
+      console.error('File not found', e);
     }
   }
 }

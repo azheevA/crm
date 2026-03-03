@@ -157,6 +157,9 @@ export class UserController {
     file: Express.Multer.File,
     @sessionInfo() session: GetSessionInfoDto,
   ) {
-    return await this.photoService.addUserPhoto(session.id, file);
+    return (await this.photoService.uploadAvatar(
+      session.id,
+      file,
+    )) as UpdateProfileDto;
   }
 }
