@@ -7,6 +7,7 @@ import { AccountModule } from './account/account.module';
 import { PhotoModule } from './photo/photo.module';
 import { ChatModule } from './chat/chat.module';
 import { ConfigModule } from '@nestjs/config';
+import { CompanyModule } from './company/company.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -20,6 +21,7 @@ import { ConfigModule } from '@nestjs/config';
     AccountModule,
     PhotoModule,
     ChatModule,
+    CompanyModule,
   ],
 })
 export class AppModule {}
