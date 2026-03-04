@@ -11,6 +11,7 @@ import {
 import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 import { ContactService } from './contact.service';
 import { CreateContactDto, UpdateContactDto } from './company.dto';
+import { type SessionData, sessionInfo } from 'src/auth/session-info.decorator';
 
 @ApiTags('Contacts')
 @Controller('contacts')
@@ -21,8 +22,11 @@ export class ContactController {
   @ApiOperation({ summary: 'Создать новый контакт' })
   @ApiResponse({ status: 201, description: 'Контакт успешно создан.' })
   @ApiResponse({ status: 400, description: 'Некорректные данные.' })
-  create(@Body() createContactDto: CreateContactDto) {
-    return this.contactService.create(createContactDto);
+  create(
+    @sessionInfo() session: SessionData,
+    @Body() createContactDto: CreateContactDto,
+  ) {
+    return this.contactService.create(session.id as number, createContactDto);
   }
 
   @Get()
@@ -51,15 +55,23 @@ export class ContactController {
   @ApiResponse({ status: 404, description: 'Контакт с таким ID не найден.' })
   update(
     @Param('id', ParseIntPipe) id: number,
+    @sessionInfo() session: SessionData,
     @Body() updateContactDto: UpdateContactDto,
   ) {
-    return this.contactService.update(id, updateContactDto);
+    return this.contactService.update(
+      id,
+      session.id as number,
+      updateContactDto,
+    );
   }
 
   @Delete(':id')
   @ApiOperation({ summary: 'Удалить контакт' })
   @ApiResponse({ status: 200, description: 'Контакт успешно удален.' })
-  remove(@Param('id', ParseIntPipe) id: number) {
-    return this.contactService.remove(id);
+  remove(
+    @Param('id', ParseIntPipe) id: number,
+    @sessionInfo() session: SessionData,
+  ) {
+    return this.contactService.remove(id, session.id as number);
   }
 }

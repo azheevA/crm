@@ -1,15 +1,32 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateCompanyDto, UpdateCompanyDto } from './company.dto';
-import { Company } from '@prisma/generated';
+import { ActivityType, Company } from '@prisma/generated';
+import { ActivityService } from 'src/activity/activity.service';
 
 @Injectable()
 export class CompanyService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly activityService: ActivityService,
+  ) {}
 
-  async create(dto: CreateCompanyDto): Promise<Company> {
-    return await this.prisma.company.create({
-      data: dto,
+  async create(userId: number, dto: CreateCompanyDto): Promise<Company> {
+    return await this.prisma.$transaction(async (tx) => {
+      const company = await tx.company.create({
+        data: dto,
+      });
+      await this.activityService.log(
+        {
+          type: ActivityType.VALUE_CHANGE,
+          content: `Добавлена новая компания: "${company.name}"`,
+          userId,
+          companyId: company.id,
+        },
+        tx,
+      );
+
+      return company;
     });
   }
 
@@ -44,25 +61,54 @@ export class CompanyService {
     return company;
   }
 
-  async update(id: number, dto: UpdateCompanyDto): Promise<Company> {
-    return await this.prisma.company.update({
+  async update(
+    id: number,
+    userId: number,
+    dto: UpdateCompanyDto,
+  ): Promise<Company | null> {
+    const currentCompany = await this.prisma.company.findUnique({
       where: { id },
-      data: dto,
+    });
+    if (!currentCompany)
+      throw new NotFoundException(`Компания с ID ${id} не найдена`);
+
+    return await this.prisma.$transaction(async (tx) => {
+      const updatedCompany = await tx.company.update({
+        where: { id },
+        data: dto,
+      });
+      await this.activityService.log(
+        {
+          type: ActivityType.VALUE_CHANGE,
+          content: `Обновлены данные компании: "${updatedCompany.name}"`,
+          userId,
+          companyId: updatedCompany.id,
+        },
+        tx,
+      );
+
+      return updatedCompany;
     });
   }
 
-  async remove(id: number): Promise<Company> {
-    try {
-      return await this.prisma.company.delete({
+  async remove(id: number, userId: number): Promise<Company> {
+    const company = await this.prisma.company.findUnique({ where: { id } });
+    if (!company) throw new NotFoundException(`Компания с ID ${id} не найдена`);
+
+    return await this.prisma.$transaction(async (tx) => {
+      const deleted = await tx.company.delete({
         where: { id },
       });
-    } catch (error) {
-      if (error.code === 'P2025') {
-        throw new NotFoundException(
-          `Компания с id: ${id} не может быть удален т.к. не существует`,
-        );
-      }
-      throw error;
-    }
+      await this.activityService.log(
+        {
+          type: ActivityType.VALUE_CHANGE,
+          content: `Удалена компания: "${company.name}"`,
+          userId,
+        },
+        tx,
+      );
+
+      return deleted;
+    });
   }
 }

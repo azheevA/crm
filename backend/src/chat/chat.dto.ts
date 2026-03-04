@@ -15,4 +15,8 @@ export class CreateMessageDto {
   @IsArray()
   @IsInt({ each: true })
   fileIds?: number[];
+
+  @IsOptional()
+  @IsInt()
+  dealId?: number;
 }

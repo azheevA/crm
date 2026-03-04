@@ -77,8 +77,12 @@ export class TasksController {
   @ApiParam({ name: 'id', description: 'Индивидуальный ID задачи' })
   @ApiResponse({ status: 200, description: 'Задача обновлена' })
   @ApiResponse({ status: 404, description: 'Задача не найдена' })
-  update(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateTaskDto) {
-    return this.taskService.update(id, dto);
+  update(
+    @Param('id', ParseIntPipe) id: number,
+    @sessionInfo() session: SessionData,
+    @Body() dto: UpdateTaskDto,
+  ) {
+    return this.taskService.update(id, session.id, dto);
   }
 
   @Delete(':id')
@@ -88,8 +92,11 @@ export class TasksController {
   })
   @ApiParam({ name: 'id', description: 'ID задачи для удаления' })
   @ApiResponse({ status: 200, description: 'Задача успешно удалена' })
-  remove(@Param('id', ParseIntPipe) id: number) {
-    return this.taskService.remove(id);
+  remove(
+    @Param('id', ParseIntPipe) id: number,
+    @sessionInfo() session: SessionData,
+  ) {
+    return this.taskService.remove(id, session.id);
   }
 
   @Patch(':id/toggle')
@@ -98,7 +105,10 @@ export class TasksController {
     description:
       'Быстро меняет статус задачи с "выполнено" на "не выполнено" и наоборот.',
   })
-  async toggleStatus(@Param('id', ParseIntPipe) id: number) {
-    return await this.taskService.toggleTaskStatus(id);
+  async toggleStatus(
+    @Param('id', ParseIntPipe) id: number,
+    @sessionInfo() session: SessionData,
+  ) {
+    return await this.taskService.toggleTaskStatus(id, session.id);
   }
 }

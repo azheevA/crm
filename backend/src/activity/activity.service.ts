@@ -21,4 +21,23 @@ export class ActivityService {
       data,
     });
   }
+  async findAll(query: {
+    dealId?: number;
+    companyId?: number;
+    limit?: number;
+  }) {
+    return this.prisma.activity.findMany({
+      where: {
+        dealId: query.dealId || undefined,
+        companyId: query.companyId || undefined,
+      },
+      include: {
+        user: {
+          select: { name: true, avatar: true },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+      take: query.limit || 50,
+    });
+  }
 }

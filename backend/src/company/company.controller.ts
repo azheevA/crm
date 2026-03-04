@@ -7,10 +7,12 @@ import {
   Param,
   ParseIntPipe,
   Patch,
+  Delete,
 } from '@nestjs/common';
 import { CompanyService } from './company.service';
 import { CreateCompanyDto, UpdateCompanyDto } from './company.dto';
 import { ApiBody, ApiOperation, ApiQuery } from '@nestjs/swagger';
+import { type SessionData, sessionInfo } from 'src/auth/session-info.decorator';
 
 @Controller('companies')
 export class CompanyController {
@@ -18,8 +20,11 @@ export class CompanyController {
 
   @Post()
   @ApiOperation({ summary: 'Добавить информацию о новой компании-клиента' })
-  create(@Body() createCompanyDto: CreateCompanyDto) {
-    return this.companyService.create(createCompanyDto);
+  create(
+    @sessionInfo() session: SessionData,
+    @Body() createCompanyDto: CreateCompanyDto,
+  ) {
+    return this.companyService.create(session.id as number, createCompanyDto);
   }
 
   @Get()
@@ -56,8 +61,20 @@ export class CompanyController {
   @ApiBody({ type: UpdateCompanyDto })
   update(
     @Param('id', ParseIntPipe) id: number,
+    @sessionInfo() session: SessionData,
     @Body() updateCompanyDto: UpdateCompanyDto,
   ) {
-    return this.companyService.update(id, updateCompanyDto);
+    return this.companyService.update(
+      id,
+      session.id as number,
+      updateCompanyDto,
+    );
+  }
+  @Delete(':id')
+  remove(
+    @Param('id', ParseIntPipe) id: number,
+    @sessionInfo() session: SessionData,
+  ) {
+    return this.companyService.remove(id, session.id as number);
   }
 }

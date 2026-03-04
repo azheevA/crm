@@ -20,14 +20,19 @@ export class ChatGateway
   constructor(private readonly chatService: ChatService) {}
 
   @WebSocketServer() server: Server;
+
   @SubscribeMessage('sendMessage')
   async handleMessage(
+    @MessageBody(new ValidationPipe()) dto: CreateMessageDto,
     @ConnectedSocket() client: Socket,
-    @MessageBody(new ValidationPipe()) payload: CreateMessageDto,
-  ): Promise<void> {
-    const userId = (client.data.user?.id as number) || 1;
-    const newMessage = await this.chatService.createMessage(userId, payload);
-    this.server.emit('recMessage', newMessage);
+  ) {
+    const userId = client.data.user.id as number;
+    const newMessage = await this.chatService.createMessage(userId, dto);
+    if (dto.dealId) {
+      this.server.to(`deal_${dto.dealId}`).emit('recMessage', newMessage);
+    } else {
+      this.server.emit('recMessage', newMessage);
+    }
   }
 
   afterInit() {
