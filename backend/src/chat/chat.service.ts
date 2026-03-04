@@ -1,28 +1,24 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { SendMessageDto } from './chat.dto';
+import { CreateMessageDto } from './chat.dto';
 
 @Injectable()
 export class ChatService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async createMessage(authorId: number, dto: SendMessageDto) {
-    return await this.prisma.message.create({
+  async createMessage(userId: number, dto: CreateMessageDto) {
+    const { text, fileIds } = dto;
+    return this.prisma.message.create({
       data: {
-        text: dto.text,
-        authorId: authorId,
-        files: dto.fileIds
+        text,
+        authorId: userId,
+        files: fileIds?.length
           ? {
-              connect: dto.fileIds.map((id) => ({ id })),
+              connect: fileIds.map((id) => ({ id })),
             }
           : undefined,
       },
-      include: {
-        author: {
-          include: { avatar: true },
-        },
-        files: true,
-      },
+      include: { files: true, author: true },
     });
   }
   async getMessages(limit: number = 20, cursorId?: number) {

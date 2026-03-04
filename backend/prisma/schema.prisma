@@ -16,28 +16,28 @@ datasource db {
 }
 
 model User {
-  id Int @default(autoincrement()) @id
-  email String @unique
-  name String
-  hash String
-  resetCode String?
-  resetCodeExp DateTime?
-  messages Message[]
-  avatar Photo? @relation("UserAvatar")
-  account Account?
-  activities Activity[]
-  managedDeals  Deal[]    @relation("DealOwner")
-  tasks          Task[]
+  id              Int @default(autoincrement()) @id
+  email           String @unique
+  name            String
+  hash            String
+  resetCode       String?
+  resetCodeExp    DateTime?
+  messages        Message[]
+  avatar          Photo? @relation("UserAvatar")
+  account         Account?
+  activities      Activity[]
+  managedDeals    Deal[]    @relation("DealOwner")
+  tasks           Task[]
 }
 
 model Company {
-  id        Int       @id @default(autoincrement())
-  name      String
-  website   String?
-  contacts  Contact[]
-  deals     Deal[]
-  createdAt DateTime  @default(now())
-  activities Activity[]
+  id            Int       @id @default(autoincrement())
+  name          String
+  website       String?
+  contacts      Contact[]
+  deals         Deal[]
+  createdAt     DateTime  @default(now())
+  activities    Activity[]
 }
 
 model Contact {
@@ -61,7 +61,9 @@ model Deal {
   contact     Contact?   @relation(fields: [contactId], references: [id])
   ownerId     Int
   owner       User     @relation("DealOwner", fields: [ownerId], references: [id])
-  activities Activity[]
+  files       Photo[]      @relation("DealFiles")
+  tasks       Task[]
+  activities  Activity[]
   status      DealStatus @default(NEW)
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
@@ -70,10 +72,13 @@ model Deal {
 model Task {
   id          Int      @id @default(autoincrement())
   title       String
+  description String?
   dueDate     DateTime
   isCompleted Boolean  @default(false)
   userId      Int
   user        User     @relation(fields: [userId], references: [id])
+  dealId      Int?
+  deal        Deal?    @relation(fields: [dealId], references: [id], onDelete: Cascade)
 }
 
 model Message {
@@ -91,16 +96,23 @@ model Photo {
   url          String
   filename     String
   originalName String
+  createdAt    DateTime @default(now())
+
   userId       Int?     @unique
   user         User?    @relation("UserAvatar", fields: [userId], references: [id], onDelete: Cascade)
+
   messageId    Int?
   message      Message? @relation("MessageFiles", fields: [messageId], references: [id], onDelete: Cascade)
+
+  dealId       Int?
+  deal         Deal?    @relation("DealFiles", fields: [dealId], references: [id], onDelete: Cascade)
 }
 
+
 model Account{
-  id Int @id @default(autoincrement())
-  ownerId Int @unique
-  owner User @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  id          Int @id @default(autoincrement())
+  ownerId     Int @unique
+  owner       User @relation(fields: [ownerId], references: [id], onDelete: Cascade)
 }
 
 model Activity {

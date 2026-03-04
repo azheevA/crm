@@ -8,11 +8,24 @@ import { PhotoModule } from './photo/photo.module';
 import { ChatModule } from './chat/chat.module';
 import { ConfigModule } from '@nestjs/config';
 import { CompanyModule } from './company/company.module';
+import { ContactModule } from './contact/contact.module';
+import { DealModule } from './deal/deal.module';
+import { ActivityModule } from './activity/activity.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
+import { ScheduleModule } from '@nestjs/schedule';
+import { TasksModule } from './tasks/tasks.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env',
+    }),
+    ScheduleModule.forRoot(),
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'uploads'),
+      serveRoot: '/static',
+      exclude: ['/api*'],
     }),
     PrismaModule,
     AuthModule,
@@ -22,6 +35,10 @@ import { CompanyModule } from './company/company.module';
     PhotoModule,
     ChatModule,
     CompanyModule,
+    ContactModule,
+    DealModule,
+    ActivityModule,
+    TasksModule,
   ],
 })
 export class AppModule {}

@@ -78,6 +78,7 @@ export class UserController {
   @UseGuards(AuthGuard)
   @ApiBearerAuth()
   @ApiOkResponse({ type: UserDto })
+  @ApiOperation({ summary: 'Информацию профиля' })
   async getMe(@sessionInfo() session: SessionData): Promise<UserDto> {
     const user = await this.userService.user({ id: session.id });
     if (!user) throw new UnauthorizedException('Invalid session');

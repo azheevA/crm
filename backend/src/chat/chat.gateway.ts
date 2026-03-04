@@ -10,6 +10,8 @@ import {
 } from '@nestjs/websockets';
 import { ChatService } from './chat.service';
 import { Server, Socket } from 'socket.io';
+import { CreateMessageDto } from './chat.dto';
+import { ValidationPipe } from '@nestjs/common';
 
 @WebSocketGateway()
 export class ChatGateway
@@ -21,15 +23,15 @@ export class ChatGateway
   @SubscribeMessage('sendMessage')
   async handleMessage(
     @ConnectedSocket() client: Socket,
-    @MessageBody() payload: { text: string },
+    @MessageBody(new ValidationPipe()) payload: CreateMessageDto,
   ): Promise<void> {
     const userId = (client.data.user?.id as number) || 1;
     const newMessage = await this.chatService.createMessage(userId, payload);
     this.server.emit('recMessage', newMessage);
   }
 
-  afterInit(server: any) {
-    console.log(server);
+  afterInit() {
+    console.log('WebSocket Gateway initialized');
   }
   handleConnection(client: Socket) {
     console.log(`Connected: ${client.id}`);

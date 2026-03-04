@@ -1,18 +1,18 @@
 import {
   IsArray,
   IsInt,
-  IsNotEmpty,
   IsOptional,
   IsString,
+  MinLength,
 } from 'class-validator';
 
-export class SendMessageDto {
+export class CreateMessageDto {
   @IsString()
-  @IsNotEmpty()
+  @MinLength(1)
   text: string;
 
-  @IsArray()
   @IsOptional()
+  @IsArray()
   @IsInt({ each: true })
   fileIds?: number[];
 }

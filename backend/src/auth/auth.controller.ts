@@ -17,7 +17,11 @@ import {
   SignInBodyDto,
   SignUpBodyDto,
 } from './auth.dto';
-import { ApiCreatedResponse, ApiOkResponse } from '@nestjs/swagger';
+import {
+  ApiCreatedResponse,
+  ApiOkResponse,
+  ApiOperation,
+} from '@nestjs/swagger';
 import type { Response } from 'express';
 import { CookieService } from './cookie.service';
 import { AuthGuard } from './auth.guard';
@@ -32,6 +36,7 @@ export class AuthController {
 
   @Post('sign-up')
   @ApiCreatedResponse()
+  @ApiOperation({ summary: 'регистрация' })
   async signUp(
     @Body() body: SignUpBodyDto,
     @Res({ passthrough: true }) res: Response,
@@ -47,6 +52,7 @@ export class AuthController {
   @Post('sign-in')
   @ApiOkResponse()
   @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'авторизация' })
   async signIn(
     @Body() body: SignInBodyDto,
     @Res({ passthrough: true }) res: Response,
@@ -60,6 +66,7 @@ export class AuthController {
 
   @Post('sign-out')
   @ApiOkResponse()
+  @ApiOperation({ summary: 'выход из аккаунта' })
   @HttpCode(HttpStatus.OK)
   @UseGuards(AuthGuard)
   signOut(@Res({ passthrough: true }) res: Response) {
@@ -70,6 +77,7 @@ export class AuthController {
   @ApiOkResponse({
     type: GetSessionInfoDto,
   })
+  @ApiOperation({ summary: 'инофрмацию о сессии' })
   @UseGuards(AuthGuard)
   getSessionInfo(@sessionInfo() session: GetSessionInfoDto) {
     return session;
@@ -78,6 +86,7 @@ export class AuthController {
   @UseGuards(AuthGuard)
   @Post('change-password')
   @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'изменить пароль профиля' })
   changePassword(
     @Body() body: ChangePasswordDto,
     @sessionInfo() session: GetSessionInfoDto,
@@ -91,6 +100,7 @@ export class AuthController {
   }
 
   @Post('forgot-password')
+  @ApiOperation({ summary: 'функция "забытый пароль"' })
   @HttpCode(HttpStatus.OK)
   async forgotPassword(@Body() body: ForgotPasswordDto) {
     return this.authService.forgotPassword(body.email);
@@ -98,6 +108,7 @@ export class AuthController {
 
   @Post('reset-password-confirm')
   @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'перезапись пароля' })
   async resetPasswordConfirm(@Body() body: ResetPasswordConfirmDto) {
     return this.authService.resetPasswordByCode(
       body.email,

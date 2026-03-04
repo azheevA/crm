@@ -52,6 +52,17 @@ export class CompanyService {
   }
 
   async remove(id: number): Promise<Company> {
-    return await this.prisma.company.delete({ where: { id } });
+    try {
+      return await this.prisma.company.delete({
+        where: { id },
+      });
+    } catch (error) {
+      if (error.code === 'P2025') {
+        throw new NotFoundException(
+          `Компания с id: ${id} не может быть удален т.к. не существует`,
+        );
+      }
+      throw error;
+    }
   }
 }
