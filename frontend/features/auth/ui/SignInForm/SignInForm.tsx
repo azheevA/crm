@@ -14,6 +14,8 @@ import {
 } from "@/shared/ui/form";
 import { Input } from "@/shared/ui/input";
 import { useAuthControllerSignIn } from "@/shared/api/endpoints/auth/auth";
+import { useRouter } from "next/navigation";
+import { ROUTES } from "../../model/constant";
 
 const loginSchema = z.object({
   email: z.string().email("Неверный формат почты"),
@@ -21,9 +23,11 @@ const loginSchema = z.object({
 });
 
 export const SignInForm = () => {
+  const router = useRouter();
   const { mutate, isPending } = useAuthControllerSignIn({
     mutation: {
       onSuccess: (data) => {
+        router.push(ROUTES.HOME);
         console.log("Успешный вход", data);
       },
       onError: (error) => {
@@ -64,7 +68,7 @@ export const SignInForm = () => {
             <FormItem>
               <FormLabel>Пароль</FormLabel>
               <FormControl>
-                <Input type="password" {...field} />
+                <Input type="password" placeholder="12345" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

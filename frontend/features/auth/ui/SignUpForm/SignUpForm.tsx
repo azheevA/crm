@@ -3,6 +3,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { signUpSchema, type SignUpSchemaType } from "../../model/signup-shema";
+
 import { Button } from "@/shared/ui/button";
 import {
   Form,
@@ -81,7 +82,7 @@ export const SignUpForm = () => {
             <FormItem>
               <FormLabel>Пароль</FormLabel>
               <FormControl>
-                <Input type="password" {...field} />
+                <Input type="password" placeholder="12345" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -94,7 +95,7 @@ export const SignUpForm = () => {
             <FormItem>
               <FormLabel>Подтвердите пароль</FormLabel>
               <FormControl>
-                <Input type="password" {...field} />
+                <Input type="password" placeholder="12345" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

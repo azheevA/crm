@@ -27,7 +27,7 @@ async function bootstrap() {
     }),
   );
   app.useGlobalFilters(new PrismaClientExceptionFilter(httpAdapter));
-
+  app.setGlobalPrefix('api');
   const config = new DocumentBuilder()
     .setTitle('My Backend')
     .setDescription('Этот API работает с несколькими сущностями')
