@@ -1,0 +1,1057 @@
+openapi: 3.0.0
+paths:
+  /auth/sign-up:
+    post:
+      operationId: AuthController_signUp
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SignUpBodyDto'
+      responses:
+        '201':
+          description: ''
+      summary: регистрация
+      tags:
+        - Auth
+  /auth/sign-in:
+    post:
+      operationId: AuthController_signIn
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SignInBodyDto'
+      responses:
+        '200':
+          description: ''
+      summary: авторизация
+      tags:
+        - Auth
+  /auth/sign-out:
+    post:
+      operationId: AuthController_signOut
+      parameters: []
+      responses:
+        '200':
+          description: ''
+      summary: выход из аккаунта
+      tags:
+        - Auth
+  /auth/session:
+    get:
+      operationId: AuthController_getSessionInfo
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetSessionInfoDto'
+      summary: инофрмацию о сессии
+      tags:
+        - Auth
+  /auth/change-password:
+    post:
+      operationId: AuthController_changePassword
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChangePasswordDto'
+      responses:
+        '200':
+          description: ''
+      summary: изменить пароль профиля
+      tags:
+        - Auth
+  /auth/forgot-password:
+    post:
+      operationId: AuthController_forgotPassword
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ForgotPasswordDto'
+      responses:
+        '200':
+          description: ''
+      summary: функция "забытый пароль"
+      tags:
+        - Auth
+  /auth/reset-password-confirm:
+    post:
+      operationId: AuthController_resetPasswordConfirm
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResetPasswordConfirmDto'
+      responses:
+        '200':
+          description: ''
+      summary: перезапись пароля
+      tags:
+        - Auth
+  /users:
+    get:
+      operationId: UserController_findAll
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserDto'
+      summary: Получить всех пользователей
+      tags:
+        - Users
+  /users/me:
+    get:
+      operationId: UserController_getMe
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDto'
+      security:
+        - bearer: []
+      summary: Информацию профиля
+      tags:
+        - Users
+    patch:
+      operationId: UserController_updateProfile
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateProfileDto'
+      responses:
+        '200':
+          description: ''
+      security:
+        - bearer: []
+      summary: Обновить свой профиль
+      tags:
+        - Users
+  /users/{id}:
+    get:
+      operationId: UserController_findOne
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: number
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDto'
+      summary: Получить одного пользователя
+      tags:
+        - Users
+    patch:
+      operationId: UserController_update
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateUserDto'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDto'
+      summary: Обновить пользователя
+      tags:
+        - Users
+    delete:
+      operationId: UserController_remove
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: number
+      responses:
+        '200':
+          description: ''
+      summary: Удалить пользователя
+      tags:
+        - Users
+  /users/upload:
+    post:
+      operationId: UserController_uploadAvatar
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '201':
+          description: ''
+      security:
+        - bearer: []
+      summary: Загрузка аватара пользователя
+      tags:
+        - Users
+  /account:
+    get:
+      operationId: AccountController_getAccount
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountDto'
+      summary: Добавить доп. информацию профиля
+      tags:
+        - Account
+    patch:
+      operationId: AccountController_patchAccount
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchAccountDto'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PatchAccountDto'
+      summary: Обновить доп. информацию профиля
+      tags:
+        - Account
+  /photos/chat:
+    post:
+      operationId: PhotoController_uploadChatFiles
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                files:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+              required:
+                - files
+      responses:
+        '201':
+          description: ''
+      summary: Загрузить файлы для сообщения в чате
+      tags:
+        - Photos
+  /photos/{id}:
+    delete:
+      operationId: PhotoController_removePhoto
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: number
+      responses:
+        '200':
+          description: ''
+      summary: Удалить фото
+      tags:
+        - Photos
+  /activity:
+    get:
+      operationId: ActivityController_findAll
+      parameters:
+        - name: dealId
+          required: false
+          in: query
+          description: Фильтр по сделке
+          schema:
+            type: string
+        - name: companyId
+          required: false
+          in: query
+          description: Фильтр по компании
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+      summary: Получить ленту событий
+      tags:
+        - Activity
+  /companies:
+    post:
+      operationId: CompanyController_create
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCompanyDto'
+      responses:
+        '201':
+          description: ''
+      summary: Добавить информацию о новой компании-клиента
+      tags:
+        - Company
+    get:
+      operationId: CompanyController_findAll
+      parameters:
+        - name: limit
+          required: false
+          in: query
+          description: Количество записей
+          schema:
+            default: 10
+            type: string
+        - name: skip
+          required: false
+          in: query
+          description: Сколько записей пропустить
+          schema:
+            default: 0
+            type: string
+      responses:
+        '200':
+          description: ''
+      summary: Получить список компаний по запросу
+      tags:
+        - Company
+  /companies/{id}:
+    get:
+      operationId: CompanyController_findOne
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: number
+      responses:
+        '200':
+          description: ''
+      summary: Получить компанию по ID
+      tags:
+        - Company
+    patch:
+      operationId: CompanyController_update
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateCompanyDto'
+      responses:
+        '200':
+          description: ''
+      summary: Изменить данные о компании по ID
+      tags:
+        - Company
+    delete:
+      operationId: CompanyController_remove
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: number
+      responses:
+        '200':
+          description: ''
+      tags:
+        - Company
+  /contacts:
+    post:
+      operationId: ContactController_create
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateContactDto'
+      responses:
+        '201':
+          description: Контакт успешно создан.
+        '400':
+          description: Некорректные данные.
+      summary: Создать новый контакт
+      tags:
+        - Contacts
+    get:
+      operationId: ContactController_findAll
+      parameters: []
+      responses:
+        '200':
+          description: Список контактов с вложенными компаниями.
+      summary: Получить все контакты
+      tags:
+        - Contacts
+  /contacts/{id}:
+    get:
+      operationId: ContactController_findOne
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: Идентификатор контакта
+          schema:
+            type: number
+      responses:
+        '200':
+          description: Данные контакта найдены.
+        '404':
+          description: Контакт не найден.
+      summary: Получить контакт по ID
+      tags:
+        - Contacts
+    patch:
+      operationId: ContactController_update
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: ID существующего контакта
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateContactDto'
+      responses:
+        '200':
+          description: Контакт успешно обновлен.
+        '404':
+          description: Контакт с таким ID не найден.
+      summary: Обновить данные контакта
+      tags:
+        - Contacts
+    delete:
+      operationId: ContactController_remove
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: number
+      responses:
+        '200':
+          description: Контакт успешно удален.
+      summary: Удалить контакт
+      tags:
+        - Contacts
+  /deals:
+    post:
+      operationId: DealController_create
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateDealDto'
+      responses:
+        '201':
+          description: ''
+      summary: Создать новую сделку
+      tags:
+        - Deals
+    get:
+      operationId: DealController_findAll
+      parameters: []
+      responses:
+        '200':
+          description: ''
+      summary: Список всех сделок
+      tags:
+        - Deals
+  /deals/{id}:
+    patch:
+      operationId: DealController_update
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateDealDto'
+      responses:
+        '200':
+          description: ''
+      summary: Обновить статус или данные сделки
+      tags:
+        - Deals
+    delete:
+      operationId: DealController_delete
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: number
+      responses:
+        '200':
+          description: Сделка успешно удалена.
+      summary: Удалить сделку
+      tags:
+        - Deals
+  /deals/{id}/upload:
+    post:
+      operationId: DealController_uploadDealFiles
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: number
+      responses:
+        '201':
+          description: ''
+      summary: Загрузить документы к сделке
+      tags:
+        - Deals
+  /tasks:
+    post:
+      description: >-
+        Создает задачу и привязывает её к текущему пользователю. Можно
+        опционально привязать к сделке.
+      operationId: TasksController_create
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTaskDto'
+      responses:
+        '201':
+          description: Задача успешно создана
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskDto'
+      security:
+        - bearer: []
+      summary: Создать новую задачу
+      tags:
+        - Tasks
+    get:
+      description: >-
+        Возвращает все задачи текущего пользователя. Можно отфильтровать по
+        конкретной сделке.
+      operationId: TasksController_findAll
+      parameters:
+        - name: dealId
+          required: false
+          in: query
+          description: ID сделки для фильтрации задач
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Список задач получен
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TaskDto'
+      security:
+        - bearer: []
+      summary: Получить список задач
+      tags:
+        - Tasks
+  /tasks/{id}:
+    patch:
+      description: >-
+        Позволяет изменить заголовок, описание, дату дедлайна или статус
+        выполнения.
+      operationId: TasksController_update
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: Индивидуальный ID задачи
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateTaskDto'
+      responses:
+        '200':
+          description: Задача обновлена
+        '404':
+          description: Задача не найдена
+      security:
+        - bearer: []
+      summary: Обновить данные задачи
+      tags:
+        - Tasks
+    delete:
+      description: Безвозвратно удаляет задачу из системы.
+      operationId: TasksController_remove
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: ID задачи для удаления
+          schema:
+            type: number
+      responses:
+        '200':
+          description: Задача успешно удалена
+      security:
+        - bearer: []
+      summary: Удалить задачу
+      tags:
+        - Tasks
+  /tasks/{id}/toggle:
+    patch:
+      description: Быстро меняет статус задачи с "выполнено" на "не выполнено" и наоборот.
+      operationId: TasksController_toggleStatus
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: number
+      responses:
+        '200':
+          description: ''
+      security:
+        - bearer: []
+      summary: Переключить статус выполнения
+      tags:
+        - Tasks
+info:
+  title: My Backend
+  description: Этот API работает с несколькими сущностями
+  version: '1.0'
+  contact: {}
+tags: []
+servers: []
+components:
+  schemas:
+    SignUpBodyDto:
+      type: object
+      properties:
+        email:
+          type: string
+          example: test@test.com
+        name:
+          type: string
+          example: John Doe
+        password:
+          type: string
+          example: '1234567'
+      required:
+        - email
+        - name
+        - password
+    SignInBodyDto:
+      type: object
+      properties:
+        email:
+          type: string
+          example: test@test.com
+        password:
+          type: string
+          example: '1234567'
+      required:
+        - email
+        - password
+    GetSessionInfoDto:
+      type: object
+      properties:
+        id:
+          type: number
+        email:
+          type: string
+        iat:
+          type: number
+        exp:
+          type: number
+      required:
+        - id
+        - email
+        - iat
+        - exp
+    ChangePasswordDto:
+      type: object
+      properties:
+        oldPassword:
+          type: string
+          example: '1234'
+        newPassword:
+          type: string
+          example: newPassword123
+        confirmNewPassword:
+          type: string
+          example: newPassword123
+      required:
+        - oldPassword
+        - newPassword
+        - confirmNewPassword
+    ForgotPasswordDto:
+      type: object
+      properties:
+        email:
+          type: string
+          example: test@test.com
+      required:
+        - email
+    ResetPasswordConfirmDto:
+      type: object
+      properties:
+        email:
+          type: string
+          example: test@test.com
+        code:
+          type: string
+          example: '123456'
+        newPassword:
+          type: string
+          example: newPassword123
+      required:
+        - email
+        - code
+        - newPassword
+    PhotoDto:
+      type: object
+      properties:
+        id:
+          type: number
+        url:
+          type: string
+        filename:
+          type: string
+      required:
+        - id
+        - url
+        - filename
+    UserDto:
+      type: object
+      properties:
+        id:
+          type: number
+          example: 1
+        email:
+          type: string
+          example: test@test.com
+        name:
+          type: string
+          example: John Doe
+        photo:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/PhotoDto'
+      required:
+        - id
+        - email
+        - photo
+    UpdateProfileDto:
+      type: object
+      properties:
+        name:
+          type: string
+          example: John Doe
+    UpdateUserDto:
+      type: object
+      properties: {}
+    AccountDto:
+      type: object
+      properties:
+        id:
+          type: number
+        ownerId:
+          type: number
+      required:
+        - id
+        - ownerId
+    PatchAccountDto:
+      type: object
+      properties: {}
+    CreateCompanyDto:
+      type: object
+      properties:
+        name:
+          type: string
+          example: компания
+          description: Название компании
+        website:
+          type: string
+          example: https://company.com
+          description: URL этой компании
+      required:
+        - name
+        - website
+    UpdateCompanyDto:
+      type: object
+      properties:
+        name:
+          type: string
+          example: ООО Вектор
+          description: Название компании
+        website:
+          type: string
+          example: https://vector.ru
+          description: Сайт компании
+    CreateContactDto:
+      type: object
+      properties:
+        firstName:
+          type: string
+          example: Алина
+          description: Имя контакта
+        lastName:
+          type: string
+          example: Иванова
+          description: Фамилия контакта
+        email:
+          type: string
+          example: ivan@example.com
+          description: Email должен быть уникальным
+        phone:
+          type: string
+          example: '+79000000000'
+          description: Номер телефона
+        companyId:
+          type: number
+          example: 1
+          description: ID компании, к которой привязан контакт
+      required:
+        - firstName
+        - lastName
+        - email
+        - companyId
+    UpdateContactDto:
+      type: object
+      properties:
+        firstName:
+          type: string
+          example: Алина
+          description: Имя контакта
+        lastName:
+          type: string
+          example: Иванова
+          description: Фамилия контакта
+        email:
+          type: string
+          example: ivan@example.com
+          description: Email должен быть уникальным
+        phone:
+          type: string
+          example: '+79000000000'
+          description: Номер телефона
+        companyId:
+          type: number
+          example: 1
+          description: ID компании, к которой привязан контакт
+    CreateDealDto:
+      type: object
+      properties:
+        title:
+          type: string
+          example: Поставка оборудования
+          description: Название сделки
+        amount:
+          type: number
+          example: 50000
+          description: Сумма сделки
+        companyId:
+          type: number
+          example: 1
+          description: ID компании
+        contactId:
+          type: number
+          example: 1
+          description: ID контактного лица
+        ownerId:
+          type: number
+          example: 1
+          description: ID владельца (User)
+        status:
+          type: string
+          enum:
+            - NEW
+            - QUALIFICATION
+            - PROPOSAL
+            - NEGOTIATION
+            - CLOSED_WON
+            - CLOSED_LOST
+          default: NEW
+      required:
+        - title
+        - amount
+        - companyId
+        - ownerId
+        - status
+    UpdateDealDto:
+      type: object
+      properties:
+        title:
+          type: string
+          example: Поставка оборудования
+          description: Название сделки
+        amount:
+          type: number
+          example: 50000
+          description: Сумма сделки
+        companyId:
+          type: number
+          example: 1
+          description: ID компании
+        contactId:
+          type: number
+          example: 1
+          description: ID контактного лица
+        ownerId:
+          type: number
+          example: 1
+          description: ID владельца (User)
+        status:
+          type: string
+          enum:
+            - NEW
+            - QUALIFICATION
+            - PROPOSAL
+            - NEGOTIATION
+            - CLOSED_WON
+            - CLOSED_LOST
+          default: NEW
+    CreateTaskDto:
+      type: object
+      properties:
+        title:
+          type: string
+          example: Позвонить клиенту
+        description:
+          type: string
+          example: Обсудить детали контракта
+        dueDate:
+          type: string
+          example: '2026-05-01T10:00:00Z'
+        dealId:
+          type: number
+          example: 1
+      required:
+        - title
+        - dueDate
+    TaskDto:
+      type: object
+      properties:
+        id:
+          type: number
+          example: 1
+        title:
+          type: string
+          example: Позвонить клиенту
+        description:
+          type: string
+          example: Обсудить детали контракта
+          nullable: true
+        dueDate:
+          format: date-time
+          type: string
+          example: '2026-05-01T10:00:00Z'
+        isCompleted:
+          type: boolean
+          example: false
+        userId:
+          type: number
+          example: 1
+        dealId:
+          type: number
+          example: 1
+          nullable: true
+        createdAt:
+          format: date-time
+          type: string
+          example: '2026-03-04T12:00:00Z'
+      required:
+        - id
+        - title
+        - description
+        - dueDate
+        - isCompleted
+        - userId
+        - dealId
+        - createdAt
+    UpdateTaskDto:
+      type: object
+      properties:
+        title:
+          type: string
+          example: Позвонить клиенту
+        description:
+          type: string
+          example: Обсудить детали контракта
+        dueDate:
+          type: string
+          example: '2026-05-01T10:00:00Z'
+        dealId:
+          type: number
+          example: 1
