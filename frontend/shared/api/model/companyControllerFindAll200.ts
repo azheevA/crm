@@ -5,10 +5,10 @@
  * Этот API работает с несколькими сущностями
  * OpenAPI spec version: 1.0
  */
+import type { CreateCompanyDto } from "./createCompanyDto";
 
-export type ActivityControllerFindAllParams = {
-  dealId?: number;
-  companyId?: number;
-  limit?: number;
-  skip?: number;
+export type CompanyControllerFindAll200 = {
+  data?: CreateCompanyDto[];
+  /** @nullable */
+  nextCursor?: number | null;
 };

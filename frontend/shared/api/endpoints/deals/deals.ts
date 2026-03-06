@@ -5,16 +5,20 @@
  * Этот API работает с несколькими сущностями
  * OpenAPI spec version: 1.0
  */
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation, useQuery } from "@tanstack/react-query";
 import type {
   DataTag,
   DefinedInitialDataOptions,
+  DefinedUseInfiniteQueryResult,
   DefinedUseQueryResult,
+  InfiniteData,
   MutationFunction,
   QueryClient,
   QueryFunction,
   QueryKey,
   UndefinedInitialDataOptions,
+  UseInfiniteQueryOptions,
+  UseInfiniteQueryResult,
   UseMutationOptions,
   UseMutationResult,
   UseQueryOptions,
@@ -38,7 +42,7 @@ export const dealControllerCreate = (
 ) => {
   return createInstance<void>(
     {
-      url: `/deals`,
+      url: `/api/deals`,
       method: "POST",
       headers: { "Content-Type": "application/json" },
       data: createDealDto,
@@ -128,14 +132,156 @@ export const dealControllerFindAll = (
   signal?: AbortSignal,
 ) => {
   return createInstance<void>(
-    { url: `/deals`, method: "GET", signal },
+    { url: `/api/deals`, method: "GET", signal },
     options,
   );
 };
 
-export const getDealControllerFindAllQueryKey = () => {
-  return [`/deals`] as const;
+export const getDealControllerFindAllInfiniteQueryKey = () => {
+  return ["infinite", `/api/deals`] as const;
 };
+
+export const getDealControllerFindAllQueryKey = () => {
+  return [`/api/deals`] as const;
+};
+
+export const getDealControllerFindAllInfiniteQueryOptions = <
+  TData = InfiniteData<Awaited<ReturnType<typeof dealControllerFindAll>>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: Partial<
+    UseInfiniteQueryOptions<
+      Awaited<ReturnType<typeof dealControllerFindAll>>,
+      TError,
+      TData
+    >
+  >;
+  request?: SecondParameter<typeof createInstance>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getDealControllerFindAllInfiniteQueryKey();
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof dealControllerFindAll>>
+  > = ({ signal }) => dealControllerFindAll(requestOptions, signal);
+
+  return { queryKey, queryFn, ...queryOptions } as UseInfiniteQueryOptions<
+    Awaited<ReturnType<typeof dealControllerFindAll>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> };
+};
+
+export type DealControllerFindAllInfiniteQueryResult = NonNullable<
+  Awaited<ReturnType<typeof dealControllerFindAll>>
+>;
+export type DealControllerFindAllInfiniteQueryError = ErrorType<unknown>;
+
+export function useDealControllerFindAllInfinite<
+  TData = InfiniteData<Awaited<ReturnType<typeof dealControllerFindAll>>>,
+  TError = ErrorType<unknown>,
+>(
+  options: {
+    query: Partial<
+      UseInfiniteQueryOptions<
+        Awaited<ReturnType<typeof dealControllerFindAll>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof dealControllerFindAll>>,
+          TError,
+          Awaited<ReturnType<typeof dealControllerFindAll>>
+        >,
+        "initialData"
+      >;
+    request?: SecondParameter<typeof createInstance>;
+  },
+  queryClient?: QueryClient,
+): DefinedUseInfiniteQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useDealControllerFindAllInfinite<
+  TData = InfiniteData<Awaited<ReturnType<typeof dealControllerFindAll>>>,
+  TError = ErrorType<unknown>,
+>(
+  options?: {
+    query?: Partial<
+      UseInfiniteQueryOptions<
+        Awaited<ReturnType<typeof dealControllerFindAll>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof dealControllerFindAll>>,
+          TError,
+          Awaited<ReturnType<typeof dealControllerFindAll>>
+        >,
+        "initialData"
+      >;
+    request?: SecondParameter<typeof createInstance>;
+  },
+  queryClient?: QueryClient,
+): UseInfiniteQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useDealControllerFindAllInfinite<
+  TData = InfiniteData<Awaited<ReturnType<typeof dealControllerFindAll>>>,
+  TError = ErrorType<unknown>,
+>(
+  options?: {
+    query?: Partial<
+      UseInfiniteQueryOptions<
+        Awaited<ReturnType<typeof dealControllerFindAll>>,
+        TError,
+        TData
+      >
+    >;
+    request?: SecondParameter<typeof createInstance>;
+  },
+  queryClient?: QueryClient,
+): UseInfiniteQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+/**
+ * @summary Список всех сделок
+ */
+
+export function useDealControllerFindAllInfinite<
+  TData = InfiniteData<Awaited<ReturnType<typeof dealControllerFindAll>>>,
+  TError = ErrorType<unknown>,
+>(
+  options?: {
+    query?: Partial<
+      UseInfiniteQueryOptions<
+        Awaited<ReturnType<typeof dealControllerFindAll>>,
+        TError,
+        TData
+      >
+    >;
+    request?: SecondParameter<typeof createInstance>;
+  },
+  queryClient?: QueryClient,
+): UseInfiniteQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+} {
+  const queryOptions = getDealControllerFindAllInfiniteQueryOptions(options);
+
+  const query = useInfiniteQuery(
+    queryOptions,
+    queryClient,
+  ) as UseInfiniteQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
 
 export const getDealControllerFindAllQueryOptions = <
   TData = Awaited<ReturnType<typeof dealControllerFindAll>>,
@@ -283,7 +429,7 @@ export const dealControllerUpdate = (
 ) => {
   return createInstance<void>(
     {
-      url: `/deals/${id}`,
+      url: `/api/deals/${id}`,
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       data: updateDealDto,
@@ -374,7 +520,7 @@ export const dealControllerDelete = (
   signal?: AbortSignal,
 ) => {
   return createInstance<void>(
-    { url: `/deals/${id}`, method: "DELETE", signal },
+    { url: `/api/deals/${id}`, method: "DELETE", signal },
     options,
   );
 };
@@ -460,7 +606,7 @@ export const dealControllerUploadDealFiles = (
   signal?: AbortSignal,
 ) => {
   return createInstance<void>(
-    { url: `/deals/${id}/upload`, method: "POST", signal },
+    { url: `/api/deals/${id}/upload`, method: "POST", signal },
     options,
   );
 };

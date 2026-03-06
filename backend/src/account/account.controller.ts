@@ -1,11 +1,12 @@
 import { Body, Controller, Get, Patch, UseGuards } from '@nestjs/common';
 import { AccountService } from './account.service';
-import { ApiOkResponse, ApiOperation } from '@nestjs/swagger';
+import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { AccountDto, PatchAccountDto } from './account.dto';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { GetSessionInfoDto } from 'src/auth/auth.dto';
 import { sessionInfo } from 'src/auth/session-info.decorator';
 
+@ApiTags('Account')
 @Controller('account')
 @UseGuards(AuthGuard)
 export class AccountController {

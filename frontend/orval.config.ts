@@ -15,6 +15,10 @@ export default defineConfig({
           path: "./shared/api/instance.ts",
           name: "createInstance",
         },
+        query: {
+          useInfinite: true,
+          useInfiniteQueryParam: "skip",
+        },
       },
     },
   },

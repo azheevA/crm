@@ -5,16 +5,20 @@
  * Этот API работает с несколькими сущностями
  * OpenAPI spec version: 1.0
  */
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation, useQuery } from "@tanstack/react-query";
 import type {
   DataTag,
   DefinedInitialDataOptions,
+  DefinedUseInfiniteQueryResult,
   DefinedUseQueryResult,
+  InfiniteData,
   MutationFunction,
   QueryClient,
   QueryFunction,
   QueryKey,
   UndefinedInitialDataOptions,
+  UseInfiniteQueryOptions,
+  UseInfiniteQueryResult,
   UseMutationOptions,
   UseMutationResult,
   UseQueryOptions,
@@ -44,7 +48,7 @@ export const tasksControllerCreate = (
 ) => {
   return createInstance<TaskDto>(
     {
-      url: `/tasks`,
+      url: `/api/tasks`,
       method: "POST",
       headers: { "Content-Type": "application/json" },
       data: createTaskDto,
@@ -136,16 +140,206 @@ export const tasksControllerFindAll = (
   signal?: AbortSignal,
 ) => {
   return createInstance<TaskDto[]>(
-    { url: `/tasks`, method: "GET", params, signal },
+    { url: `/api/tasks`, method: "GET", params, signal },
     options,
   );
+};
+
+export const getTasksControllerFindAllInfiniteQueryKey = (
+  params?: TasksControllerFindAllParams,
+) => {
+  return ["infinite", `/api/tasks`, ...(params ? [params] : [])] as const;
 };
 
 export const getTasksControllerFindAllQueryKey = (
   params?: TasksControllerFindAllParams,
 ) => {
-  return [`/tasks`, ...(params ? [params] : [])] as const;
+  return [`/api/tasks`, ...(params ? [params] : [])] as const;
 };
+
+export const getTasksControllerFindAllInfiniteQueryOptions = <
+  TData = InfiniteData<
+    Awaited<ReturnType<typeof tasksControllerFindAll>>,
+    TasksControllerFindAllParams["skip"]
+  >,
+  TError = ErrorType<unknown>,
+>(
+  params?: TasksControllerFindAllParams,
+  options?: {
+    query?: Partial<
+      UseInfiniteQueryOptions<
+        Awaited<ReturnType<typeof tasksControllerFindAll>>,
+        TError,
+        TData,
+        QueryKey,
+        TasksControllerFindAllParams["skip"]
+      >
+    >;
+    request?: SecondParameter<typeof createInstance>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getTasksControllerFindAllInfiniteQueryKey(params);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof tasksControllerFindAll>>,
+    QueryKey,
+    TasksControllerFindAllParams["skip"]
+  > = ({ signal, pageParam }) =>
+    tasksControllerFindAll(
+      { ...params, skip: pageParam || params?.["skip"] },
+      requestOptions,
+      signal,
+    );
+
+  return { queryKey, queryFn, ...queryOptions } as UseInfiniteQueryOptions<
+    Awaited<ReturnType<typeof tasksControllerFindAll>>,
+    TError,
+    TData,
+    QueryKey,
+    TasksControllerFindAllParams["skip"]
+  > & { queryKey: DataTag<QueryKey, TData, TError> };
+};
+
+export type TasksControllerFindAllInfiniteQueryResult = NonNullable<
+  Awaited<ReturnType<typeof tasksControllerFindAll>>
+>;
+export type TasksControllerFindAllInfiniteQueryError = ErrorType<unknown>;
+
+export function useTasksControllerFindAllInfinite<
+  TData = InfiniteData<
+    Awaited<ReturnType<typeof tasksControllerFindAll>>,
+    TasksControllerFindAllParams["skip"]
+  >,
+  TError = ErrorType<unknown>,
+>(
+  params: undefined | TasksControllerFindAllParams,
+  options: {
+    query: Partial<
+      UseInfiniteQueryOptions<
+        Awaited<ReturnType<typeof tasksControllerFindAll>>,
+        TError,
+        TData,
+        QueryKey,
+        TasksControllerFindAllParams["skip"]
+      >
+    > &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof tasksControllerFindAll>>,
+          TError,
+          Awaited<ReturnType<typeof tasksControllerFindAll>>,
+          QueryKey
+        >,
+        "initialData"
+      >;
+    request?: SecondParameter<typeof createInstance>;
+  },
+  queryClient?: QueryClient,
+): DefinedUseInfiniteQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useTasksControllerFindAllInfinite<
+  TData = InfiniteData<
+    Awaited<ReturnType<typeof tasksControllerFindAll>>,
+    TasksControllerFindAllParams["skip"]
+  >,
+  TError = ErrorType<unknown>,
+>(
+  params?: TasksControllerFindAllParams,
+  options?: {
+    query?: Partial<
+      UseInfiniteQueryOptions<
+        Awaited<ReturnType<typeof tasksControllerFindAll>>,
+        TError,
+        TData,
+        QueryKey,
+        TasksControllerFindAllParams["skip"]
+      >
+    > &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof tasksControllerFindAll>>,
+          TError,
+          Awaited<ReturnType<typeof tasksControllerFindAll>>,
+          QueryKey
+        >,
+        "initialData"
+      >;
+    request?: SecondParameter<typeof createInstance>;
+  },
+  queryClient?: QueryClient,
+): UseInfiniteQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useTasksControllerFindAllInfinite<
+  TData = InfiniteData<
+    Awaited<ReturnType<typeof tasksControllerFindAll>>,
+    TasksControllerFindAllParams["skip"]
+  >,
+  TError = ErrorType<unknown>,
+>(
+  params?: TasksControllerFindAllParams,
+  options?: {
+    query?: Partial<
+      UseInfiniteQueryOptions<
+        Awaited<ReturnType<typeof tasksControllerFindAll>>,
+        TError,
+        TData,
+        QueryKey,
+        TasksControllerFindAllParams["skip"]
+      >
+    >;
+    request?: SecondParameter<typeof createInstance>;
+  },
+  queryClient?: QueryClient,
+): UseInfiniteQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+/**
+ * @summary Получить список задач
+ */
+
+export function useTasksControllerFindAllInfinite<
+  TData = InfiniteData<
+    Awaited<ReturnType<typeof tasksControllerFindAll>>,
+    TasksControllerFindAllParams["skip"]
+  >,
+  TError = ErrorType<unknown>,
+>(
+  params?: TasksControllerFindAllParams,
+  options?: {
+    query?: Partial<
+      UseInfiniteQueryOptions<
+        Awaited<ReturnType<typeof tasksControllerFindAll>>,
+        TError,
+        TData,
+        QueryKey,
+        TasksControllerFindAllParams["skip"]
+      >
+    >;
+    request?: SecondParameter<typeof createInstance>;
+  },
+  queryClient?: QueryClient,
+): UseInfiniteQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+} {
+  const queryOptions = getTasksControllerFindAllInfiniteQueryOptions(
+    params,
+    options,
+  );
+
+  const query = useInfiniteQuery(
+    queryOptions,
+    queryClient,
+  ) as UseInfiniteQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
 
 export const getTasksControllerFindAllQueryOptions = <
   TData = Awaited<ReturnType<typeof tasksControllerFindAll>>,
@@ -302,7 +496,7 @@ export const tasksControllerUpdate = (
 ) => {
   return createInstance<void>(
     {
-      url: `/tasks/${id}`,
+      url: `/api/tasks/${id}`,
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       data: updateTaskDto,
@@ -394,7 +588,7 @@ export const tasksControllerRemove = (
   signal?: AbortSignal,
 ) => {
   return createInstance<void>(
-    { url: `/tasks/${id}`, method: "DELETE", signal },
+    { url: `/api/tasks/${id}`, method: "DELETE", signal },
     options,
   );
 };
@@ -481,7 +675,7 @@ export const tasksControllerToggleStatus = (
   signal?: AbortSignal,
 ) => {
   return createInstance<void>(
-    { url: `/tasks/${id}/toggle`, method: "PATCH", signal },
+    { url: `/api/tasks/${id}/toggle`, method: "PATCH", signal },
     options,
   );
 };

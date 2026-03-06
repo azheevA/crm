@@ -5,16 +5,20 @@
  * Этот API работает с несколькими сущностями
  * OpenAPI spec version: 1.0
  */
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation, useQuery } from "@tanstack/react-query";
 import type {
   DataTag,
   DefinedInitialDataOptions,
+  DefinedUseInfiniteQueryResult,
   DefinedUseQueryResult,
+  InfiniteData,
   MutationFunction,
   QueryClient,
   QueryFunction,
   QueryKey,
   UndefinedInitialDataOptions,
+  UseInfiniteQueryOptions,
+  UseInfiniteQueryResult,
   UseMutationOptions,
   UseMutationResult,
   UseQueryOptions,
@@ -41,14 +45,156 @@ export const userControllerFindAll = (
   signal?: AbortSignal,
 ) => {
   return createInstance<UserDto[]>(
-    { url: `/users`, method: "GET", signal },
+    { url: `/api/users`, method: "GET", signal },
     options,
   );
 };
 
-export const getUserControllerFindAllQueryKey = () => {
-  return [`/users`] as const;
+export const getUserControllerFindAllInfiniteQueryKey = () => {
+  return ["infinite", `/api/users`] as const;
 };
+
+export const getUserControllerFindAllQueryKey = () => {
+  return [`/api/users`] as const;
+};
+
+export const getUserControllerFindAllInfiniteQueryOptions = <
+  TData = InfiniteData<Awaited<ReturnType<typeof userControllerFindAll>>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: Partial<
+    UseInfiniteQueryOptions<
+      Awaited<ReturnType<typeof userControllerFindAll>>,
+      TError,
+      TData
+    >
+  >;
+  request?: SecondParameter<typeof createInstance>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getUserControllerFindAllInfiniteQueryKey();
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof userControllerFindAll>>
+  > = ({ signal }) => userControllerFindAll(requestOptions, signal);
+
+  return { queryKey, queryFn, ...queryOptions } as UseInfiniteQueryOptions<
+    Awaited<ReturnType<typeof userControllerFindAll>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> };
+};
+
+export type UserControllerFindAllInfiniteQueryResult = NonNullable<
+  Awaited<ReturnType<typeof userControllerFindAll>>
+>;
+export type UserControllerFindAllInfiniteQueryError = ErrorType<unknown>;
+
+export function useUserControllerFindAllInfinite<
+  TData = InfiniteData<Awaited<ReturnType<typeof userControllerFindAll>>>,
+  TError = ErrorType<unknown>,
+>(
+  options: {
+    query: Partial<
+      UseInfiniteQueryOptions<
+        Awaited<ReturnType<typeof userControllerFindAll>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof userControllerFindAll>>,
+          TError,
+          Awaited<ReturnType<typeof userControllerFindAll>>
+        >,
+        "initialData"
+      >;
+    request?: SecondParameter<typeof createInstance>;
+  },
+  queryClient?: QueryClient,
+): DefinedUseInfiniteQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useUserControllerFindAllInfinite<
+  TData = InfiniteData<Awaited<ReturnType<typeof userControllerFindAll>>>,
+  TError = ErrorType<unknown>,
+>(
+  options?: {
+    query?: Partial<
+      UseInfiniteQueryOptions<
+        Awaited<ReturnType<typeof userControllerFindAll>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof userControllerFindAll>>,
+          TError,
+          Awaited<ReturnType<typeof userControllerFindAll>>
+        >,
+        "initialData"
+      >;
+    request?: SecondParameter<typeof createInstance>;
+  },
+  queryClient?: QueryClient,
+): UseInfiniteQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useUserControllerFindAllInfinite<
+  TData = InfiniteData<Awaited<ReturnType<typeof userControllerFindAll>>>,
+  TError = ErrorType<unknown>,
+>(
+  options?: {
+    query?: Partial<
+      UseInfiniteQueryOptions<
+        Awaited<ReturnType<typeof userControllerFindAll>>,
+        TError,
+        TData
+      >
+    >;
+    request?: SecondParameter<typeof createInstance>;
+  },
+  queryClient?: QueryClient,
+): UseInfiniteQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+/**
+ * @summary Получить всех пользователей
+ */
+
+export function useUserControllerFindAllInfinite<
+  TData = InfiniteData<Awaited<ReturnType<typeof userControllerFindAll>>>,
+  TError = ErrorType<unknown>,
+>(
+  options?: {
+    query?: Partial<
+      UseInfiniteQueryOptions<
+        Awaited<ReturnType<typeof userControllerFindAll>>,
+        TError,
+        TData
+      >
+    >;
+    request?: SecondParameter<typeof createInstance>;
+  },
+  queryClient?: QueryClient,
+): UseInfiniteQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+} {
+  const queryOptions = getUserControllerFindAllInfiniteQueryOptions(options);
+
+  const query = useInfiniteQuery(
+    queryOptions,
+    queryClient,
+  ) as UseInfiniteQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
 
 export const getUserControllerFindAllQueryOptions = <
   TData = Awaited<ReturnType<typeof userControllerFindAll>>,
@@ -193,14 +339,156 @@ export const userControllerGetMe = (
   signal?: AbortSignal,
 ) => {
   return createInstance<UserDto>(
-    { url: `/users/me`, method: "GET", signal },
+    { url: `/api/users/me`, method: "GET", signal },
     options,
   );
 };
 
-export const getUserControllerGetMeQueryKey = () => {
-  return [`/users/me`] as const;
+export const getUserControllerGetMeInfiniteQueryKey = () => {
+  return ["infinite", `/api/users/me`] as const;
 };
+
+export const getUserControllerGetMeQueryKey = () => {
+  return [`/api/users/me`] as const;
+};
+
+export const getUserControllerGetMeInfiniteQueryOptions = <
+  TData = InfiniteData<Awaited<ReturnType<typeof userControllerGetMe>>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: Partial<
+    UseInfiniteQueryOptions<
+      Awaited<ReturnType<typeof userControllerGetMe>>,
+      TError,
+      TData
+    >
+  >;
+  request?: SecondParameter<typeof createInstance>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getUserControllerGetMeInfiniteQueryKey();
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof userControllerGetMe>>
+  > = ({ signal }) => userControllerGetMe(requestOptions, signal);
+
+  return { queryKey, queryFn, ...queryOptions } as UseInfiniteQueryOptions<
+    Awaited<ReturnType<typeof userControllerGetMe>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> };
+};
+
+export type UserControllerGetMeInfiniteQueryResult = NonNullable<
+  Awaited<ReturnType<typeof userControllerGetMe>>
+>;
+export type UserControllerGetMeInfiniteQueryError = ErrorType<unknown>;
+
+export function useUserControllerGetMeInfinite<
+  TData = InfiniteData<Awaited<ReturnType<typeof userControllerGetMe>>>,
+  TError = ErrorType<unknown>,
+>(
+  options: {
+    query: Partial<
+      UseInfiniteQueryOptions<
+        Awaited<ReturnType<typeof userControllerGetMe>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof userControllerGetMe>>,
+          TError,
+          Awaited<ReturnType<typeof userControllerGetMe>>
+        >,
+        "initialData"
+      >;
+    request?: SecondParameter<typeof createInstance>;
+  },
+  queryClient?: QueryClient,
+): DefinedUseInfiniteQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useUserControllerGetMeInfinite<
+  TData = InfiniteData<Awaited<ReturnType<typeof userControllerGetMe>>>,
+  TError = ErrorType<unknown>,
+>(
+  options?: {
+    query?: Partial<
+      UseInfiniteQueryOptions<
+        Awaited<ReturnType<typeof userControllerGetMe>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof userControllerGetMe>>,
+          TError,
+          Awaited<ReturnType<typeof userControllerGetMe>>
+        >,
+        "initialData"
+      >;
+    request?: SecondParameter<typeof createInstance>;
+  },
+  queryClient?: QueryClient,
+): UseInfiniteQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useUserControllerGetMeInfinite<
+  TData = InfiniteData<Awaited<ReturnType<typeof userControllerGetMe>>>,
+  TError = ErrorType<unknown>,
+>(
+  options?: {
+    query?: Partial<
+      UseInfiniteQueryOptions<
+        Awaited<ReturnType<typeof userControllerGetMe>>,
+        TError,
+        TData
+      >
+    >;
+    request?: SecondParameter<typeof createInstance>;
+  },
+  queryClient?: QueryClient,
+): UseInfiniteQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+/**
+ * @summary Информацию профиля
+ */
+
+export function useUserControllerGetMeInfinite<
+  TData = InfiniteData<Awaited<ReturnType<typeof userControllerGetMe>>>,
+  TError = ErrorType<unknown>,
+>(
+  options?: {
+    query?: Partial<
+      UseInfiniteQueryOptions<
+        Awaited<ReturnType<typeof userControllerGetMe>>,
+        TError,
+        TData
+      >
+    >;
+    request?: SecondParameter<typeof createInstance>;
+  },
+  queryClient?: QueryClient,
+): UseInfiniteQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+} {
+  const queryOptions = getUserControllerGetMeInfiniteQueryOptions(options);
+
+  const query = useInfiniteQuery(
+    queryOptions,
+    queryClient,
+  ) as UseInfiniteQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
 
 export const getUserControllerGetMeQueryOptions = <
   TData = Awaited<ReturnType<typeof userControllerGetMe>>,
@@ -347,7 +635,7 @@ export const userControllerUpdateProfile = (
 ) => {
   return createInstance<void>(
     {
-      url: `/users/me`,
+      url: `/api/users/me`,
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       data: updateProfileDto,
@@ -439,14 +727,171 @@ export const userControllerFindOne = (
   signal?: AbortSignal,
 ) => {
   return createInstance<UserDto>(
-    { url: `/users/${id}`, method: "GET", signal },
+    { url: `/api/users/${id}`, method: "GET", signal },
     options,
   );
 };
 
-export const getUserControllerFindOneQueryKey = (id: number) => {
-  return [`/users/${id}`] as const;
+export const getUserControllerFindOneInfiniteQueryKey = (id: number) => {
+  return ["infinite", `/api/users/${id}`] as const;
 };
+
+export const getUserControllerFindOneQueryKey = (id: number) => {
+  return [`/api/users/${id}`] as const;
+};
+
+export const getUserControllerFindOneInfiniteQueryOptions = <
+  TData = InfiniteData<Awaited<ReturnType<typeof userControllerFindOne>>>,
+  TError = ErrorType<unknown>,
+>(
+  id: number,
+  options?: {
+    query?: Partial<
+      UseInfiniteQueryOptions<
+        Awaited<ReturnType<typeof userControllerFindOne>>,
+        TError,
+        TData
+      >
+    >;
+    request?: SecondParameter<typeof createInstance>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getUserControllerFindOneInfiniteQueryKey(id);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof userControllerFindOne>>
+  > = ({ signal }) => userControllerFindOne(id, requestOptions, signal);
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: !!id,
+    ...queryOptions,
+  } as UseInfiniteQueryOptions<
+    Awaited<ReturnType<typeof userControllerFindOne>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> };
+};
+
+export type UserControllerFindOneInfiniteQueryResult = NonNullable<
+  Awaited<ReturnType<typeof userControllerFindOne>>
+>;
+export type UserControllerFindOneInfiniteQueryError = ErrorType<unknown>;
+
+export function useUserControllerFindOneInfinite<
+  TData = InfiniteData<Awaited<ReturnType<typeof userControllerFindOne>>>,
+  TError = ErrorType<unknown>,
+>(
+  id: number,
+  options: {
+    query: Partial<
+      UseInfiniteQueryOptions<
+        Awaited<ReturnType<typeof userControllerFindOne>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof userControllerFindOne>>,
+          TError,
+          Awaited<ReturnType<typeof userControllerFindOne>>
+        >,
+        "initialData"
+      >;
+    request?: SecondParameter<typeof createInstance>;
+  },
+  queryClient?: QueryClient,
+): DefinedUseInfiniteQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useUserControllerFindOneInfinite<
+  TData = InfiniteData<Awaited<ReturnType<typeof userControllerFindOne>>>,
+  TError = ErrorType<unknown>,
+>(
+  id: number,
+  options?: {
+    query?: Partial<
+      UseInfiniteQueryOptions<
+        Awaited<ReturnType<typeof userControllerFindOne>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof userControllerFindOne>>,
+          TError,
+          Awaited<ReturnType<typeof userControllerFindOne>>
+        >,
+        "initialData"
+      >;
+    request?: SecondParameter<typeof createInstance>;
+  },
+  queryClient?: QueryClient,
+): UseInfiniteQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useUserControllerFindOneInfinite<
+  TData = InfiniteData<Awaited<ReturnType<typeof userControllerFindOne>>>,
+  TError = ErrorType<unknown>,
+>(
+  id: number,
+  options?: {
+    query?: Partial<
+      UseInfiniteQueryOptions<
+        Awaited<ReturnType<typeof userControllerFindOne>>,
+        TError,
+        TData
+      >
+    >;
+    request?: SecondParameter<typeof createInstance>;
+  },
+  queryClient?: QueryClient,
+): UseInfiniteQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+/**
+ * @summary Получить одного пользователя
+ */
+
+export function useUserControllerFindOneInfinite<
+  TData = InfiniteData<Awaited<ReturnType<typeof userControllerFindOne>>>,
+  TError = ErrorType<unknown>,
+>(
+  id: number,
+  options?: {
+    query?: Partial<
+      UseInfiniteQueryOptions<
+        Awaited<ReturnType<typeof userControllerFindOne>>,
+        TError,
+        TData
+      >
+    >;
+    request?: SecondParameter<typeof createInstance>;
+  },
+  queryClient?: QueryClient,
+): UseInfiniteQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+} {
+  const queryOptions = getUserControllerFindOneInfiniteQueryOptions(
+    id,
+    options,
+  );
+
+  const query = useInfiniteQuery(
+    queryOptions,
+    queryClient,
+  ) as UseInfiniteQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
 
 export const getUserControllerFindOneQueryOptions = <
   TData = Awaited<ReturnType<typeof userControllerFindOne>>,
@@ -607,7 +1052,7 @@ export const userControllerUpdate = (
 ) => {
   return createInstance<UserDto>(
     {
-      url: `/users/${id}`,
+      url: `/api/users/${id}`,
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       data: updateUserDto,
@@ -698,7 +1143,7 @@ export const userControllerRemove = (
   signal?: AbortSignal,
 ) => {
   return createInstance<void>(
-    { url: `/users/${id}`, method: "DELETE", signal },
+    { url: `/api/users/${id}`, method: "DELETE", signal },
     options,
   );
 };
@@ -789,7 +1234,7 @@ export const userControllerUploadAvatar = (
   }
 
   return createInstance<void>(
-    { url: `/users/upload`, method: "POST", data: formData, signal },
+    { url: `/api/users/upload`, method: "POST", data: formData, signal },
     options,
   );
 };

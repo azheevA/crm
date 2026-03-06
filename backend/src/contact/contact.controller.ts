@@ -10,7 +10,7 @@ import {
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 import { ContactService } from './contact.service';
-import { CreateContactDto, UpdateContactDto } from './company.dto';
+import { CreateContactDto, UpdateContactDto } from './contactdto';
 import { type SessionData, sessionInfo } from 'src/auth/session-info.decorator';
 
 @ApiTags('Contacts')

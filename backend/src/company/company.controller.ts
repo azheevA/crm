@@ -11,15 +11,24 @@ import {
 } from '@nestjs/common';
 import { CompanyService } from './company.service';
 import { CreateCompanyDto, UpdateCompanyDto } from './company.dto';
-import { ApiBody, ApiOperation, ApiQuery } from '@nestjs/swagger';
+import {
+  ApiBody,
+  ApiCreatedResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiQuery,
+  ApiTags,
+} from '@nestjs/swagger';
 import { type SessionData, sessionInfo } from 'src/auth/session-info.decorator';
 
+@ApiTags('Companies')
 @Controller('companies')
 export class CompanyController {
   constructor(private readonly companyService: CompanyService) {}
 
   @Post()
   @ApiOperation({ summary: 'Добавить информацию о новой компании-клиента' })
+  @ApiCreatedResponse({ type: CreateCompanyDto })
   create(
     @sessionInfo() session: SessionData,
     @Body() createCompanyDto: CreateCompanyDto,
@@ -28,30 +37,43 @@ export class CompanyController {
   }
 
   @Get()
+  @ApiOperation({
+    summary: 'Получить список компаний (курсорная пагинация по ID)',
+  })
   @ApiQuery({
     name: 'limit',
     required: false,
-    type: String,
-    default: 10,
+    type: Number,
     description: 'Количество записей',
   })
   @ApiQuery({
-    name: 'skip',
+    name: 'cursor',
     required: false,
-    type: String,
-    default: 0,
-    description: 'Сколько записей пропустить',
+    type: Number,
+    description: 'ID последней компании с предыдущей страницы',
   })
-  @ApiOperation({ summary: 'Получить список компаний по запросу' })
-  findAll(
-    @Query('limit') limit: string = '10',
-    @Query('skip') skip: string = '0',
+  @ApiOkResponse({
+    schema: {
+      type: 'object',
+      properties: {
+        data: {
+          type: 'array',
+          items: { $ref: '#/components/schemas/CreateCompanyDto' },
+        },
+        nextCursor: { type: 'number', nullable: true },
+      },
+    },
+  })
+  async findAll(
+    @Query('limit', new ParseIntPipe({ optional: true })) limit = 10,
+    @Query('cursor', new ParseIntPipe({ optional: true })) cursor?: number,
   ) {
-    return this.companyService.findAll(+limit, +skip);
+    return this.companyService.findAll(limit, cursor);
   }
 
   @Get(':id')
   @ApiOperation({ summary: 'Получить компанию по ID' })
+  @ApiOkResponse({ type: CreateCompanyDto })
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.companyService.findOne(id);
   }

@@ -8,11 +8,11 @@
 
 export type CompanyControllerFindAllParams = {
   /**
+   * ID последней компании с предыдущей страницы
+   */
+  cursor?: number;
+  /**
    * Количество записей
    */
-  limit?: string;
-  /**
-   * Сколько записей пропустить
-   */
-  skip?: string;
+  limit?: number;
 };

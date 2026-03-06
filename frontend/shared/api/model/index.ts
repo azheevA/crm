@@ -8,7 +8,11 @@
 
 export * from "./accountDto";
 export * from "./activityControllerFindAllParams";
+export * from "./activityDto";
+export * from "./activityDtoType";
+export * from "./activityUserDto";
 export * from "./changePasswordDto";
+export * from "./companyControllerFindAll200";
 export * from "./companyControllerFindAllParams";
 export * from "./createCompanyDto";
 export * from "./createContactDto";

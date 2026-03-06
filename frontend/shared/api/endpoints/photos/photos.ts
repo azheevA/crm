@@ -34,7 +34,7 @@ export const photoControllerUploadChatFiles = (
   );
 
   return createInstance<void>(
-    { url: `/photos/chat`, method: "POST", data: formData, signal },
+    { url: `/api/photos/chat`, method: "POST", data: formData, signal },
     options,
   );
 };
@@ -121,7 +121,7 @@ export const photoControllerRemovePhoto = (
   signal?: AbortSignal,
 ) => {
   return createInstance<void>(
-    { url: `/photos/${id}`, method: "DELETE", signal },
+    { url: `/api/photos/${id}`, method: "DELETE", signal },
     options,
   );
 };

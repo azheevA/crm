@@ -5,16 +5,20 @@
  * Этот API работает с несколькими сущностями
  * OpenAPI spec version: 1.0
  */
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation, useQuery } from "@tanstack/react-query";
 import type {
   DataTag,
   DefinedInitialDataOptions,
+  DefinedUseInfiniteQueryResult,
   DefinedUseQueryResult,
+  InfiniteData,
   MutationFunction,
   QueryClient,
   QueryFunction,
   QueryKey,
   UndefinedInitialDataOptions,
+  UseInfiniteQueryOptions,
+  UseInfiniteQueryResult,
   UseMutationOptions,
   UseMutationResult,
   UseQueryOptions,
@@ -38,7 +42,7 @@ export const contactControllerCreate = (
 ) => {
   return createInstance<void>(
     {
-      url: `/contacts`,
+      url: `/api/contacts`,
       method: "POST",
       headers: { "Content-Type": "application/json" },
       data: createContactDto,
@@ -128,14 +132,156 @@ export const contactControllerFindAll = (
   signal?: AbortSignal,
 ) => {
   return createInstance<void>(
-    { url: `/contacts`, method: "GET", signal },
+    { url: `/api/contacts`, method: "GET", signal },
     options,
   );
 };
 
-export const getContactControllerFindAllQueryKey = () => {
-  return [`/contacts`] as const;
+export const getContactControllerFindAllInfiniteQueryKey = () => {
+  return ["infinite", `/api/contacts`] as const;
 };
+
+export const getContactControllerFindAllQueryKey = () => {
+  return [`/api/contacts`] as const;
+};
+
+export const getContactControllerFindAllInfiniteQueryOptions = <
+  TData = InfiniteData<Awaited<ReturnType<typeof contactControllerFindAll>>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: Partial<
+    UseInfiniteQueryOptions<
+      Awaited<ReturnType<typeof contactControllerFindAll>>,
+      TError,
+      TData
+    >
+  >;
+  request?: SecondParameter<typeof createInstance>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getContactControllerFindAllInfiniteQueryKey();
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof contactControllerFindAll>>
+  > = ({ signal }) => contactControllerFindAll(requestOptions, signal);
+
+  return { queryKey, queryFn, ...queryOptions } as UseInfiniteQueryOptions<
+    Awaited<ReturnType<typeof contactControllerFindAll>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> };
+};
+
+export type ContactControllerFindAllInfiniteQueryResult = NonNullable<
+  Awaited<ReturnType<typeof contactControllerFindAll>>
+>;
+export type ContactControllerFindAllInfiniteQueryError = ErrorType<unknown>;
+
+export function useContactControllerFindAllInfinite<
+  TData = InfiniteData<Awaited<ReturnType<typeof contactControllerFindAll>>>,
+  TError = ErrorType<unknown>,
+>(
+  options: {
+    query: Partial<
+      UseInfiniteQueryOptions<
+        Awaited<ReturnType<typeof contactControllerFindAll>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof contactControllerFindAll>>,
+          TError,
+          Awaited<ReturnType<typeof contactControllerFindAll>>
+        >,
+        "initialData"
+      >;
+    request?: SecondParameter<typeof createInstance>;
+  },
+  queryClient?: QueryClient,
+): DefinedUseInfiniteQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useContactControllerFindAllInfinite<
+  TData = InfiniteData<Awaited<ReturnType<typeof contactControllerFindAll>>>,
+  TError = ErrorType<unknown>,
+>(
+  options?: {
+    query?: Partial<
+      UseInfiniteQueryOptions<
+        Awaited<ReturnType<typeof contactControllerFindAll>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof contactControllerFindAll>>,
+          TError,
+          Awaited<ReturnType<typeof contactControllerFindAll>>
+        >,
+        "initialData"
+      >;
+    request?: SecondParameter<typeof createInstance>;
+  },
+  queryClient?: QueryClient,
+): UseInfiniteQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useContactControllerFindAllInfinite<
+  TData = InfiniteData<Awaited<ReturnType<typeof contactControllerFindAll>>>,
+  TError = ErrorType<unknown>,
+>(
+  options?: {
+    query?: Partial<
+      UseInfiniteQueryOptions<
+        Awaited<ReturnType<typeof contactControllerFindAll>>,
+        TError,
+        TData
+      >
+    >;
+    request?: SecondParameter<typeof createInstance>;
+  },
+  queryClient?: QueryClient,
+): UseInfiniteQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+/**
+ * @summary Получить все контакты
+ */
+
+export function useContactControllerFindAllInfinite<
+  TData = InfiniteData<Awaited<ReturnType<typeof contactControllerFindAll>>>,
+  TError = ErrorType<unknown>,
+>(
+  options?: {
+    query?: Partial<
+      UseInfiniteQueryOptions<
+        Awaited<ReturnType<typeof contactControllerFindAll>>,
+        TError,
+        TData
+      >
+    >;
+    request?: SecondParameter<typeof createInstance>;
+  },
+  queryClient?: QueryClient,
+): UseInfiniteQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+} {
+  const queryOptions = getContactControllerFindAllInfiniteQueryOptions(options);
+
+  const query = useInfiniteQuery(
+    queryOptions,
+    queryClient,
+  ) as UseInfiniteQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
 
 export const getContactControllerFindAllQueryOptions = <
   TData = Awaited<ReturnType<typeof contactControllerFindAll>>,
@@ -282,14 +428,171 @@ export const contactControllerFindOne = (
   signal?: AbortSignal,
 ) => {
   return createInstance<void>(
-    { url: `/contacts/${id}`, method: "GET", signal },
+    { url: `/api/contacts/${id}`, method: "GET", signal },
     options,
   );
 };
 
-export const getContactControllerFindOneQueryKey = (id: number) => {
-  return [`/contacts/${id}`] as const;
+export const getContactControllerFindOneInfiniteQueryKey = (id: number) => {
+  return ["infinite", `/api/contacts/${id}`] as const;
 };
+
+export const getContactControllerFindOneQueryKey = (id: number) => {
+  return [`/api/contacts/${id}`] as const;
+};
+
+export const getContactControllerFindOneInfiniteQueryOptions = <
+  TData = InfiniteData<Awaited<ReturnType<typeof contactControllerFindOne>>>,
+  TError = ErrorType<void>,
+>(
+  id: number,
+  options?: {
+    query?: Partial<
+      UseInfiniteQueryOptions<
+        Awaited<ReturnType<typeof contactControllerFindOne>>,
+        TError,
+        TData
+      >
+    >;
+    request?: SecondParameter<typeof createInstance>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getContactControllerFindOneInfiniteQueryKey(id);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof contactControllerFindOne>>
+  > = ({ signal }) => contactControllerFindOne(id, requestOptions, signal);
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: !!id,
+    ...queryOptions,
+  } as UseInfiniteQueryOptions<
+    Awaited<ReturnType<typeof contactControllerFindOne>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> };
+};
+
+export type ContactControllerFindOneInfiniteQueryResult = NonNullable<
+  Awaited<ReturnType<typeof contactControllerFindOne>>
+>;
+export type ContactControllerFindOneInfiniteQueryError = ErrorType<void>;
+
+export function useContactControllerFindOneInfinite<
+  TData = InfiniteData<Awaited<ReturnType<typeof contactControllerFindOne>>>,
+  TError = ErrorType<void>,
+>(
+  id: number,
+  options: {
+    query: Partial<
+      UseInfiniteQueryOptions<
+        Awaited<ReturnType<typeof contactControllerFindOne>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof contactControllerFindOne>>,
+          TError,
+          Awaited<ReturnType<typeof contactControllerFindOne>>
+        >,
+        "initialData"
+      >;
+    request?: SecondParameter<typeof createInstance>;
+  },
+  queryClient?: QueryClient,
+): DefinedUseInfiniteQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useContactControllerFindOneInfinite<
+  TData = InfiniteData<Awaited<ReturnType<typeof contactControllerFindOne>>>,
+  TError = ErrorType<void>,
+>(
+  id: number,
+  options?: {
+    query?: Partial<
+      UseInfiniteQueryOptions<
+        Awaited<ReturnType<typeof contactControllerFindOne>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof contactControllerFindOne>>,
+          TError,
+          Awaited<ReturnType<typeof contactControllerFindOne>>
+        >,
+        "initialData"
+      >;
+    request?: SecondParameter<typeof createInstance>;
+  },
+  queryClient?: QueryClient,
+): UseInfiniteQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useContactControllerFindOneInfinite<
+  TData = InfiniteData<Awaited<ReturnType<typeof contactControllerFindOne>>>,
+  TError = ErrorType<void>,
+>(
+  id: number,
+  options?: {
+    query?: Partial<
+      UseInfiniteQueryOptions<
+        Awaited<ReturnType<typeof contactControllerFindOne>>,
+        TError,
+        TData
+      >
+    >;
+    request?: SecondParameter<typeof createInstance>;
+  },
+  queryClient?: QueryClient,
+): UseInfiniteQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+/**
+ * @summary Получить контакт по ID
+ */
+
+export function useContactControllerFindOneInfinite<
+  TData = InfiniteData<Awaited<ReturnType<typeof contactControllerFindOne>>>,
+  TError = ErrorType<void>,
+>(
+  id: number,
+  options?: {
+    query?: Partial<
+      UseInfiniteQueryOptions<
+        Awaited<ReturnType<typeof contactControllerFindOne>>,
+        TError,
+        TData
+      >
+    >;
+    request?: SecondParameter<typeof createInstance>;
+  },
+  queryClient?: QueryClient,
+): UseInfiniteQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+} {
+  const queryOptions = getContactControllerFindOneInfiniteQueryOptions(
+    id,
+    options,
+  );
+
+  const query = useInfiniteQuery(
+    queryOptions,
+    queryClient,
+  ) as UseInfiniteQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
 
 export const getContactControllerFindOneQueryOptions = <
   TData = Awaited<ReturnType<typeof contactControllerFindOne>>,
@@ -450,7 +753,7 @@ export const contactControllerUpdate = (
 ) => {
   return createInstance<void>(
     {
-      url: `/contacts/${id}`,
+      url: `/api/contacts/${id}`,
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       data: updateContactDto,
@@ -541,7 +844,7 @@ export const contactControllerRemove = (
   signal?: AbortSignal,
 ) => {
   return createInstance<void>(
-    { url: `/contacts/${id}`, method: "DELETE", signal },
+    { url: `/api/contacts/${id}`, method: "DELETE", signal },
     options,
   );
 };

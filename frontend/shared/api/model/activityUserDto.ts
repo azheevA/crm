@@ -6,9 +6,7 @@
  * OpenAPI spec version: 1.0
  */
 
-export type ActivityControllerFindAllParams = {
-  dealId?: number;
-  companyId?: number;
-  limit?: number;
-  skip?: number;
-};
+export interface ActivityUserDto {
+  name: string;
+  avatar?: string;
+}

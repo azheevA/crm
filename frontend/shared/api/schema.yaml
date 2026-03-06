@@ -1,6 +1,6 @@
 openapi: 3.0.0
 paths:
-  /auth/sign-up:
+  /api/auth/sign-up:
     post:
       operationId: AuthController_signUp
       parameters: []
@@ -16,7 +16,7 @@ paths:
       summary: регистрация
       tags:
         - Auth
-  /auth/sign-in:
+  /api/auth/sign-in:
     post:
       operationId: AuthController_signIn
       parameters: []
@@ -32,7 +32,7 @@ paths:
       summary: авторизация
       tags:
         - Auth
-  /auth/sign-out:
+  /api/auth/sign-out:
     post:
       operationId: AuthController_signOut
       parameters: []
@@ -42,7 +42,7 @@ paths:
       summary: выход из аккаунта
       tags:
         - Auth
-  /auth/session:
+  /api/auth/session:
     get:
       operationId: AuthController_getSessionInfo
       parameters: []
@@ -56,7 +56,7 @@ paths:
       summary: инофрмацию о сессии
       tags:
         - Auth
-  /auth/change-password:
+  /api/auth/change-password:
     post:
       operationId: AuthController_changePassword
       parameters: []
@@ -72,7 +72,7 @@ paths:
       summary: изменить пароль профиля
       tags:
         - Auth
-  /auth/forgot-password:
+  /api/auth/forgot-password:
     post:
       operationId: AuthController_forgotPassword
       parameters: []
@@ -88,7 +88,7 @@ paths:
       summary: функция "забытый пароль"
       tags:
         - Auth
-  /auth/reset-password-confirm:
+  /api/auth/reset-password-confirm:
     post:
       operationId: AuthController_resetPasswordConfirm
       parameters: []
@@ -104,7 +104,7 @@ paths:
       summary: перезапись пароля
       tags:
         - Auth
-  /users:
+  /api/users:
     get:
       operationId: UserController_findAll
       parameters: []
@@ -120,7 +120,7 @@ paths:
       summary: Получить всех пользователей
       tags:
         - Users
-  /users/me:
+  /api/users/me:
     get:
       operationId: UserController_getMe
       parameters: []
@@ -153,7 +153,7 @@ paths:
       summary: Обновить свой профиль
       tags:
         - Users
-  /users/{id}:
+  /api/users/{id}:
     get:
       operationId: UserController_findOne
       parameters:
@@ -210,7 +210,7 @@ paths:
       summary: Удалить пользователя
       tags:
         - Users
-  /users/upload:
+  /api/users/upload:
     post:
       operationId: UserController_uploadAvatar
       parameters: []
@@ -232,7 +232,7 @@ paths:
       summary: Загрузка аватара пользователя
       tags:
         - Users
-  /account:
+  /api/account:
     get:
       operationId: AccountController_getAccount
       parameters: []
@@ -265,7 +265,7 @@ paths:
       summary: Обновить доп. информацию профиля
       tags:
         - Account
-  /photos/chat:
+  /api/photos/chat:
     post:
       operationId: PhotoController_uploadChatFiles
       parameters: []
@@ -289,7 +289,7 @@ paths:
       summary: Загрузить файлы для сообщения в чате
       tags:
         - Photos
-  /photos/{id}:
+  /api/photos/{id}:
     delete:
       operationId: PhotoController_removePhoto
       parameters:
@@ -304,29 +304,43 @@ paths:
       summary: Удалить фото
       tags:
         - Photos
-  /activity:
+  /api/activity:
     get:
       operationId: ActivityController_findAll
       parameters:
         - name: dealId
           required: false
           in: query
-          description: Фильтр по сделке
           schema:
-            type: string
+            type: number
         - name: companyId
           required: false
           in: query
-          description: Фильтр по компании
           schema:
-            type: string
+            type: number
+        - name: limit
+          required: false
+          in: query
+          schema:
+            type: number
+        - name: skip
+          required: false
+          in: query
+          schema:
+            type: number
       responses:
         '200':
           description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ActivityDto'
       summary: Получить ленту событий
       tags:
         - Activity
-  /companies:
+  /api/companies:
     post:
       operationId: CompanyController_create
       parameters: []
@@ -339,33 +353,47 @@ paths:
       responses:
         '201':
           description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateCompanyDto'
       summary: Добавить информацию о новой компании-клиента
       tags:
-        - Company
+        - Companies
     get:
       operationId: CompanyController_findAll
       parameters:
+        - name: cursor
+          required: false
+          in: query
+          description: ID последней компании с предыдущей страницы
+          schema:
+            type: number
         - name: limit
           required: false
           in: query
           description: Количество записей
           schema:
-            default: 10
-            type: string
-        - name: skip
-          required: false
-          in: query
-          description: Сколько записей пропустить
-          schema:
-            default: 0
-            type: string
+            type: number
       responses:
         '200':
           description: ''
-      summary: Получить список компаний по запросу
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/CreateCompanyDto'
+                  nextCursor:
+                    type: number
+                    nullable: true
+      summary: Получить список компаний (курсорная пагинация по ID)
       tags:
-        - Company
-  /companies/{id}:
+        - Companies
+  /api/companies/{id}:
     get:
       operationId: CompanyController_findOne
       parameters:
@@ -377,9 +405,13 @@ paths:
       responses:
         '200':
           description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateCompanyDto'
       summary: Получить компанию по ID
       tags:
-        - Company
+        - Companies
     patch:
       operationId: CompanyController_update
       parameters:
@@ -399,7 +431,7 @@ paths:
           description: ''
       summary: Изменить данные о компании по ID
       tags:
-        - Company
+        - Companies
     delete:
       operationId: CompanyController_remove
       parameters:
@@ -412,8 +444,8 @@ paths:
         '200':
           description: ''
       tags:
-        - Company
-  /contacts:
+        - Companies
+  /api/contacts:
     post:
       operationId: ContactController_create
       parameters: []
@@ -440,7 +472,7 @@ paths:
       summary: Получить все контакты
       tags:
         - Contacts
-  /contacts/{id}:
+  /api/contacts/{id}:
     get:
       operationId: ContactController_findOne
       parameters:
@@ -495,7 +527,7 @@ paths:
       summary: Удалить контакт
       tags:
         - Contacts
-  /deals:
+  /api/deals:
     post:
       operationId: DealController_create
       parameters: []
@@ -520,7 +552,7 @@ paths:
       summary: Список всех сделок
       tags:
         - Deals
-  /deals/{id}:
+  /api/deals/{id}:
     patch:
       operationId: DealController_update
       parameters:
@@ -555,7 +587,7 @@ paths:
       summary: Удалить сделку
       tags:
         - Deals
-  /deals/{id}/upload:
+  /api/deals/{id}/upload:
     post:
       operationId: DealController_uploadDealFiles
       parameters:
@@ -570,7 +602,7 @@ paths:
       summary: Загрузить документы к сделке
       tags:
         - Deals
-  /tasks:
+  /api/tasks:
     post:
       description: >-
         Создает задачу и привязывает её к текущему пользователю. Можно
@@ -621,7 +653,7 @@ paths:
       summary: Получить список задач
       tags:
         - Tasks
-  /tasks/{id}:
+  /api/tasks/{id}:
     patch:
       description: >-
         Позволяет изменить заголовок, описание, дату дедлайна или статус
@@ -668,7 +700,7 @@ paths:
       summary: Удалить задачу
       tags:
         - Tasks
-  /tasks/{id}/toggle:
+  /api/tasks/{id}/toggle:
     patch:
       description: Быстро меняет статус задачи с "выполнено" на "не выполнено" и наоборот.
       operationId: TasksController_toggleStatus
@@ -834,6 +866,60 @@ components:
     PatchAccountDto:
       type: object
       properties: {}
+    ActivityUserDto:
+      type: object
+      properties:
+        name:
+          type: string
+          example: Александр Ажеев
+        avatar:
+          type: string
+          example: https://example.com/avatar.png
+      required:
+        - name
+    ActivityDto:
+      type: object
+      properties:
+        id:
+          type: number
+          example: 1
+        type:
+          type: string
+          enum:
+            - COMMENT
+            - STAGE_CHANGE
+            - VALUE_CHANGE
+            - TASK_CREATED
+            - TASK_UPDATED
+            - TASK_DELETED
+            - FILE_ADDED
+            - CHAT_MESSAGE
+          example: VALUE_CHANGE
+        content:
+          type: string
+          example: 'Добавлена новая компания: "ООО Вектор"'
+        createdAt:
+          format: date-time
+          type: string
+          example: '2026-03-06T10:00:00.000Z'
+        user:
+          $ref: '#/components/schemas/ActivityUserDto'
+        companyId:
+          type: number
+          example: 123
+        dealId:
+          type: number
+          example: 456
+        userId:
+          type: number
+          example: 1
+      required:
+        - id
+        - type
+        - content
+        - createdAt
+        - user
+        - userId
     CreateCompanyDto:
       type: object
       properties:

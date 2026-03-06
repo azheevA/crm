@@ -5,16 +5,20 @@
  * Этот API работает с несколькими сущностями
  * OpenAPI spec version: 1.0
  */
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation, useQuery } from "@tanstack/react-query";
 import type {
   DataTag,
   DefinedInitialDataOptions,
+  DefinedUseInfiniteQueryResult,
   DefinedUseQueryResult,
+  InfiniteData,
   MutationFunction,
   QueryClient,
   QueryFunction,
   QueryKey,
   UndefinedInitialDataOptions,
+  UseInfiniteQueryOptions,
+  UseInfiniteQueryResult,
   UseMutationOptions,
   UseMutationResult,
   UseQueryOptions,
@@ -36,14 +40,157 @@ export const accountControllerGetAccount = (
   signal?: AbortSignal,
 ) => {
   return createInstance<AccountDto>(
-    { url: `/account`, method: "GET", signal },
+    { url: `/api/account`, method: "GET", signal },
     options,
   );
 };
 
-export const getAccountControllerGetAccountQueryKey = () => {
-  return [`/account`] as const;
+export const getAccountControllerGetAccountInfiniteQueryKey = () => {
+  return ["infinite", `/api/account`] as const;
 };
+
+export const getAccountControllerGetAccountQueryKey = () => {
+  return [`/api/account`] as const;
+};
+
+export const getAccountControllerGetAccountInfiniteQueryOptions = <
+  TData = InfiniteData<Awaited<ReturnType<typeof accountControllerGetAccount>>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: Partial<
+    UseInfiniteQueryOptions<
+      Awaited<ReturnType<typeof accountControllerGetAccount>>,
+      TError,
+      TData
+    >
+  >;
+  request?: SecondParameter<typeof createInstance>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getAccountControllerGetAccountInfiniteQueryKey();
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof accountControllerGetAccount>>
+  > = ({ signal }) => accountControllerGetAccount(requestOptions, signal);
+
+  return { queryKey, queryFn, ...queryOptions } as UseInfiniteQueryOptions<
+    Awaited<ReturnType<typeof accountControllerGetAccount>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> };
+};
+
+export type AccountControllerGetAccountInfiniteQueryResult = NonNullable<
+  Awaited<ReturnType<typeof accountControllerGetAccount>>
+>;
+export type AccountControllerGetAccountInfiniteQueryError = ErrorType<unknown>;
+
+export function useAccountControllerGetAccountInfinite<
+  TData = InfiniteData<Awaited<ReturnType<typeof accountControllerGetAccount>>>,
+  TError = ErrorType<unknown>,
+>(
+  options: {
+    query: Partial<
+      UseInfiniteQueryOptions<
+        Awaited<ReturnType<typeof accountControllerGetAccount>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof accountControllerGetAccount>>,
+          TError,
+          Awaited<ReturnType<typeof accountControllerGetAccount>>
+        >,
+        "initialData"
+      >;
+    request?: SecondParameter<typeof createInstance>;
+  },
+  queryClient?: QueryClient,
+): DefinedUseInfiniteQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useAccountControllerGetAccountInfinite<
+  TData = InfiniteData<Awaited<ReturnType<typeof accountControllerGetAccount>>>,
+  TError = ErrorType<unknown>,
+>(
+  options?: {
+    query?: Partial<
+      UseInfiniteQueryOptions<
+        Awaited<ReturnType<typeof accountControllerGetAccount>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof accountControllerGetAccount>>,
+          TError,
+          Awaited<ReturnType<typeof accountControllerGetAccount>>
+        >,
+        "initialData"
+      >;
+    request?: SecondParameter<typeof createInstance>;
+  },
+  queryClient?: QueryClient,
+): UseInfiniteQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useAccountControllerGetAccountInfinite<
+  TData = InfiniteData<Awaited<ReturnType<typeof accountControllerGetAccount>>>,
+  TError = ErrorType<unknown>,
+>(
+  options?: {
+    query?: Partial<
+      UseInfiniteQueryOptions<
+        Awaited<ReturnType<typeof accountControllerGetAccount>>,
+        TError,
+        TData
+      >
+    >;
+    request?: SecondParameter<typeof createInstance>;
+  },
+  queryClient?: QueryClient,
+): UseInfiniteQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+/**
+ * @summary Добавить доп. информацию профиля
+ */
+
+export function useAccountControllerGetAccountInfinite<
+  TData = InfiniteData<Awaited<ReturnType<typeof accountControllerGetAccount>>>,
+  TError = ErrorType<unknown>,
+>(
+  options?: {
+    query?: Partial<
+      UseInfiniteQueryOptions<
+        Awaited<ReturnType<typeof accountControllerGetAccount>>,
+        TError,
+        TData
+      >
+    >;
+    request?: SecondParameter<typeof createInstance>;
+  },
+  queryClient?: QueryClient,
+): UseInfiniteQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+} {
+  const queryOptions =
+    getAccountControllerGetAccountInfiniteQueryOptions(options);
+
+  const query = useInfiniteQuery(
+    queryOptions,
+    queryClient,
+  ) as UseInfiniteQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
 
 export const getAccountControllerGetAccountQueryOptions = <
   TData = Awaited<ReturnType<typeof accountControllerGetAccount>>,
@@ -191,7 +338,7 @@ export const accountControllerPatchAccount = (
 ) => {
   return createInstance<PatchAccountDto>(
     {
-      url: `/account`,
+      url: `/api/account`,
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       data: patchAccountDto,

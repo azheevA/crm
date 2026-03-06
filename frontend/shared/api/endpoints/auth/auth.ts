@@ -5,16 +5,20 @@
  * Этот API работает с несколькими сущностями
  * OpenAPI spec version: 1.0
  */
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation, useQuery } from "@tanstack/react-query";
 import type {
   DataTag,
   DefinedInitialDataOptions,
+  DefinedUseInfiniteQueryResult,
   DefinedUseQueryResult,
+  InfiniteData,
   MutationFunction,
   QueryClient,
   QueryFunction,
   QueryKey,
   UndefinedInitialDataOptions,
+  UseInfiniteQueryOptions,
+  UseInfiniteQueryResult,
   UseMutationOptions,
   UseMutationResult,
   UseQueryOptions,
@@ -45,7 +49,7 @@ export const authControllerSignUp = (
 ) => {
   return createInstance<void>(
     {
-      url: `/auth/sign-up`,
+      url: `/api/auth/sign-up`,
       method: "POST",
       headers: { "Content-Type": "application/json" },
       data: signUpBodyDto,
@@ -137,7 +141,7 @@ export const authControllerSignIn = (
 ) => {
   return createInstance<void>(
     {
-      url: `/auth/sign-in`,
+      url: `/api/auth/sign-in`,
       method: "POST",
       headers: { "Content-Type": "application/json" },
       data: signInBodyDto,
@@ -227,7 +231,7 @@ export const authControllerSignOut = (
   signal?: AbortSignal,
 ) => {
   return createInstance<void>(
-    { url: `/auth/sign-out`, method: "POST", signal },
+    { url: `/api/auth/sign-out`, method: "POST", signal },
     options,
   );
 };
@@ -310,14 +314,167 @@ export const authControllerGetSessionInfo = (
   signal?: AbortSignal,
 ) => {
   return createInstance<GetSessionInfoDto>(
-    { url: `/auth/session`, method: "GET", signal },
+    { url: `/api/auth/session`, method: "GET", signal },
     options,
   );
 };
 
-export const getAuthControllerGetSessionInfoQueryKey = () => {
-  return [`/auth/session`] as const;
+export const getAuthControllerGetSessionInfoInfiniteQueryKey = () => {
+  return ["infinite", `/api/auth/session`] as const;
 };
+
+export const getAuthControllerGetSessionInfoQueryKey = () => {
+  return [`/api/auth/session`] as const;
+};
+
+export const getAuthControllerGetSessionInfoInfiniteQueryOptions = <
+  TData = InfiniteData<
+    Awaited<ReturnType<typeof authControllerGetSessionInfo>>
+  >,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: Partial<
+    UseInfiniteQueryOptions<
+      Awaited<ReturnType<typeof authControllerGetSessionInfo>>,
+      TError,
+      TData
+    >
+  >;
+  request?: SecondParameter<typeof createInstance>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getAuthControllerGetSessionInfoInfiniteQueryKey();
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof authControllerGetSessionInfo>>
+  > = ({ signal }) => authControllerGetSessionInfo(requestOptions, signal);
+
+  return { queryKey, queryFn, ...queryOptions } as UseInfiniteQueryOptions<
+    Awaited<ReturnType<typeof authControllerGetSessionInfo>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> };
+};
+
+export type AuthControllerGetSessionInfoInfiniteQueryResult = NonNullable<
+  Awaited<ReturnType<typeof authControllerGetSessionInfo>>
+>;
+export type AuthControllerGetSessionInfoInfiniteQueryError = ErrorType<unknown>;
+
+export function useAuthControllerGetSessionInfoInfinite<
+  TData = InfiniteData<
+    Awaited<ReturnType<typeof authControllerGetSessionInfo>>
+  >,
+  TError = ErrorType<unknown>,
+>(
+  options: {
+    query: Partial<
+      UseInfiniteQueryOptions<
+        Awaited<ReturnType<typeof authControllerGetSessionInfo>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof authControllerGetSessionInfo>>,
+          TError,
+          Awaited<ReturnType<typeof authControllerGetSessionInfo>>
+        >,
+        "initialData"
+      >;
+    request?: SecondParameter<typeof createInstance>;
+  },
+  queryClient?: QueryClient,
+): DefinedUseInfiniteQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useAuthControllerGetSessionInfoInfinite<
+  TData = InfiniteData<
+    Awaited<ReturnType<typeof authControllerGetSessionInfo>>
+  >,
+  TError = ErrorType<unknown>,
+>(
+  options?: {
+    query?: Partial<
+      UseInfiniteQueryOptions<
+        Awaited<ReturnType<typeof authControllerGetSessionInfo>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof authControllerGetSessionInfo>>,
+          TError,
+          Awaited<ReturnType<typeof authControllerGetSessionInfo>>
+        >,
+        "initialData"
+      >;
+    request?: SecondParameter<typeof createInstance>;
+  },
+  queryClient?: QueryClient,
+): UseInfiniteQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useAuthControllerGetSessionInfoInfinite<
+  TData = InfiniteData<
+    Awaited<ReturnType<typeof authControllerGetSessionInfo>>
+  >,
+  TError = ErrorType<unknown>,
+>(
+  options?: {
+    query?: Partial<
+      UseInfiniteQueryOptions<
+        Awaited<ReturnType<typeof authControllerGetSessionInfo>>,
+        TError,
+        TData
+      >
+    >;
+    request?: SecondParameter<typeof createInstance>;
+  },
+  queryClient?: QueryClient,
+): UseInfiniteQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+/**
+ * @summary инофрмацию о сессии
+ */
+
+export function useAuthControllerGetSessionInfoInfinite<
+  TData = InfiniteData<
+    Awaited<ReturnType<typeof authControllerGetSessionInfo>>
+  >,
+  TError = ErrorType<unknown>,
+>(
+  options?: {
+    query?: Partial<
+      UseInfiniteQueryOptions<
+        Awaited<ReturnType<typeof authControllerGetSessionInfo>>,
+        TError,
+        TData
+      >
+    >;
+    request?: SecondParameter<typeof createInstance>;
+  },
+  queryClient?: QueryClient,
+): UseInfiniteQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+} {
+  const queryOptions =
+    getAuthControllerGetSessionInfoInfiniteQueryOptions(options);
+
+  const query = useInfiniteQuery(
+    queryOptions,
+    queryClient,
+  ) as UseInfiniteQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
 
 export const getAuthControllerGetSessionInfoQueryOptions = <
   TData = Awaited<ReturnType<typeof authControllerGetSessionInfo>>,
@@ -465,7 +622,7 @@ export const authControllerChangePassword = (
 ) => {
   return createInstance<void>(
     {
-      url: `/auth/change-password`,
+      url: `/api/auth/change-password`,
       method: "POST",
       headers: { "Content-Type": "application/json" },
       data: changePasswordDto,
@@ -558,7 +715,7 @@ export const authControllerForgotPassword = (
 ) => {
   return createInstance<void>(
     {
-      url: `/auth/forgot-password`,
+      url: `/api/auth/forgot-password`,
       method: "POST",
       headers: { "Content-Type": "application/json" },
       data: forgotPasswordDto,
@@ -651,7 +808,7 @@ export const authControllerResetPasswordConfirm = (
 ) => {
   return createInstance<void>(
     {
-      url: `/auth/reset-password-confirm`,
+      url: `/api/auth/reset-password-confirm`,
       method: "POST",
       headers: { "Content-Type": "application/json" },
       data: resetPasswordConfirmDto,

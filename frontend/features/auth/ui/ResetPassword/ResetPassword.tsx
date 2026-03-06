@@ -21,6 +21,7 @@ export const ResetPasswordForm = ({ email }: { email: string }) => {
     register,
     handleSubmit,
     getValues,
+    trigger,
     formState: { errors },
   } = useForm<ResetPasswordFormValues>({
     defaultValues: { code: "", newPassword: "", confirmPassword: "" },
@@ -97,6 +98,11 @@ export const ResetPasswordForm = ({ email }: { email: string }) => {
               {...register("newPassword", {
                 required: "Введите пароль",
                 minLength: { value: 6, message: "Минимум 6 символов" },
+                onChange: () => {
+                  if (getValues("confirmPassword")) {
+                    trigger("confirmPassword");
+                  }
+                },
               })}
               type="password"
               placeholder="Новый пароль"

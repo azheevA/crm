@@ -5,20 +5,24 @@
  * Этот API работает с несколькими сущностями
  * OpenAPI spec version: 1.0
  */
-import { useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import type {
   DataTag,
   DefinedInitialDataOptions,
+  DefinedUseInfiniteQueryResult,
   DefinedUseQueryResult,
+  InfiniteData,
   QueryClient,
   QueryFunction,
   QueryKey,
   UndefinedInitialDataOptions,
+  UseInfiniteQueryOptions,
+  UseInfiniteQueryResult,
   UseQueryOptions,
   UseQueryResult,
 } from "@tanstack/react-query";
 
-import type { ActivityControllerFindAllParams } from "../../model";
+import type { ActivityControllerFindAllParams, ActivityDto } from "../../model";
 
 import { createInstance } from "../../instance";
 import type { ErrorType } from "../../instance";
@@ -33,17 +37,208 @@ export const activityControllerFindAll = (
   options?: SecondParameter<typeof createInstance>,
   signal?: AbortSignal,
 ) => {
-  return createInstance<void>(
-    { url: `/activity`, method: "GET", params, signal },
+  return createInstance<ActivityDto[]>(
+    { url: `/api/activity`, method: "GET", params, signal },
     options,
   );
+};
+
+export const getActivityControllerFindAllInfiniteQueryKey = (
+  params?: ActivityControllerFindAllParams,
+) => {
+  return ["infinite", `/api/activity`, ...(params ? [params] : [])] as const;
 };
 
 export const getActivityControllerFindAllQueryKey = (
   params?: ActivityControllerFindAllParams,
 ) => {
-  return [`/activity`, ...(params ? [params] : [])] as const;
+  return [`/api/activity`, ...(params ? [params] : [])] as const;
 };
+
+export const getActivityControllerFindAllInfiniteQueryOptions = <
+  TData = InfiniteData<
+    Awaited<ReturnType<typeof activityControllerFindAll>>,
+    ActivityControllerFindAllParams["skip"]
+  >,
+  TError = ErrorType<unknown>,
+>(
+  params?: ActivityControllerFindAllParams,
+  options?: {
+    query?: Partial<
+      UseInfiniteQueryOptions<
+        Awaited<ReturnType<typeof activityControllerFindAll>>,
+        TError,
+        TData,
+        QueryKey,
+        ActivityControllerFindAllParams["skip"]
+      >
+    >;
+    request?: SecondParameter<typeof createInstance>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ??
+    getActivityControllerFindAllInfiniteQueryKey(params);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof activityControllerFindAll>>,
+    QueryKey,
+    ActivityControllerFindAllParams["skip"]
+  > = ({ signal, pageParam }) =>
+    activityControllerFindAll(
+      { ...params, skip: pageParam || params?.["skip"] },
+      requestOptions,
+      signal,
+    );
+
+  return { queryKey, queryFn, ...queryOptions } as UseInfiniteQueryOptions<
+    Awaited<ReturnType<typeof activityControllerFindAll>>,
+    TError,
+    TData,
+    QueryKey,
+    ActivityControllerFindAllParams["skip"]
+  > & { queryKey: DataTag<QueryKey, TData, TError> };
+};
+
+export type ActivityControllerFindAllInfiniteQueryResult = NonNullable<
+  Awaited<ReturnType<typeof activityControllerFindAll>>
+>;
+export type ActivityControllerFindAllInfiniteQueryError = ErrorType<unknown>;
+
+export function useActivityControllerFindAllInfinite<
+  TData = InfiniteData<
+    Awaited<ReturnType<typeof activityControllerFindAll>>,
+    ActivityControllerFindAllParams["skip"]
+  >,
+  TError = ErrorType<unknown>,
+>(
+  params: undefined | ActivityControllerFindAllParams,
+  options: {
+    query: Partial<
+      UseInfiniteQueryOptions<
+        Awaited<ReturnType<typeof activityControllerFindAll>>,
+        TError,
+        TData,
+        QueryKey,
+        ActivityControllerFindAllParams["skip"]
+      >
+    > &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof activityControllerFindAll>>,
+          TError,
+          Awaited<ReturnType<typeof activityControllerFindAll>>,
+          QueryKey
+        >,
+        "initialData"
+      >;
+    request?: SecondParameter<typeof createInstance>;
+  },
+  queryClient?: QueryClient,
+): DefinedUseInfiniteQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useActivityControllerFindAllInfinite<
+  TData = InfiniteData<
+    Awaited<ReturnType<typeof activityControllerFindAll>>,
+    ActivityControllerFindAllParams["skip"]
+  >,
+  TError = ErrorType<unknown>,
+>(
+  params?: ActivityControllerFindAllParams,
+  options?: {
+    query?: Partial<
+      UseInfiniteQueryOptions<
+        Awaited<ReturnType<typeof activityControllerFindAll>>,
+        TError,
+        TData,
+        QueryKey,
+        ActivityControllerFindAllParams["skip"]
+      >
+    > &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof activityControllerFindAll>>,
+          TError,
+          Awaited<ReturnType<typeof activityControllerFindAll>>,
+          QueryKey
+        >,
+        "initialData"
+      >;
+    request?: SecondParameter<typeof createInstance>;
+  },
+  queryClient?: QueryClient,
+): UseInfiniteQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useActivityControllerFindAllInfinite<
+  TData = InfiniteData<
+    Awaited<ReturnType<typeof activityControllerFindAll>>,
+    ActivityControllerFindAllParams["skip"]
+  >,
+  TError = ErrorType<unknown>,
+>(
+  params?: ActivityControllerFindAllParams,
+  options?: {
+    query?: Partial<
+      UseInfiniteQueryOptions<
+        Awaited<ReturnType<typeof activityControllerFindAll>>,
+        TError,
+        TData,
+        QueryKey,
+        ActivityControllerFindAllParams["skip"]
+      >
+    >;
+    request?: SecondParameter<typeof createInstance>;
+  },
+  queryClient?: QueryClient,
+): UseInfiniteQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+/**
+ * @summary Получить ленту событий
+ */
+
+export function useActivityControllerFindAllInfinite<
+  TData = InfiniteData<
+    Awaited<ReturnType<typeof activityControllerFindAll>>,
+    ActivityControllerFindAllParams["skip"]
+  >,
+  TError = ErrorType<unknown>,
+>(
+  params?: ActivityControllerFindAllParams,
+  options?: {
+    query?: Partial<
+      UseInfiniteQueryOptions<
+        Awaited<ReturnType<typeof activityControllerFindAll>>,
+        TError,
+        TData,
+        QueryKey,
+        ActivityControllerFindAllParams["skip"]
+      >
+    >;
+    request?: SecondParameter<typeof createInstance>;
+  },
+  queryClient?: QueryClient,
+): UseInfiniteQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+} {
+  const queryOptions = getActivityControllerFindAllInfiniteQueryOptions(
+    params,
+    options,
+  );
+
+  const query = useInfiniteQuery(
+    queryOptions,
+    queryClient,
+  ) as UseInfiniteQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
 
 export const getActivityControllerFindAllQueryOptions = <
   TData = Awaited<ReturnType<typeof activityControllerFindAll>>,

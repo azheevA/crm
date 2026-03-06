@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { CreateContactDto, UpdateContactDto } from './company.dto';
+import { CreateContactDto, UpdateContactDto } from './contactdto';
 import { ActivityType, Contact } from '@prisma/generated';
 import { ActivityService } from 'src/activity/activity.service';
 

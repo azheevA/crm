@@ -30,17 +30,28 @@ export class CompanyService {
     });
   }
 
-  async findAll(limit: number = 10, skip: number = 0) {
-    return await this.prisma.company.findMany({
-      take: limit,
-      skip: skip,
+  async findAll(limit: number, cursor?: number) {
+    const companies = await this.prisma.company.findMany({
+      take: limit + 1,
+      where: cursor ? { id: { lt: cursor } } : undefined,
+      orderBy: { id: 'desc' },
       include: {
         _count: {
           select: { contacts: true, deals: true },
         },
       },
-      orderBy: { createdAt: 'desc' },
     });
+
+    let nextCursor: number | null = null;
+    if (companies.length > limit) {
+      const last = companies.pop()!;
+      nextCursor = last.id;
+    }
+
+    return {
+      data: companies,
+      nextCursor,
+    };
   }
 
   async findOne(id: number) {

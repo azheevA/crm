@@ -25,6 +25,7 @@ export class ActivityService {
     dealId?: number;
     companyId?: number;
     limit?: number;
+    skip?: number;
   }) {
     return this.prisma.activity.findMany({
       where: {
@@ -32,12 +33,11 @@ export class ActivityService {
         companyId: query.companyId || undefined,
       },
       include: {
-        user: {
-          select: { name: true, avatar: true },
-        },
+        user: { select: { name: true, avatar: true } },
       },
       orderBy: { createdAt: 'desc' },
       take: query.limit || 50,
+      skip: query.skip || 0,
     });
   }
 }
