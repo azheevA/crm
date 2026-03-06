@@ -22,7 +22,13 @@ export function MainMenu() {
             <MenubarItem>Share</MenubarItem>
           </MenubarContent>
         </MenubarMenu>
-
+        <MenubarMenu>
+          <MenubarTrigger className="cursor-pointer font-medium text-blue-600 dark:text-blue-400">
+            <Link href="/" className="w-full">
+              Главная
+            </Link>
+          </MenubarTrigger>
+        </MenubarMenu>
         <MenubarMenu>
           <MenubarTrigger className="cursor-pointer font-medium text-blue-600 dark:text-blue-400">
             Аккунт

@@ -1,21 +1,24 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { createTransport } from 'nodemailer';
+import { createTransport, Transporter } from 'nodemailer';
 
 @Injectable()
 export class EmailService {
-  private transporter;
+  private transporter: Transporter;
+
   private readonly logger = new Logger(EmailService.name);
   constructor() {
+    console.log(process.env.SMTP_PASS);
     this.transporter = createTransport({
       host: process.env.SMTP_HOST || 'smtp.gmail.com',
-      port: Number(process.env.SMTP_PORT) || 587,
-      secure: false,
+      port: 465,
+      secure: true,
       auth: {
         user: process.env.SMTP_USER,
         pass: process.env.SMTP_PASS,
       },
     });
   }
+
   async sendResetCode(email: string, code: string) {
     try {
       await this.transporter.sendMail({
@@ -29,7 +32,7 @@ export class EmailService {
         <h2 style="margin-top: 0; color: #111827;">Восстановление доступа</h2>
         
         <p style="color: #374151; line-height: 1.6;">
-          Мы получили запрос на восстановление доступа к вашему аккаунту SpaceFlow.
+          Мы получили запрос на восстановление доступа к вашему аккаунту.
         </p>
 
         <p style="color: #374151; line-height: 1.6;">

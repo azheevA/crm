@@ -3,6 +3,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import Link from "next/link";
 import { Button } from "@/shared/ui/button";
 import {
   Form,
@@ -67,6 +68,27 @@ export const SignInForm = () => {
           render={({ field }) => (
             <FormItem>
               <FormLabel>Пароль</FormLabel>
+              <FormControl>
+                <Input type="password" placeholder="12345" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="password"
+          render={({ field }) => (
+            <FormItem>
+              <div className="flex items-center justify-between">
+                <FormLabel>Пароль</FormLabel>
+                <Link
+                  href={ROUTES.FORGOT_PASSWORD}
+                  className="text-xs text-zinc-400 hover:text-white transition-colors"
+                >
+                  Забыли пароль?
+                </Link>
+              </div>
               <FormControl>
                 <Input type="password" placeholder="12345" {...field} />
               </FormControl>

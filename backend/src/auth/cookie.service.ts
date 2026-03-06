@@ -6,11 +6,16 @@ export class CookieService {
   setToken(res: Response, token: string) {
     res.cookie(CookieService.tokenKey, token, {
       httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
       maxAge: 24 * 60 * 60 * 1000,
+      path: '/',
     });
   }
 
   removeToken(res: Response) {
-    res.clearCookie(CookieService.tokenKey);
+    res.clearCookie(CookieService.tokenKey, {
+      path: '/',
+    });
   }
 }
