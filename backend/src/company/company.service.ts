@@ -30,10 +30,10 @@ export class CompanyService {
     });
   }
 
-  async findAll(limit: number, cursor?: number) {
+  async findAll(limit: number, skip?: number) {
     const companies = await this.prisma.company.findMany({
       take: limit + 1,
-      where: cursor ? { id: { lt: cursor } } : undefined,
+      where: skip ? { id: { lt: skip } } : undefined,
       orderBy: { id: 'desc' },
       include: {
         _count: {

@@ -31,6 +31,13 @@ export function MainMenu() {
         </MenubarMenu>
         <MenubarMenu>
           <MenubarTrigger className="cursor-pointer font-medium text-blue-600 dark:text-blue-400">
+            <Link href="/chat" className="w-full">
+              Сообщения
+            </Link>
+          </MenubarTrigger>
+        </MenubarMenu>
+        <MenubarMenu>
+          <MenubarTrigger className="cursor-pointer font-medium text-blue-600 dark:text-blue-400">
             Аккунт
           </MenubarTrigger>
           <MenubarContent>

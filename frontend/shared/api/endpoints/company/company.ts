@@ -26,6 +26,7 @@ import type {
 } from "@tanstack/react-query";
 
 import type {
+  CompanyControllerFindAll200,
   CompanyControllerFindAllParams,
   CreateCompanyDto,
   UpdateCompanyDto,
@@ -44,9 +45,9 @@ export const companyControllerCreate = (
   options?: SecondParameter<typeof createInstance>,
   signal?: AbortSignal,
 ) => {
-  return createInstance<void>(
+  return createInstance<CreateCompanyDto>(
     {
-      url: `/api/companies`,
+      url: `/api/company`,
       method: "POST",
       headers: { "Content-Type": "application/json" },
       data: createCompanyDto,
@@ -129,15 +130,15 @@ export const useCompanyControllerCreate = <
   );
 };
 /**
- * @summary Получить список компаний по запросу
+ * @summary Получить список компаний (курсорная пагинация по ID)
  */
 export const companyControllerFindAll = (
-  params?: CompanyControllerFindAllParams,
+  params: CompanyControllerFindAllParams,
   options?: SecondParameter<typeof createInstance>,
   signal?: AbortSignal,
 ) => {
-  return createInstance<void>(
-    { url: `/api/companies`, method: "GET", params, signal },
+  return createInstance<CompanyControllerFindAll200>(
+    { url: `/api/company`, method: "GET", params, signal },
     options,
   );
 };
@@ -145,23 +146,23 @@ export const companyControllerFindAll = (
 export const getCompanyControllerFindAllInfiniteQueryKey = (
   params?: CompanyControllerFindAllParams,
 ) => {
-  return ["infinite", `/api/companies`, ...(params ? [params] : [])] as const;
+  return ["infinite", `/api/company`, ...(params ? [params] : [])] as const;
 };
 
 export const getCompanyControllerFindAllQueryKey = (
   params?: CompanyControllerFindAllParams,
 ) => {
-  return [`/api/companies`, ...(params ? [params] : [])] as const;
+  return [`/api/company`, ...(params ? [params] : [])] as const;
 };
 
 export const getCompanyControllerFindAllInfiniteQueryOptions = <
   TData = InfiniteData<
     Awaited<ReturnType<typeof companyControllerFindAll>>,
-    CompanyControllerFindAllParams["cursor"]
+    CompanyControllerFindAllParams["skip"]
   >,
   TError = ErrorType<unknown>,
 >(
-  params?: CompanyControllerFindAllParams,
+  params: CompanyControllerFindAllParams,
   options?: {
     query?: Partial<
       UseInfiniteQueryOptions<
@@ -169,7 +170,7 @@ export const getCompanyControllerFindAllInfiniteQueryOptions = <
         TError,
         TData,
         QueryKey,
-        CompanyControllerFindAllParams["cursor"]
+        CompanyControllerFindAllParams["skip"]
       >
     >;
     request?: SecondParameter<typeof createInstance>;
@@ -184,10 +185,10 @@ export const getCompanyControllerFindAllInfiniteQueryOptions = <
   const queryFn: QueryFunction<
     Awaited<ReturnType<typeof companyControllerFindAll>>,
     QueryKey,
-    CompanyControllerFindAllParams["cursor"]
+    CompanyControllerFindAllParams["skip"]
   > = ({ signal, pageParam }) =>
     companyControllerFindAll(
-      { ...params, cursor: pageParam || params?.["cursor"] },
+      { ...params, skip: pageParam || params?.["skip"] },
       requestOptions,
       signal,
     );
@@ -197,7 +198,7 @@ export const getCompanyControllerFindAllInfiniteQueryOptions = <
     TError,
     TData,
     QueryKey,
-    CompanyControllerFindAllParams["cursor"]
+    CompanyControllerFindAllParams["skip"]
   > & { queryKey: DataTag<QueryKey, TData, TError> };
 };
 
@@ -209,11 +210,11 @@ export type CompanyControllerFindAllInfiniteQueryError = ErrorType<unknown>;
 export function useCompanyControllerFindAllInfinite<
   TData = InfiniteData<
     Awaited<ReturnType<typeof companyControllerFindAll>>,
-    CompanyControllerFindAllParams["cursor"]
+    CompanyControllerFindAllParams["skip"]
   >,
   TError = ErrorType<unknown>,
 >(
-  params: undefined | CompanyControllerFindAllParams,
+  params: CompanyControllerFindAllParams,
   options: {
     query: Partial<
       UseInfiniteQueryOptions<
@@ -221,7 +222,7 @@ export function useCompanyControllerFindAllInfinite<
         TError,
         TData,
         QueryKey,
-        CompanyControllerFindAllParams["cursor"]
+        CompanyControllerFindAllParams["skip"]
       >
     > &
       Pick<
@@ -242,11 +243,11 @@ export function useCompanyControllerFindAllInfinite<
 export function useCompanyControllerFindAllInfinite<
   TData = InfiniteData<
     Awaited<ReturnType<typeof companyControllerFindAll>>,
-    CompanyControllerFindAllParams["cursor"]
+    CompanyControllerFindAllParams["skip"]
   >,
   TError = ErrorType<unknown>,
 >(
-  params?: CompanyControllerFindAllParams,
+  params: CompanyControllerFindAllParams,
   options?: {
     query?: Partial<
       UseInfiniteQueryOptions<
@@ -254,7 +255,7 @@ export function useCompanyControllerFindAllInfinite<
         TError,
         TData,
         QueryKey,
-        CompanyControllerFindAllParams["cursor"]
+        CompanyControllerFindAllParams["skip"]
       >
     > &
       Pick<
@@ -275,11 +276,11 @@ export function useCompanyControllerFindAllInfinite<
 export function useCompanyControllerFindAllInfinite<
   TData = InfiniteData<
     Awaited<ReturnType<typeof companyControllerFindAll>>,
-    CompanyControllerFindAllParams["cursor"]
+    CompanyControllerFindAllParams["skip"]
   >,
   TError = ErrorType<unknown>,
 >(
-  params?: CompanyControllerFindAllParams,
+  params: CompanyControllerFindAllParams,
   options?: {
     query?: Partial<
       UseInfiniteQueryOptions<
@@ -287,7 +288,7 @@ export function useCompanyControllerFindAllInfinite<
         TError,
         TData,
         QueryKey,
-        CompanyControllerFindAllParams["cursor"]
+        CompanyControllerFindAllParams["skip"]
       >
     >;
     request?: SecondParameter<typeof createInstance>;
@@ -297,17 +298,17 @@ export function useCompanyControllerFindAllInfinite<
   queryKey: DataTag<QueryKey, TData, TError>;
 };
 /**
- * @summary Получить список компаний по запросу
+ * @summary Получить список компаний (курсорная пагинация по ID)
  */
 
 export function useCompanyControllerFindAllInfinite<
   TData = InfiniteData<
     Awaited<ReturnType<typeof companyControllerFindAll>>,
-    CompanyControllerFindAllParams["cursor"]
+    CompanyControllerFindAllParams["skip"]
   >,
   TError = ErrorType<unknown>,
 >(
-  params?: CompanyControllerFindAllParams,
+  params: CompanyControllerFindAllParams,
   options?: {
     query?: Partial<
       UseInfiniteQueryOptions<
@@ -315,7 +316,7 @@ export function useCompanyControllerFindAllInfinite<
         TError,
         TData,
         QueryKey,
-        CompanyControllerFindAllParams["cursor"]
+        CompanyControllerFindAllParams["skip"]
       >
     >;
     request?: SecondParameter<typeof createInstance>;
@@ -343,7 +344,7 @@ export const getCompanyControllerFindAllQueryOptions = <
   TData = Awaited<ReturnType<typeof companyControllerFindAll>>,
   TError = ErrorType<unknown>,
 >(
-  params?: CompanyControllerFindAllParams,
+  params: CompanyControllerFindAllParams,
   options?: {
     query?: Partial<
       UseQueryOptions<
@@ -380,7 +381,7 @@ export function useCompanyControllerFindAll<
   TData = Awaited<ReturnType<typeof companyControllerFindAll>>,
   TError = ErrorType<unknown>,
 >(
-  params: undefined | CompanyControllerFindAllParams,
+  params: CompanyControllerFindAllParams,
   options: {
     query: Partial<
       UseQueryOptions<
@@ -407,7 +408,7 @@ export function useCompanyControllerFindAll<
   TData = Awaited<ReturnType<typeof companyControllerFindAll>>,
   TError = ErrorType<unknown>,
 >(
-  params?: CompanyControllerFindAllParams,
+  params: CompanyControllerFindAllParams,
   options?: {
     query?: Partial<
       UseQueryOptions<
@@ -434,7 +435,7 @@ export function useCompanyControllerFindAll<
   TData = Awaited<ReturnType<typeof companyControllerFindAll>>,
   TError = ErrorType<unknown>,
 >(
-  params?: CompanyControllerFindAllParams,
+  params: CompanyControllerFindAllParams,
   options?: {
     query?: Partial<
       UseQueryOptions<
@@ -450,14 +451,14 @@ export function useCompanyControllerFindAll<
   queryKey: DataTag<QueryKey, TData, TError>;
 };
 /**
- * @summary Получить список компаний по запросу
+ * @summary Получить список компаний (курсорная пагинация по ID)
  */
 
 export function useCompanyControllerFindAll<
   TData = Awaited<ReturnType<typeof companyControllerFindAll>>,
   TError = ErrorType<unknown>,
 >(
-  params?: CompanyControllerFindAllParams,
+  params: CompanyControllerFindAllParams,
   options?: {
     query?: Partial<
       UseQueryOptions<
@@ -490,18 +491,18 @@ export const companyControllerFindOne = (
   options?: SecondParameter<typeof createInstance>,
   signal?: AbortSignal,
 ) => {
-  return createInstance<void>(
-    { url: `/api/companies/${id}`, method: "GET", signal },
+  return createInstance<CreateCompanyDto>(
+    { url: `/api/company/${id}`, method: "GET", signal },
     options,
   );
 };
 
 export const getCompanyControllerFindOneInfiniteQueryKey = (id: number) => {
-  return ["infinite", `/api/companies/${id}`] as const;
+  return ["infinite", `/api/company/${id}`] as const;
 };
 
 export const getCompanyControllerFindOneQueryKey = (id: number) => {
-  return [`/api/companies/${id}`] as const;
+  return [`/api/company/${id}`] as const;
 };
 
 export const getCompanyControllerFindOneInfiniteQueryOptions = <
@@ -816,7 +817,7 @@ export const companyControllerUpdate = (
 ) => {
   return createInstance<void>(
     {
-      url: `/api/companies/${id}`,
+      url: `/api/company/${id}`,
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       data: updateCompanyDto,
@@ -904,7 +905,7 @@ export const companyControllerRemove = (
   signal?: AbortSignal,
 ) => {
   return createInstance<void>(
-    { url: `/api/companies/${id}`, method: "DELETE", signal },
+    { url: `/api/company/${id}`, method: "DELETE", signal },
     options,
   );
 };

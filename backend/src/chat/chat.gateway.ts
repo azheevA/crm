@@ -10,8 +10,8 @@ import {
 } from '@nestjs/websockets';
 import { ChatService } from './chat.service';
 import { Server, Socket } from 'socket.io';
-import { CreateMessageDto } from './chat.dto';
 import { ValidationPipe } from '@nestjs/common';
+import { CreateMessageDto } from './chat.dto';
 
 @WebSocketGateway()
 export class ChatGateway

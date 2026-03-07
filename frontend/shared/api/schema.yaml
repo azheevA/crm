@@ -304,6 +304,30 @@ paths:
       summary: Удалить фото
       tags:
         - Photos
+  /api/chat/messages:
+    get:
+      operationId: ChatController_getMessages
+      parameters:
+        - name: limit
+          required: false
+          in: query
+          schema:
+            type: number
+        - name: skip
+          required: false
+          in: query
+          schema:
+            type: number
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponseDto'
+      summary: Получить список сообщений
+      tags:
+        - Chat
   /api/activity:
     get:
       operationId: ActivityController_findAll
@@ -340,7 +364,7 @@ paths:
       summary: Получить ленту событий
       tags:
         - Activity
-  /api/companies:
+  /api/company:
     post:
       operationId: CompanyController_create
       parameters: []
@@ -359,10 +383,15 @@ paths:
                 $ref: '#/components/schemas/CreateCompanyDto'
       summary: Добавить информацию о новой компании-клиента
       tags:
-        - Companies
+        - Company
     get:
       operationId: CompanyController_findAll
       parameters:
+        - name: skip
+          required: true
+          in: query
+          schema:
+            type: number
         - name: cursor
           required: false
           in: query
@@ -392,8 +421,8 @@ paths:
                     nullable: true
       summary: Получить список компаний (курсорная пагинация по ID)
       tags:
-        - Companies
-  /api/companies/{id}:
+        - Company
+  /api/company/{id}:
     get:
       operationId: CompanyController_findOne
       parameters:
@@ -411,7 +440,7 @@ paths:
                 $ref: '#/components/schemas/CreateCompanyDto'
       summary: Получить компанию по ID
       tags:
-        - Companies
+        - Company
     patch:
       operationId: CompanyController_update
       parameters:
@@ -431,7 +460,7 @@ paths:
           description: ''
       summary: Изменить данные о компании по ID
       tags:
-        - Companies
+        - Company
     delete:
       operationId: CompanyController_remove
       parameters:
@@ -444,7 +473,7 @@ paths:
         '200':
           description: ''
       tags:
-        - Companies
+        - Company
   /api/contacts:
     post:
       operationId: ContactController_create
@@ -866,6 +895,55 @@ components:
     PatchAccountDto:
       type: object
       properties: {}
+    AvatarDto:
+      type: object
+      properties:
+        url:
+          type: string
+      required:
+        - url
+    AuthorDto:
+      type: object
+      properties:
+        id:
+          type: number
+        name:
+          type: string
+        avatar:
+          $ref: '#/components/schemas/AvatarDto'
+      required:
+        - id
+        - name
+    MessageDto:
+      type: object
+      properties:
+        id:
+          type: number
+        text:
+          type: string
+        createdAt:
+          format: date-time
+          type: string
+        author:
+          $ref: '#/components/schemas/AuthorDto'
+      required:
+        - id
+        - text
+        - createdAt
+        - author
+    MessageResponseDto:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/MessageDto'
+        nextCursor:
+          type: number
+          nullable: true
+      required:
+        - data
+        - nextCursor
     ActivityUserDto:
       type: object
       properties:

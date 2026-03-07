@@ -21,8 +21,8 @@ import {
 } from '@nestjs/swagger';
 import { type SessionData, sessionInfo } from 'src/auth/session-info.decorator';
 
-@ApiTags('Companies')
-@Controller('companies')
+@ApiTags('Company')
+@Controller('company')
 export class CompanyController {
   constructor(private readonly companyService: CompanyService) {}
 
@@ -66,9 +66,9 @@ export class CompanyController {
   })
   async findAll(
     @Query('limit', new ParseIntPipe({ optional: true })) limit = 10,
-    @Query('cursor', new ParseIntPipe({ optional: true })) cursor?: number,
+    @Query('skip', new ParseIntPipe({ optional: true })) skip?: number,
   ) {
-    return this.companyService.findAll(limit, cursor);
+    return this.companyService.findAll(limit, skip);
   }
 
   @Get(':id')

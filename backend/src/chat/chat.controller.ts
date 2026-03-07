@@ -1,21 +1,22 @@
 import { Controller, Get, Query } from '@nestjs/common';
 import { ChatService } from './chat.service';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { MessageResponseDto, GetMessagesQueryDto } from './chat.dto';
 
-@ApiTags('chat')
+@ApiTags('Chat')
 @Controller('chat')
 export class ChatController {
   constructor(private readonly chatService: ChatService) {}
 
   @Get('messages')
-  async getMessages(
-    @Query('limit') limit?: string,
-    @Query('cursor') cursor?: string,
-  ) {
-    const take = limit ? parseInt(limit, 10) : 20;
-    const cursorId = cursor ? parseInt(cursor, 10) : undefined;
+  @ApiOperation({ summary: 'Получить список сообщений' })
+  @ApiOkResponse({ type: MessageResponseDto })
+  async getMessages(@Query() query: GetMessagesQueryDto) {
+    const take = query.limit ?? 20;
+    const cursorId = query.skip ?? undefined;
 
     const messages = await this.chatService.getMessages(take, cursorId);
+
     return {
       data: messages,
       nextCursor:

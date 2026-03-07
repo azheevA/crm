@@ -7,6 +7,7 @@
  */
 
 export type CompanyControllerFindAllParams = {
+  skip: number;
   /**
    * ID последней компании с предыдущей страницы
    */
