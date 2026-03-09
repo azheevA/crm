@@ -22,12 +22,65 @@ model User {
   hash            String
   resetCode       String?
   resetCodeExp    DateTime?
+  chats           ChatMember[]
   messages        Message[]
   avatar          Photo? @relation("UserAvatar")
   account         Account?
   activities      Activity[]
   managedDeals    Deal[]    @relation("DealOwner")
   tasks           Task[]
+}
+
+model Chat {
+  id        Int       @id @default(autoincrement())
+
+  title     String?
+  isGroup   Boolean   @default(false)
+
+  members   ChatMember[]
+
+  messages  Message[] @relation("ChatMessages")
+
+  lastMessageId Int?
+  lastMessage   Message? @relation("ChatLastMessage", fields: [lastMessageId], references: [id])
+
+  createdAt DateTime @default(now())
+}
+
+model ChatMember {
+  id      Int @id @default(autoincrement())
+
+  chatId  Int
+  userId  Int
+
+  chat    Chat @relation(fields: [chatId], references: [id])
+  user    User @relation(fields: [userId], references: [id])
+
+  lastReadMessageId Int?
+
+  role              String @default("member")
+
+  joinedAt          DateTime @default(now())
+
+  @@unique([chatId, userId])
+}
+
+model Message {
+  id        Int      @id @default(autoincrement())
+  text      String
+
+  chatId    Int
+  authorId  Int
+
+  chat      Chat @relation("ChatMessages", fields: [chatId], references: [id])
+  lastInChats Chat[]   @relation("ChatLastMessage")
+  author    User? @relation(fields: [authorId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  files     Photo[] @relation("MessageFiles")
+
+  @@index([chatId, createdAt])
 }
 
 model Company {
@@ -81,15 +134,7 @@ model Task {
   deal        Deal?    @relation(fields: [dealId], references: [id], onDelete: Cascade)
 }
 
-model Message {
-  id        Int      @default(autoincrement()) @id
-  text      String
-  author    User?    @relation(fields: [authorId], references: [id])
-  authorId  Int?
-  createdAt DateTime @default(now())
-  files     Photo[]   @relation("MessageFiles")
 
-}
 
 model Photo {
   id           Int      @id @default(autoincrement())

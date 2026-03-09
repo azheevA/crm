@@ -7,7 +7,6 @@ export class EmailService {
 
   private readonly logger = new Logger(EmailService.name);
   constructor() {
-    console.log(process.env.SMTP_PASS);
     this.transporter = createTransport({
       host: process.env.SMTP_HOST || 'smtp.gmail.com',
       port: 465,

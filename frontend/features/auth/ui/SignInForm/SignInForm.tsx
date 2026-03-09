@@ -62,19 +62,7 @@ export const SignInForm = () => {
             </FormItem>
           )}
         />
-        <FormField
-          control={form.control}
-          name="password"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Пароль</FormLabel>
-              <FormControl>
-                <Input type="password" placeholder="12345" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+
         <FormField
           control={form.control}
           name="password"
@@ -84,7 +72,7 @@ export const SignInForm = () => {
                 <FormLabel>Пароль</FormLabel>
                 <Link
                   href={ROUTES.FORGOT_PASSWORD}
-                  className="text-xs text-zinc-400 hover:text-white transition-colors"
+                  className="text-xs text-zinc-400 hover:text-zinc-500 transition-colors"
                 >
                   Забыли пароль?
                 </Link>

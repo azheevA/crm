@@ -8,7 +8,7 @@ function page() {
       <div className="w-full max-w-112.5 space-y-8">
         <div className="flex flex-col items-center space-y-2 text-center">
           <h1 className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-white sm:text-4xl">
-            Авторищация
+            Авторизация
           </h1>
         </div>
 

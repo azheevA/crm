@@ -8,21 +8,22 @@ import {
 } from 'class-validator';
 
 export class CreateMessageDto {
-  @ApiProperty({ example: 'Привет, как дела?', description: 'Текст сообщения' })
+  @ApiProperty({ example: 'Привет!' })
   @IsString()
   @MinLength(1)
   text: string;
 
-  @ApiPropertyOptional({
-    type: [Number],
-    description: 'ID прикрепленных файлов',
-  })
+  @ApiProperty({ example: 1 })
+  @IsInt()
+  chatId: number;
+
+  @ApiPropertyOptional({ type: [Number] })
   @IsOptional()
   @IsArray()
   @IsInt({ each: true })
   fileIds?: number[];
 
-  @ApiPropertyOptional({ example: 1, description: 'ID сделки' })
+  @ApiPropertyOptional({ example: 1 })
   @IsOptional()
   @IsInt()
   dealId?: number;
@@ -56,6 +57,23 @@ export class MessageDto {
 
   @ApiProperty({ type: AuthorDto })
   author: AuthorDto;
+
+  @ApiProperty({ type: [Number] })
+  chatId: number;
+}
+
+export class ChatResponseDto {
+  @ApiProperty()
+  id: number;
+
+  @ApiPropertyOptional()
+  title?: string;
+
+  @ApiProperty()
+  isGroup: boolean;
+
+  @ApiProperty({ type: [AuthorDto] })
+  members: AuthorDto[];
 }
 
 export class MessageResponseDto {
@@ -67,6 +85,10 @@ export class MessageResponseDto {
 }
 
 export class GetMessagesQueryDto {
+  @ApiProperty()
+  @IsInt()
+  chatId: number;
+
   @ApiPropertyOptional()
   @IsOptional()
   @IsInt()

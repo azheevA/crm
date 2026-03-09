@@ -1,8 +1,17 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateMessageDto } from './chat.dto';
 import { ActivityService } from 'src/activity/activity.service';
-import { Message, ActivityType } from '@prisma/generated';
+import { Message, ActivityType, ChatMember, Prisma } from '@prisma/generated';
+
+export type ChatWithDetails = Prisma.ChatGetPayload<{
+  include: {
+    members: {
+      include: { user: { include: { avatar: true } } };
+    };
+    lastMessage: true;
+  };
+}>;
 
 @Injectable()
 export class ChatService {
@@ -12,28 +21,46 @@ export class ChatService {
   ) {}
 
   async createMessage(userId: number, dto: CreateMessageDto): Promise<Message> {
-    const { text, fileIds, dealId } = dto;
+    const { text, chatId, fileIds, dealId } = dto;
+
+    const isMember: ChatMember | null = await this.prisma.chatMember.findUnique(
+      {
+        where: { chatId_userId: { chatId, userId } },
+      },
+    );
+
+    if (!isMember) {
+      throw new ForbiddenException('You are not a member of this chat');
+    }
 
     return this.prisma.$transaction(async (tx) => {
       const message = await tx.message.create({
         data: {
           text,
+          chatId,
           authorId: userId,
           files: fileIds?.length
-            ? {
-                connect: fileIds.map((id: number) => ({ id })),
-              }
+            ? { connect: fileIds.map((id) => ({ id })) }
             : undefined,
         },
-        include: { files: true, author: true },
+        include: {
+          author: { include: { avatar: true } },
+          files: true,
+        },
       });
+
+      await tx.chat.update({
+        where: { id: chatId },
+        data: { lastMessageId: message.id },
+      });
+
       if (dealId) {
         await this.activityService.log(
           {
             type: ActivityType.CHAT_MESSAGE,
             content: text,
             userId,
-            dealId: dealId,
+            dealId,
           },
           tx,
         );
@@ -42,14 +69,18 @@ export class ChatService {
       return message;
     });
   }
-  async getMessages(limit: number = 20, cursorId?: number): Promise<Message[]> {
-    return await this.prisma.message.findMany({
+
+  async getMessages(
+    chatId: number,
+    limit: number = 20,
+    cursorId?: number,
+  ): Promise<Message[]> {
+    return this.prisma.message.findMany({
+      where: { chatId },
       take: limit,
       skip: cursorId ? 1 : 0,
       cursor: cursorId ? { id: cursorId } : undefined,
-      orderBy: {
-        id: 'desc',
-      },
+      orderBy: { createdAt: 'desc' },
       include: {
         author: {
           select: {
@@ -61,5 +92,23 @@ export class ChatService {
         files: true,
       },
     });
+  }
+
+  async getUserChats(userId: number): Promise<ChatWithDetails[]> {
+    return this.prisma.chat.findMany({
+      where: { members: { some: { userId } } },
+      include: {
+        members: {
+          include: { user: { include: { avatar: true } } },
+        },
+        lastMessage: true,
+      },
+    });
+  }
+  async isChatMember(userId: number, chatId: number): Promise<boolean> {
+    const member = await this.prisma.chatMember.findUnique({
+      where: { chatId_userId: { chatId, userId } },
+    });
+    return !!member;
   }
 }

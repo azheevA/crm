@@ -11,14 +11,24 @@ export const useChatSocketSync = () => {
   const queryClient = useQueryClient();
 
   useEffect(() => {
+    const token = localStorage.getItem("access_token");
+
+    if (!token) {
+      console.error("Сокет не запущен: Токен не найден в localStorage");
+      return;
+    }
+    socket.auth = { token };
     socket.connect();
+    socket.on("connect", () => console.log("Сокет успешно подключен"));
+    socket.on("connect_error", (err) =>
+      console.error("Ошибка подключения:", err.message),
+    );
 
     const handleNewMessage = (
       newMessage: ChatControllerGetMessagesInfiniteQueryResult["data"][number],
     ) => {
       const queryKey = getChatControllerGetMessagesInfiniteQueryKey({
         limit: 20,
-        skip: 0,
       });
 
       queryClient.setQueryData<
@@ -43,7 +53,10 @@ export const useChatSocketSync = () => {
     socket.on("recMessage", handleNewMessage);
 
     return () => {
+      socket.off("connect");
+      socket.off("connect_error");
       socket.off("recMessage", handleNewMessage);
+      socket.disconnect();
     };
   }, [queryClient]);
 };

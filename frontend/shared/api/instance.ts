@@ -1,11 +1,19 @@
 import axios, { AxiosError, AxiosRequestConfig } from "axios";
 
 export const apiInstance = axios.create({
-  baseURL: "http://localhost:3000/api",
+  baseURL: "http://localhost:3000",
   withCredentials: true,
   headers: {
     "Content-Type": "application/json",
   },
+});
+
+apiInstance.interceptors.request.use((config) => {
+  const token = localStorage.getItem("access_token");
+  if (token && config.headers) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
 });
 
 export const createInstance = async <T>(
@@ -19,5 +27,4 @@ export const createInstance = async <T>(
 };
 
 export type BodyType<Data> = Data;
-
 export type ErrorType<Error> = AxiosError<Error>;
