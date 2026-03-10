@@ -10,8 +10,9 @@ import {
 export class CreateMessageDto {
   @ApiProperty({ example: 'Привет!' })
   @IsString()
+  @IsOptional()
   @MinLength(1)
-  text: string;
+  text?: string;
 
   @ApiProperty({ example: 1 })
   @IsInt()
@@ -27,6 +28,11 @@ export class CreateMessageDto {
   @IsOptional()
   @IsInt()
   dealId?: number;
+
+  @ApiPropertyOptional({ example: 1 })
+  @IsOptional()
+  @IsInt()
+  replyToId?: number;
 }
 
 export class AvatarDto {
@@ -58,7 +64,7 @@ export class MessageDto {
   @ApiProperty({ type: AuthorDto })
   author: AuthorDto;
 
-  @ApiProperty({ type: [Number] })
+  @ApiProperty()
   chatId: number;
 }
 
@@ -97,5 +103,42 @@ export class GetMessagesQueryDto {
   @ApiPropertyOptional()
   @IsOptional()
   @IsInt()
-  skip?: number;
+  cursor?: number;
+}
+export class CreateChatDto {
+  @IsOptional()
+  @IsString()
+  title?: string;
+
+  @IsArray()
+  @IsInt({ each: true })
+  memberIds: number[];
+}
+export class ReadMessagesDto {
+  @IsInt()
+  chatId: number;
+
+  @IsInt()
+  messageId: number;
+}
+export class AddReactionDto {
+  @IsInt()
+  messageId: number;
+
+  @IsString()
+  emoji: string;
+}
+export class PinMessageDto {
+  @IsInt()
+  chatId: number;
+
+  @IsInt()
+  messageId: number;
+}
+export class EditMessageDto {
+  @IsInt()
+  messageId: number;
+
+  @IsString()
+  text: string;
 }

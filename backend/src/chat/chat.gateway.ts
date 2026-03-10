@@ -9,7 +9,13 @@ import {
 import { ChatService } from './chat.service';
 import { Server, Socket } from 'socket.io';
 import { UsePipes, ValidationPipe } from '@nestjs/common';
-import { CreateMessageDto } from './chat.dto';
+import {
+  AddReactionDto,
+  CreateMessageDto,
+  EditMessageDto,
+  PinMessageDto,
+  ReadMessagesDto,
+} from './chat.dto';
 import { JwtService } from '@nestjs/jwt';
 
 interface JwtPayload {
@@ -43,7 +49,7 @@ export class ChatGateway implements OnGatewayConnection {
       client.data.user = { id: userId };
 
       const userChats = await this.chatService.getUserChats(userId);
-      const roomIds = userChats.map((chat) => `chat_${chat.id}`);
+      const roomIds = userChats.map((m) => `chat_${m.chat.id}`);
 
       await client.join(roomIds);
     } catch {
@@ -92,5 +98,74 @@ export class ChatGateway implements OnGatewayConnection {
     if (dto.dealId) {
       this.server.to(`deal_${dto.dealId}`).emit('activityCreated');
     }
+  }
+  @SubscribeMessage('typing')
+  handleTyping(
+    @MessageBody('chatId') chatId: number,
+    @ConnectedSocket() client: Socket,
+  ) {
+    const userId = client.data.user.id as number;
+
+    client.to(`chat_${chatId}`).emit('typing', {
+      userId,
+    });
+  }
+  @SubscribeMessage('editMessage')
+  async handleEditMessage(
+    @MessageBody() dto: EditMessageDto,
+    @ConnectedSocket() client: Socket,
+  ) {
+    const userId = client.data.user.id as number;
+
+    const message = await this.chatService.editMessage(userId, dto);
+
+    this.server.to(`chat_${message.chatId}`).emit('messageEdited', message);
+  }
+  @SubscribeMessage('deleteMessage')
+  async handleDeleteMessage(
+    @MessageBody('messageId') messageId: number,
+    @ConnectedSocket() client: Socket,
+  ) {
+    const userId = client.data.user.id as number;
+
+    const message = await this.chatService.deleteMessage(userId, messageId);
+
+    this.server.to(`chat_${message.chatId}`).emit('messageDeleted', {
+      messageId,
+    });
+  }
+  @SubscribeMessage('reaction')
+  async handleReaction(
+    @MessageBody() dto: AddReactionDto,
+    @ConnectedSocket() client: Socket,
+  ) {
+    const userId = client.data.user.id as number;
+
+    const reaction = await this.chatService.addReaction(userId, dto);
+
+    const message = await this.chatService.getMessage(dto.messageId);
+
+    if (!message) return;
+
+    this.server.to(`chat_${message.chatId}`).emit('reactionAdded', reaction);
+  }
+  @SubscribeMessage('read')
+  async handleRead(
+    @MessageBody() dto: ReadMessagesDto,
+    @ConnectedSocket() client: Socket,
+  ) {
+    const userId = client.data.user.id as number;
+
+    await this.chatService.markAsRead(userId, dto);
+
+    this.server.to(`chat_${dto.chatId}`).emit('messagesRead', {
+      userId,
+      messageId: dto.messageId,
+    });
+  }
+  @SubscribeMessage('pinMessage')
+  async handlePin(@MessageBody() dto: PinMessageDto) {
+    await this.chatService.pinMessage(dto);
+    this.server.to(`chat_${dto.chatId}`).emit('messagePinned', dto);
   }
 }

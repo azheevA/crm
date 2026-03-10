@@ -12,4 +12,5 @@ export interface MessageDto {
   text: string;
   createdAt: string;
   author: AuthorDto;
+  chatId: number[];
 }

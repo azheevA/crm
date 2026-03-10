@@ -35,7 +35,7 @@ export class ChatController {
   @ApiOkResponse({ type: MessageResponseDto })
   async getMessages(@Query() query: GetMessagesQueryDto) {
     const take = query.limit ?? 20;
-    const cursorId = query.skip ?? undefined;
+    const cursorId = query.cursor ?? undefined;
 
     const messages = await this.chatService.getMessages(
       query.chatId,

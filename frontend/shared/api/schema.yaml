@@ -304,10 +304,33 @@ paths:
       summary: Удалить фото
       tags:
         - Photos
+  /api/chat/my-chats:
+    get:
+      operationId: ChatController_getMyChats
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ChatResponseDto'
+      security:
+        - bearer: []
+      summary: Список моих чатов
+      tags:
+        - Chat
   /api/chat/messages:
     get:
       operationId: ChatController_getMessages
       parameters:
+        - name: chatId
+          required: true
+          in: query
+          schema:
+            type: number
         - name: limit
           required: false
           in: query
@@ -325,7 +348,9 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/MessageResponseDto'
-      summary: Получить список сообщений
+      security:
+        - bearer: []
+      summary: История сообщений чата
       tags:
         - Chat
   /api/activity:
@@ -914,6 +939,23 @@ components:
       required:
         - id
         - name
+    ChatResponseDto:
+      type: object
+      properties:
+        id:
+          type: number
+        title:
+          type: string
+        isGroup:
+          type: boolean
+        members:
+          type: array
+          items:
+            $ref: '#/components/schemas/AuthorDto'
+      required:
+        - id
+        - isGroup
+        - members
     MessageDto:
       type: object
       properties:
@@ -926,11 +968,16 @@ components:
           type: string
         author:
           $ref: '#/components/schemas/AuthorDto'
+        chatId:
+          type: array
+          items:
+            type: number
       required:
         - id
         - text
         - createdAt
         - author
+        - chatId
     MessageResponseDto:
       type: object
       properties:

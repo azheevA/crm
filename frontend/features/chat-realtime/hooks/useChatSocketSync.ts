@@ -29,6 +29,7 @@ export const useChatSocketSync = () => {
     ) => {
       const queryKey = getChatControllerGetMessagesInfiniteQueryKey({
         limit: 20,
+        chatId: 1,
       });
 
       queryClient.setQueryData<

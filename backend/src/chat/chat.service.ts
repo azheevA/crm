@@ -1,6 +1,17 @@
-import { Injectable, ForbiddenException } from '@nestjs/common';
+import {
+  Injectable,
+  ForbiddenException,
+  BadRequestException,
+} from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { CreateMessageDto } from './chat.dto';
+import {
+  AddReactionDto,
+  CreateChatDto,
+  CreateMessageDto,
+  EditMessageDto,
+  PinMessageDto,
+  ReadMessagesDto,
+} from './chat.dto';
 import { ActivityService } from 'src/activity/activity.service';
 import { Message, ActivityType, ChatMember, Prisma } from '@prisma/generated';
 
@@ -33,12 +44,25 @@ export class ChatService {
       throw new ForbiddenException('You are not a member of this chat');
     }
 
+    if (!text && !fileIds?.length) {
+      throw new BadRequestException('Message cannot be empty');
+    }
     return this.prisma.$transaction(async (tx) => {
+      if (dto.replyToId) {
+        const reply = await tx.message.findUnique({
+          where: { id: dto.replyToId },
+        });
+
+        if (!reply || reply.chatId !== chatId) {
+          throw new ForbiddenException('Invalid reply');
+        }
+      }
       const message = await tx.message.create({
         data: {
           text,
           chatId,
           authorId: userId,
+          replyToId: dto.replyToId,
           files: fileIds?.length
             ? { connect: fileIds.map((id) => ({ id })) }
             : undefined,
@@ -58,13 +82,22 @@ export class ChatService {
         await this.activityService.log(
           {
             type: ActivityType.CHAT_MESSAGE,
-            content: text,
+            content: text ?? '[file]',
             userId,
             dealId,
           },
           tx,
         );
       }
+      await tx.chatMember.updateMany({
+        where: {
+          chatId,
+          userId: { not: userId },
+        },
+        data: {
+          unreadCount: { increment: 1 },
+        },
+      });
 
       return message;
     });
@@ -76,7 +109,7 @@ export class ChatService {
     cursorId?: number,
   ): Promise<Message[]> {
     return this.prisma.message.findMany({
-      where: { chatId },
+      where: { chatId, isDeleted: false },
       take: limit,
       skip: cursorId ? 1 : 0,
       cursor: cursorId ? { id: cursorId } : undefined,
@@ -93,15 +126,25 @@ export class ChatService {
       },
     });
   }
-
-  async getUserChats(userId: number): Promise<ChatWithDetails[]> {
-    return this.prisma.chat.findMany({
-      where: { members: { some: { userId } } },
+  async getMessage(messageId: number) {
+    return this.prisma.message.findUnique({
+      where: { id: messageId },
+      select: { chatId: true },
+    });
+  }
+  async getUserChats(userId: number) {
+    return this.prisma.chatMember.findMany({
+      where: { userId },
       include: {
-        members: {
-          include: { user: { include: { avatar: true } } },
+        chat: {
+          include: {
+            lastMessage: {
+              include: {
+                author: true,
+              },
+            },
+          },
         },
-        lastMessage: true,
       },
     });
   }
@@ -110,5 +153,122 @@ export class ChatService {
       where: { chatId_userId: { chatId, userId } },
     });
     return !!member;
+  }
+  async createChat(ownerId: number, dto: CreateChatDto) {
+    const members = [...new Set([ownerId, ...dto.memberIds])];
+
+    return this.prisma.$transaction(async (tx) => {
+      const chat = await tx.chat.create({
+        data: {
+          title: dto.title,
+          isGroup: members.length > 2,
+          members: {
+            create: members.map((userId) => ({
+              userId,
+              role: userId === ownerId ? 'OWNER' : 'MEMBER',
+            })),
+          },
+        },
+        include: {
+          members: true,
+        },
+      });
+
+      return chat;
+    });
+  }
+  async markAsRead(userId: number, dto: ReadMessagesDto) {
+    const message = await this.prisma.message.findUnique({
+      where: { id: dto.messageId },
+    });
+
+    if (!message || message.chatId !== dto.chatId) {
+      throw new ForbiddenException();
+    }
+    const member = await this.prisma.chatMember.findUnique({
+      where: { chatId_userId: { chatId: dto.chatId, userId } },
+    });
+
+    if (!member) throw new ForbiddenException();
+    await this.prisma.chatMember.update({
+      where: {
+        chatId_userId: {
+          chatId: dto.chatId,
+          userId,
+        },
+      },
+      data: {
+        lastReadMessageId: dto.messageId,
+        unreadCount: 0,
+      },
+    });
+  }
+  async addReaction(userId: number, dto: AddReactionDto) {
+    return this.prisma.reaction.upsert({
+      where: {
+        messageId_userId_emoji: {
+          messageId: dto.messageId,
+          userId,
+          emoji: dto.emoji,
+        },
+      },
+      update: {},
+      create: {
+        messageId: dto.messageId,
+        userId,
+        emoji: dto.emoji,
+      },
+    });
+  }
+  async pinMessage(dto: PinMessageDto) {
+    return this.prisma.chat.update({
+      where: { id: dto.chatId },
+      data: {
+        pinnedMessages: {
+          connect: { id: dto.messageId },
+        },
+      },
+    });
+  }
+  async editMessage(userId: number, dto: EditMessageDto) {
+    const message = await this.prisma.message.findUnique({
+      where: { id: dto.messageId },
+    });
+
+    if (!message || message.authorId !== userId) {
+      throw new ForbiddenException();
+    }
+
+    return this.prisma.message.update({
+      where: { id: dto.messageId },
+      data: {
+        text: dto.text,
+        isEdited: true,
+      },
+    });
+  }
+  async deleteMessage(userId: number, messageId: number) {
+    const message = await this.prisma.message.findUnique({
+      where: { id: messageId },
+    });
+
+    if (!message || message.authorId !== userId) {
+      throw new ForbiddenException();
+    }
+
+    return this.prisma.message.update({
+      where: { id: messageId },
+      data: {
+        isDeleted: true,
+        text: null,
+      },
+    });
+  }
+  async checkAdmin(userId: number, chatId: number) {
+    const member = await this.prisma.chatMember.findUnique({
+      where: { chatId_userId: { chatId, userId } },
+    });
+
+    return member?.role === 'OWNER' || member?.role === 'ADMIN';
   }
 }

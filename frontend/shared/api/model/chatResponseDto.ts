@@ -5,9 +5,11 @@
  * Этот API работает с несколькими сущностями
  * OpenAPI spec version: 1.0
  */
+import type { AuthorDto } from "./authorDto";
 
-export type ChatControllerGetMessagesParams = {
-  chatId: number;
-  limit?: number;
-  skip?: number;
-};
+export interface ChatResponseDto {
+  id: number;
+  title?: string;
+  isGroup: boolean;
+  members: AuthorDto[];
+}

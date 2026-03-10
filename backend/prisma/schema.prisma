@@ -5,121 +5,174 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
-  moduleFormat  = "cjs"
+  provider     = "prisma-client"
+  output       = "../generated/prisma"
+  moduleFormat = "cjs"
 }
 
 datasource db {
   provider = "postgresql"
-  
 }
 
 model User {
-  id              Int @default(autoincrement()) @id
-  email           String @unique
-  name            String
-  hash            String
-  resetCode       String?
-  resetCodeExp    DateTime?
-  chats           ChatMember[]
-  messages        Message[]
-  avatar          Photo? @relation("UserAvatar")
-  account         Account?
-  activities      Activity[]
-  managedDeals    Deal[]    @relation("DealOwner")
-  tasks           Task[]
+  id           Int          @id @default(autoincrement())
+  email        String       @unique
+  name         String
+  hash         String
+  resetCode    String?
+  resetCodeExp DateTime?
+  chats        ChatMember[]
+  messages     Message[]
+  avatar       Photo?       @relation("UserAvatar")
+  account      Account?
+  activities   Activity[]
+  managedDeals Deal[]       @relation("DealOwner")
+  tasks        Task[]
+  reactions    Reaction[]
+  userInvite ChatInvite[] @relation("userInvite")
 }
 
 model Chat {
-  id        Int       @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
-  title     String?
-  isGroup   Boolean   @default(false)
+  title   String?
+  isGroup Boolean @default(false)
 
-  members   ChatMember[]
+  members  ChatMember[]
+  messages Message[]    @relation("ChatMessages")
+  inviteToChat ChatInvite[] @relation("chatInvite")
 
-  messages  Message[] @relation("ChatMessages")
 
   lastMessageId Int?
   lastMessage   Message? @relation("ChatLastMessage", fields: [lastMessageId], references: [id])
 
   createdAt DateTime @default(now())
+
+  pinnedMessages Message[] @relation("PinnedMessages")
 }
 
 model ChatMember {
-  id      Int @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
-  chatId  Int
-  userId  Int
+  chatId Int
+  userId Int
 
-  chat    Chat @relation(fields: [chatId], references: [id])
-  user    User @relation(fields: [userId], references: [id])
+  chat Chat @relation(fields: [chatId], references: [id])
+  user User @relation(fields: [userId], references: [id])
+
+  role ChatRole @default(MEMBER)
 
   lastReadMessageId Int?
+  lastReadMessage   Message? @relation("LastReadMessage", fields: [lastReadMessageId], references: [id])
 
-  role              String @default("member")
+  unreadCount Int @default(0)
 
-  joinedAt          DateTime @default(now())
+  joinedAt DateTime @default(now())
 
   @@unique([chatId, userId])
 }
 
 model Message {
-  id        Int      @id @default(autoincrement())
-  text      String
+  id Int @id @default(autoincrement())
 
-  chatId    Int
-  authorId  Int
+  text String?
 
-  chat      Chat @relation("ChatMessages", fields: [chatId], references: [id])
-  lastInChats Chat[]   @relation("ChatLastMessage")
-  author    User? @relation(fields: [authorId], references: [id])
+  chatId   Int
+  authorId Int
+
+  chat   Chat  @relation("ChatMessages", fields: [chatId], references: [id])
+  author User @relation(fields: [authorId], references: [id])
+
+  replyToId Int?
+  replyTo   Message?  @relation("ReplyMessage", fields: [replyToId], references: [id])
+  replies   Message[] @relation("ReplyMessage")
+
+  files Photo[] @relation("MessageFiles")
+
+  reactions Reaction[]
+
+  pinnedIn Chat[] @relation("PinnedMessages")
+
+  isEdited  Boolean @default(false)
+  isDeleted Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  readByMembers      ChatMember[] @relation("LastReadMessage")
+  chatsAsLastMessage Chat[]       @relation("ChatLastMessage")
+
+  @@index([chatId, createdAt, authorId])
+}
+
+model Reaction {
+  id Int @id @default(autoincrement())
+
+  messageId Int
+  userId    Int
+
+  emoji String
+
+  message Message @relation(fields: [messageId], references: [id])
+  user    User    @relation(fields: [userId], references: [id])
 
   createdAt DateTime @default(now())
 
-  files     Photo[] @relation("MessageFiles")
+  @@unique([messageId, userId, emoji])
+}
+model ChatInvite {
+  id Int @id @default(autoincrement())
 
-  @@index([chatId, createdAt])
+  chatId Int
+  chat Chat @relation("chatInvite",fields: [chatId], references: [id])
+
+  createdById Int
+  createdBy User @relation("userInvite",fields: [createdById], references: [id])
+
+  code String @unique
+
+  expiresAt DateTime?
+
+  createdAt DateTime @default(now())
 }
 
 model Company {
-  id            Int       @id @default(autoincrement())
-  name          String
-  website       String?
-  contacts      Contact[]
-  deals         Deal[]
-  createdAt     DateTime  @default(now())
-  activities    Activity[]
+  id         Int        @id @default(autoincrement())
+  name       String
+  website    String?
+  contacts   Contact[]
+  deals      Deal[]
+  createdAt  DateTime   @default(now())
+  activities Activity[]
 }
 
 model Contact {
-  id        Int      @id @default(autoincrement())
+  id        Int     @id @default(autoincrement())
   firstName String
   lastName  String
-  email     String   @unique
+  email     String  @unique
   phone     String?
   companyId Int
-  company   Company  @relation(fields: [companyId], references: [id])
+  company   Company @relation(fields: [companyId], references: [id])
   deals     Deal[]
 }
 
 model Deal {
-  id          Int      @id @default(autoincrement())
-  title       String
-  amount      Float    @default(0)
-  companyId   Int
-  company     Company  @relation(fields: [companyId], references: [id])
-  contactId   Int?  
-  contact     Contact?   @relation(fields: [contactId], references: [id])
-  ownerId     Int
-  owner       User     @relation("DealOwner", fields: [ownerId], references: [id])
-  files       Photo[]      @relation("DealFiles")
-  tasks       Task[]
-  activities  Activity[]
-  status      DealStatus @default(NEW)
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  id         Int        @id @default(autoincrement())
+  title      String
+  amount     Float      @default(0)
+  companyId  Int
+  company    Company    @relation(fields: [companyId], references: [id])
+  contactId  Int?
+  contact    Contact?   @relation(fields: [contactId], references: [id])
+  ownerId    Int
+  owner      User       @relation("DealOwner", fields: [ownerId], references: [id])
+  files      Photo[]    @relation("DealFiles")
+  tasks      Task[]
+  activities Activity[]
+  status     DealStatus @default(NEW)
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
 }
 
 model Task {
@@ -134,8 +187,6 @@ model Task {
   deal        Deal?    @relation(fields: [dealId], references: [id], onDelete: Cascade)
 }
 
-
-
 model Photo {
   id           Int      @id @default(autoincrement())
   url          String
@@ -143,47 +194,46 @@ model Photo {
   originalName String
   createdAt    DateTime @default(now())
 
-  userId       Int?     @unique
-  user         User?    @relation("UserAvatar", fields: [userId], references: [id], onDelete: Cascade)
+  userId Int?  @unique
+  user   User? @relation("UserAvatar", fields: [userId], references: [id], onDelete: Cascade)
 
-  messageId    Int?
-  message      Message? @relation("MessageFiles", fields: [messageId], references: [id], onDelete: Cascade)
+  messageId Int?
+  message   Message? @relation("MessageFiles", fields: [messageId], references: [id], onDelete: Cascade)
 
-  dealId       Int?
-  deal         Deal?    @relation("DealFiles", fields: [dealId], references: [id], onDelete: Cascade)
+  dealId Int?
+  deal   Deal? @relation("DealFiles", fields: [dealId], references: [id], onDelete: Cascade)
 }
 
-
-model Account{
-  id          Int @id @default(autoincrement())
-  ownerId     Int @unique
-  owner       User @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+model Account {
+  id      Int  @id @default(autoincrement())
+  ownerId Int  @unique
+  owner   User @relation(fields: [ownerId], references: [id], onDelete: Cascade)
 }
 
 model Activity {
   id        Int          @id @default(autoincrement())
   type      ActivityType @default(COMMENT)
-  content   String    
+  content   String
   userId    Int
   user      User         @relation(fields: [userId], references: [id])
   companyId Int?
   company   Company?     @relation(fields: [companyId], references: [id])
-  
-  dealId    Int?
-  deal      Deal?        @relation(fields: [dealId], references: [id])
 
-  createdAt DateTime     @default(now())
+  dealId Int?
+  deal   Deal? @relation(fields: [dealId], references: [id])
+
+  createdAt DateTime @default(now())
 }
 
 enum ActivityType {
-  COMMENT 
+  COMMENT
   STAGE_CHANGE
-  VALUE_CHANGE 
+  VALUE_CHANGE
   TASK_CREATED
-  TASK_UPDATED 
+  TASK_UPDATED
   TASK_DELETED
-  FILE_ADDED  
-  CHAT_MESSAGE 
+  FILE_ADDED
+  CHAT_MESSAGE
 }
 
 enum DealStatus {
@@ -193,4 +243,10 @@ enum DealStatus {
   NEGOTIATION
   CLOSED_WON
   CLOSED_LOST
+}
+
+enum ChatRole {
+  OWNER
+  ADMIN
+  MEMBER
 }
