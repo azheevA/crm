@@ -271,4 +271,10 @@ export class ChatService {
 
     return member?.role === 'OWNER' || member?.role === 'ADMIN';
   }
+  async getChatMembers(chatId: number) {
+    return this.prisma.chatMember.findMany({
+      where: { chatId },
+      select: { userId: true },
+    });
+  }
 }

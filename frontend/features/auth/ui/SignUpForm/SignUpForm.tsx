@@ -15,12 +15,16 @@ import {
 } from "@/shared/ui/form";
 import { Input } from "@/shared/ui/input";
 import { useAuthControllerSignUp } from "@/shared/api/endpoints/auth/auth";
+import { useRouter } from "next/navigation";
+import { ROUTES } from "../../model/constant";
 
 export const SignUpForm = () => {
+  const route = useRouter();
   const { mutate, isPending } = useAuthControllerSignUp({
     mutation: {
       onSuccess: () => {
         alert("Регистрация успешна!");
+        route.push(ROUTES.SIGN_IN);
       },
       onError: (error) => {
         console.error(error);

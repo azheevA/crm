@@ -1,4 +1,3 @@
-"use client";
 import {
   ChatControllerGetMessagesInfiniteQueryResult,
   getChatControllerGetMessagesInfiniteQueryKey,
@@ -7,29 +6,29 @@ import { socket } from "@/shared/api/socket";
 import { InfiniteData, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 
-export const useChatSocketSync = () => {
+export const useChatSocketSync = (chatId: number) => {
   const queryClient = useQueryClient();
 
   useEffect(() => {
-    const token = localStorage.getItem("access_token");
-
-    if (!token) {
-      console.error("Сокет не запущен: Токен не найден в localStorage");
-      return;
-    }
-    socket.auth = { token };
     socket.connect();
-    socket.on("connect", () => console.log("Сокет успешно подключен"));
-    socket.on("connect_error", (err) =>
-      console.error("Ошибка подключения:", err.message),
-    );
+
+    const handleConnect = () => {
+      console.log("SOCKET CONNECTED", socket.id);
+      socket.emit("joinChat", { chatId });
+    };
+
+    const handleDisconnect = () => {
+      console.log("SOCKET DISCONNECTED");
+    };
 
     const handleNewMessage = (
       newMessage: ChatControllerGetMessagesInfiniteQueryResult["data"][number],
     ) => {
+      console.log("NEW MESSAGE", newMessage);
+
       const queryKey = getChatControllerGetMessagesInfiniteQueryKey({
+        chatId,
         limit: 20,
-        chatId: 1,
       });
 
       queryClient.setQueryData<
@@ -37,27 +36,31 @@ export const useChatSocketSync = () => {
       >(queryKey, (oldData) => {
         if (!oldData) return oldData;
 
-        const newPages = [...oldData.pages];
-
-        newPages[0] = {
-          ...newPages[0],
-          data: [newMessage, ...newPages[0].data],
-        };
+        const firstPage = oldData.pages[0];
 
         return {
           ...oldData,
-          pages: newPages,
+          pages: [
+            {
+              ...firstPage,
+              data: [newMessage, ...firstPage.data],
+            },
+            ...oldData.pages.slice(1),
+          ],
         };
       });
     };
 
+    socket.on("connect", handleConnect);
     socket.on("recMessage", handleNewMessage);
+    socket.on("disconnect", handleDisconnect);
 
     return () => {
-      socket.off("connect");
-      socket.off("connect_error");
+      socket.emit("leaveChat", { chatId });
+
+      socket.off("connect", handleConnect);
       socket.off("recMessage", handleNewMessage);
-      socket.disconnect();
+      socket.off("disconnect", handleDisconnect);
     };
-  }, [queryClient]);
+  }, [chatId, queryClient]);
 };

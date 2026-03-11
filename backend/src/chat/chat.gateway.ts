@@ -17,10 +17,13 @@ import {
   ReadMessagesDto,
 } from './chat.dto';
 import { JwtService } from '@nestjs/jwt';
-
+import * as cookie from 'cookie';
 interface JwtPayload {
-  sub: number;
+  id: number;
   email: string;
+  name?: string;
+  iat?: number;
+  exp?: number;
 }
 
 @WebSocketGateway({
@@ -37,7 +40,15 @@ export class ChatGateway implements OnGatewayConnection {
 
   async handleConnection(client: Socket): Promise<void> {
     try {
-      const token = client.handshake.auth?.token as string;
+      const cookieHeader = client.handshake.headers.cookie;
+
+      if (!cookieHeader) {
+        client.disconnect();
+        return;
+      }
+      const cookies = cookie.parse(cookieHeader) as Record<string, string>;
+
+      const token = cookies['access-token'];
 
       if (!token) {
         client.disconnect();
@@ -45,13 +56,14 @@ export class ChatGateway implements OnGatewayConnection {
       }
 
       const payload = this.jwtService.verify<JwtPayload>(token);
-      const userId = payload.sub;
-      client.data.user = { id: userId };
 
-      const userChats = await this.chatService.getUserChats(userId);
+      client.data.user = { id: payload.id };
+
+      const userChats = await this.chatService.getUserChats(payload.id);
       const roomIds = userChats.map((m) => `chat_${m.chat.id}`);
 
       await client.join(roomIds);
+      await client.join(`user_${payload.id}`);
     } catch {
       client.disconnect();
     }
@@ -94,10 +106,20 @@ export class ChatGateway implements OnGatewayConnection {
     const newMessage = await this.chatService.createMessage(userId, dto);
 
     this.server.to(`chat_${dto.chatId}`).emit('recMessage', newMessage);
-
+    this.server
+      .to(`user_${userId}`)
+      .emit('chatUpdated', { chatId: dto.chatId, message: newMessage });
     if (dto.dealId) {
       this.server.to(`deal_${dto.dealId}`).emit('activityCreated');
     }
+    const members = await this.chatService.getChatMembers(dto.chatId);
+
+    members.forEach((member) => {
+      this.server.to(`user_${member.userId}`).emit('chatUpdated', {
+        chatId: dto.chatId,
+        message: newMessage,
+      });
+    });
   }
   @SubscribeMessage('typing')
   handleTyping(

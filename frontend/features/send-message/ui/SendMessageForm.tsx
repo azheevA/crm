@@ -1,8 +1,13 @@
 "use client";
+
 import { useState } from "react";
 import { socket } from "@/shared/api/socket";
+interface Props {
+  chatId: number;
+  sendTyping: () => void;
+}
 
-export const SendMessageForm = () => {
+export const SendMessageForm = ({ chatId, sendTyping }: Props) => {
   const [text, setText] = useState("");
 
   const handleSend = () => {
@@ -10,6 +15,7 @@ export const SendMessageForm = () => {
 
     socket.emit("sendMessage", {
       text,
+      chatId,
     });
 
     setText("");
@@ -19,7 +25,10 @@ export const SendMessageForm = () => {
     <div className="border-t p-3 flex gap-2">
       <input
         value={text}
-        onChange={(e) => setText(e.target.value)}
+        onChange={(e) => {
+          setText(e.target.value);
+          sendTyping();
+        }}
         placeholder="Введите сообщение..."
         className="flex-1 border rounded-lg px-3 py-2"
       />
