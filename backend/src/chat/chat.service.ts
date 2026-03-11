@@ -2,9 +2,12 @@ import {
   Injectable,
   ForbiddenException,
   BadRequestException,
+  Inject,
+  forwardRef,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import {
+  AddMembersDto,
   AddReactionDto,
   CreateChatDto,
   CreateMessageDto,
@@ -14,6 +17,7 @@ import {
 } from './chat.dto';
 import { ActivityService } from 'src/activity/activity.service';
 import { Message, ActivityType, ChatMember, Prisma } from '@prisma/generated';
+import { ChatGateway } from './chat.gateway';
 
 export type ChatWithDetails = Prisma.ChatGetPayload<{
   include: {
@@ -29,6 +33,8 @@ export class ChatService {
   constructor(
     private readonly prisma: PrismaService,
     private activityService: ActivityService,
+    @Inject(forwardRef(() => ChatGateway))
+    private readonly chatGateway: ChatGateway,
   ) {}
 
   async createMessage(userId: number, dto: CreateMessageDto): Promise<Message> {
@@ -276,5 +282,19 @@ export class ChatService {
       where: { chatId },
       select: { userId: true },
     });
+  }
+  async addMembers(chatId: number, dto: AddMembersDto) {
+    await this.prisma.chatMember.createMany({
+      data: dto.memberIds.map((userId) => ({
+        chatId,
+        userId,
+      })),
+    });
+    this.notifyUsersAboutChat(chatId, dto.memberIds);
+  }
+  private notifyUsersAboutChat(chatId: number, userIds: number[]) {
+    for (const id of userIds) {
+      this.chatGateway.emitChatAdded(id, chatId);
+    }
   }
 }

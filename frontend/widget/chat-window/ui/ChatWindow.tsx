@@ -38,6 +38,10 @@ export const ChatWindow = ({ chatId }: Props) => {
 
   if (isLoading) return <div>Загрузка чата...</div>;
 
+  function setShowAddMembers(arg0: boolean): void {
+    throw new Error("Function not implemented.");
+  }
+
   return (
     <div className="flex flex-col h-150 max-w-2xl mx-auto border rounded-xl shadow-sm bg-white">
       <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-4">
@@ -66,6 +70,12 @@ export const ChatWindow = ({ chatId }: Props) => {
       </div>
 
       <SendMessageForm chatId={chatId} sendTyping={sendTyping} />
+      <button
+        onClick={() => setShowAddMembers(true)}
+        className="text-sm text-blue-500"
+      >
+        Добавить участников
+      </button>
     </div>
   );
 };

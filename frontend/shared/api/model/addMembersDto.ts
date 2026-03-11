@@ -6,8 +6,7 @@
  * OpenAPI spec version: 1.0
  */
 
-export type ChatControllerGetMessagesParams = {
-  chatId: number;
-  limit?: number;
-  cursor?: number;
-};
+export interface AddMembersDto {
+  /** ID участников чата */
+  memberIds: number[];
+}

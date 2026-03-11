@@ -336,7 +336,7 @@ paths:
           in: query
           schema:
             type: number
-        - name: skip
+        - name: cursor
           required: false
           in: query
           schema:
@@ -351,6 +351,43 @@ paths:
       security:
         - bearer: []
       summary: История сообщений чата
+      tags:
+        - Chat
+  /api/chat:
+    post:
+      operationId: ChatController_create
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateChatDto'
+      responses:
+        '201':
+          description: ''
+      summary: Создать новый чат
+      tags:
+        - Chat
+  /api/chat/{chatId}/members:
+    post:
+      operationId: ChatController_addMembers
+      parameters:
+        - name: chatId
+          required: true
+          in: path
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddMembersDto'
+      responses:
+        '201':
+          description: Участники добавлены
+      summary: Добавить участников в чат
       tags:
         - Chat
   /api/activity:
@@ -890,14 +927,14 @@ components:
         name:
           type: string
           example: John Doe
-        photo:
+        avatar:
           nullable: true
           allOf:
             - $ref: '#/components/schemas/PhotoDto'
       required:
         - id
         - email
-        - photo
+        - avatar
     UpdateProfileDto:
       type: object
       properties:
@@ -969,9 +1006,7 @@ components:
         author:
           $ref: '#/components/schemas/AuthorDto'
         chatId:
-          type: array
-          items:
-            type: number
+          type: number
       required:
         - id
         - text
@@ -991,6 +1026,30 @@ components:
       required:
         - data
         - nextCursor
+    CreateChatDto:
+      type: object
+      properties:
+        title:
+          type: string
+          description: Название чата
+        memberIds:
+          description: ID участников чата
+          type: array
+          items:
+            type: number
+      required:
+        - title
+        - memberIds
+    AddMembersDto:
+      type: object
+      properties:
+        memberIds:
+          description: ID участников чата
+          type: array
+          items:
+            type: number
+      required:
+        - memberIds
     ActivityUserDto:
       type: object
       properties:

@@ -17,7 +17,7 @@ export default defineConfig({
         },
         query: {
           useInfinite: true,
-          useInfiniteQueryParam: "skip",
+          useInfiniteQueryParam: "cursor",
         },
       },
     },

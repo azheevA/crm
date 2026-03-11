@@ -58,7 +58,7 @@ export const getActivityControllerFindAllQueryKey = (
 export const getActivityControllerFindAllInfiniteQueryOptions = <
   TData = InfiniteData<
     Awaited<ReturnType<typeof activityControllerFindAll>>,
-    ActivityControllerFindAllParams["skip"]
+    ActivityControllerFindAllParams["cursor"]
   >,
   TError = ErrorType<unknown>,
 >(
@@ -70,7 +70,7 @@ export const getActivityControllerFindAllInfiniteQueryOptions = <
         TError,
         TData,
         QueryKey,
-        ActivityControllerFindAllParams["skip"]
+        ActivityControllerFindAllParams["cursor"]
       >
     >;
     request?: SecondParameter<typeof createInstance>;
@@ -85,10 +85,10 @@ export const getActivityControllerFindAllInfiniteQueryOptions = <
   const queryFn: QueryFunction<
     Awaited<ReturnType<typeof activityControllerFindAll>>,
     QueryKey,
-    ActivityControllerFindAllParams["skip"]
+    ActivityControllerFindAllParams["cursor"]
   > = ({ signal, pageParam }) =>
     activityControllerFindAll(
-      { ...params, skip: pageParam || params?.["skip"] },
+      { ...params, cursor: pageParam || params?.["cursor"] },
       requestOptions,
       signal,
     );
@@ -98,7 +98,7 @@ export const getActivityControllerFindAllInfiniteQueryOptions = <
     TError,
     TData,
     QueryKey,
-    ActivityControllerFindAllParams["skip"]
+    ActivityControllerFindAllParams["cursor"]
   > & { queryKey: DataTag<QueryKey, TData, TError> };
 };
 
@@ -110,7 +110,7 @@ export type ActivityControllerFindAllInfiniteQueryError = ErrorType<unknown>;
 export function useActivityControllerFindAllInfinite<
   TData = InfiniteData<
     Awaited<ReturnType<typeof activityControllerFindAll>>,
-    ActivityControllerFindAllParams["skip"]
+    ActivityControllerFindAllParams["cursor"]
   >,
   TError = ErrorType<unknown>,
 >(
@@ -122,7 +122,7 @@ export function useActivityControllerFindAllInfinite<
         TError,
         TData,
         QueryKey,
-        ActivityControllerFindAllParams["skip"]
+        ActivityControllerFindAllParams["cursor"]
       >
     > &
       Pick<
@@ -143,7 +143,7 @@ export function useActivityControllerFindAllInfinite<
 export function useActivityControllerFindAllInfinite<
   TData = InfiniteData<
     Awaited<ReturnType<typeof activityControllerFindAll>>,
-    ActivityControllerFindAllParams["skip"]
+    ActivityControllerFindAllParams["cursor"]
   >,
   TError = ErrorType<unknown>,
 >(
@@ -155,7 +155,7 @@ export function useActivityControllerFindAllInfinite<
         TError,
         TData,
         QueryKey,
-        ActivityControllerFindAllParams["skip"]
+        ActivityControllerFindAllParams["cursor"]
       >
     > &
       Pick<
@@ -176,7 +176,7 @@ export function useActivityControllerFindAllInfinite<
 export function useActivityControllerFindAllInfinite<
   TData = InfiniteData<
     Awaited<ReturnType<typeof activityControllerFindAll>>,
-    ActivityControllerFindAllParams["skip"]
+    ActivityControllerFindAllParams["cursor"]
   >,
   TError = ErrorType<unknown>,
 >(
@@ -188,7 +188,7 @@ export function useActivityControllerFindAllInfinite<
         TError,
         TData,
         QueryKey,
-        ActivityControllerFindAllParams["skip"]
+        ActivityControllerFindAllParams["cursor"]
       >
     >;
     request?: SecondParameter<typeof createInstance>;
@@ -204,7 +204,7 @@ export function useActivityControllerFindAllInfinite<
 export function useActivityControllerFindAllInfinite<
   TData = InfiniteData<
     Awaited<ReturnType<typeof activityControllerFindAll>>,
-    ActivityControllerFindAllParams["skip"]
+    ActivityControllerFindAllParams["cursor"]
   >,
   TError = ErrorType<unknown>,
 >(
@@ -216,7 +216,7 @@ export function useActivityControllerFindAllInfinite<
         TError,
         TData,
         QueryKey,
-        ActivityControllerFindAllParams["skip"]
+        ActivityControllerFindAllParams["cursor"]
       >
     >;
     request?: SecondParameter<typeof createInstance>;

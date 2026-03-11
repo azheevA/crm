@@ -31,7 +31,7 @@ export class UserDto {
   name?: string;
 
   @ApiProperty({ type: PhotoDto, nullable: true })
-  photo?: PhotoDto;
+  avatar?: PhotoDto;
 
   @Exclude()
   hash?: string;

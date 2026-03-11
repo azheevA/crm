@@ -8,7 +8,7 @@ import {
 } from '@nestjs/websockets';
 import { ChatService } from './chat.service';
 import { Server, Socket } from 'socket.io';
-import { UsePipes, ValidationPipe } from '@nestjs/common';
+import { forwardRef, Inject, UsePipes, ValidationPipe } from '@nestjs/common';
 import {
   AddReactionDto,
   CreateMessageDto,
@@ -34,6 +34,7 @@ export class ChatGateway implements OnGatewayConnection {
   server: Server;
 
   constructor(
+    @Inject(forwardRef(() => ChatService))
     private readonly chatService: ChatService,
     private readonly jwtService: JwtService,
   ) {}
@@ -46,7 +47,7 @@ export class ChatGateway implements OnGatewayConnection {
         client.disconnect();
         return;
       }
-      const cookies = cookie.parse(cookieHeader) as Record<string, string>;
+      const cookies = cookie.parse(cookieHeader);
 
       const token = cookies['access-token'];
 
@@ -189,5 +190,11 @@ export class ChatGateway implements OnGatewayConnection {
   async handlePin(@MessageBody() dto: PinMessageDto) {
     await this.chatService.pinMessage(dto);
     this.server.to(`chat_${dto.chatId}`).emit('messagePinned', dto);
+  }
+
+  emitChatAdded(userId: number, chatId: number) {
+    this.server.to(`user_${userId}`).emit('chatAdded', {
+      chatId,
+    });
   }
 }

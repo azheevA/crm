@@ -1,18 +1,37 @@
-import { Controller, Get, Query, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  ForbiddenException,
+  Get,
+  Param,
+  Post,
+  Query,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { ChatService } from './chat.service';
 import {
   ApiBearerAuth,
+  ApiBody,
   ApiOkResponse,
   ApiOperation,
+  ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
+
 import {
   MessageResponseDto,
   GetMessagesQueryDto,
   ChatResponseDto,
+  CreateChatDto,
+  AddMembersDto,
 } from './chat.dto';
 import { AuthGuard, type SessionData } from 'src/auth/auth.guard';
 import { sessionInfo } from 'src/auth/session-info.decorator';
+
+interface JwtRequest extends Request {
+  user: { id: number; email: string };
+}
 
 @ApiTags('Chat')
 @Controller('chat')
@@ -48,5 +67,32 @@ export class ChatController {
       nextCursor:
         messages.length === take ? messages[messages.length - 1].id : null,
     };
+  }
+  @Post()
+  @ApiOperation({ summary: 'Создать новый чат' })
+  @UseGuards(AuthGuard)
+  @ApiBody({ type: CreateChatDto })
+  async create(
+    @sessionInfo() session: SessionData,
+    @Body() dto: CreateChatDto,
+  ) {
+    return this.chatService.createChat(session.id, dto);
+  }
+  @Post(':chatId/members')
+  @ApiOperation({ summary: 'Добавить участников в чат' })
+  @ApiBody({ type: AddMembersDto })
+  @ApiResponse({ status: 201, description: 'Участники добавлены' })
+  async addMembers(
+    @Req() req: JwtRequest,
+    @Param('chatId') chatId: string,
+    @Body() dto: AddMembersDto,
+  ) {
+    const userId = (req.user as { id: number }).id;
+    const isAdmin = await this.chatService.checkAdmin(userId, Number(chatId));
+    if (!isAdmin) {
+      throw new ForbiddenException('Вы не можете добавлять участников');
+    }
+
+    return this.chatService.addMembers(Number(chatId), dto);
   }
 }

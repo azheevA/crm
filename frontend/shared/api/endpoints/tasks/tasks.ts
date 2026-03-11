@@ -160,7 +160,7 @@ export const getTasksControllerFindAllQueryKey = (
 export const getTasksControllerFindAllInfiniteQueryOptions = <
   TData = InfiniteData<
     Awaited<ReturnType<typeof tasksControllerFindAll>>,
-    TasksControllerFindAllParams["skip"]
+    TasksControllerFindAllParams["cursor"]
   >,
   TError = ErrorType<unknown>,
 >(
@@ -172,7 +172,7 @@ export const getTasksControllerFindAllInfiniteQueryOptions = <
         TError,
         TData,
         QueryKey,
-        TasksControllerFindAllParams["skip"]
+        TasksControllerFindAllParams["cursor"]
       >
     >;
     request?: SecondParameter<typeof createInstance>;
@@ -186,10 +186,10 @@ export const getTasksControllerFindAllInfiniteQueryOptions = <
   const queryFn: QueryFunction<
     Awaited<ReturnType<typeof tasksControllerFindAll>>,
     QueryKey,
-    TasksControllerFindAllParams["skip"]
+    TasksControllerFindAllParams["cursor"]
   > = ({ signal, pageParam }) =>
     tasksControllerFindAll(
-      { ...params, skip: pageParam || params?.["skip"] },
+      { ...params, cursor: pageParam || params?.["cursor"] },
       requestOptions,
       signal,
     );
@@ -199,7 +199,7 @@ export const getTasksControllerFindAllInfiniteQueryOptions = <
     TError,
     TData,
     QueryKey,
-    TasksControllerFindAllParams["skip"]
+    TasksControllerFindAllParams["cursor"]
   > & { queryKey: DataTag<QueryKey, TData, TError> };
 };
 
@@ -211,7 +211,7 @@ export type TasksControllerFindAllInfiniteQueryError = ErrorType<unknown>;
 export function useTasksControllerFindAllInfinite<
   TData = InfiniteData<
     Awaited<ReturnType<typeof tasksControllerFindAll>>,
-    TasksControllerFindAllParams["skip"]
+    TasksControllerFindAllParams["cursor"]
   >,
   TError = ErrorType<unknown>,
 >(
@@ -223,7 +223,7 @@ export function useTasksControllerFindAllInfinite<
         TError,
         TData,
         QueryKey,
-        TasksControllerFindAllParams["skip"]
+        TasksControllerFindAllParams["cursor"]
       >
     > &
       Pick<
@@ -244,7 +244,7 @@ export function useTasksControllerFindAllInfinite<
 export function useTasksControllerFindAllInfinite<
   TData = InfiniteData<
     Awaited<ReturnType<typeof tasksControllerFindAll>>,
-    TasksControllerFindAllParams["skip"]
+    TasksControllerFindAllParams["cursor"]
   >,
   TError = ErrorType<unknown>,
 >(
@@ -256,7 +256,7 @@ export function useTasksControllerFindAllInfinite<
         TError,
         TData,
         QueryKey,
-        TasksControllerFindAllParams["skip"]
+        TasksControllerFindAllParams["cursor"]
       >
     > &
       Pick<
@@ -277,7 +277,7 @@ export function useTasksControllerFindAllInfinite<
 export function useTasksControllerFindAllInfinite<
   TData = InfiniteData<
     Awaited<ReturnType<typeof tasksControllerFindAll>>,
-    TasksControllerFindAllParams["skip"]
+    TasksControllerFindAllParams["cursor"]
   >,
   TError = ErrorType<unknown>,
 >(
@@ -289,7 +289,7 @@ export function useTasksControllerFindAllInfinite<
         TError,
         TData,
         QueryKey,
-        TasksControllerFindAllParams["skip"]
+        TasksControllerFindAllParams["cursor"]
       >
     >;
     request?: SecondParameter<typeof createInstance>;
@@ -305,7 +305,7 @@ export function useTasksControllerFindAllInfinite<
 export function useTasksControllerFindAllInfinite<
   TData = InfiniteData<
     Awaited<ReturnType<typeof tasksControllerFindAll>>,
-    TasksControllerFindAllParams["skip"]
+    TasksControllerFindAllParams["cursor"]
   >,
   TError = ErrorType<unknown>,
 >(
@@ -317,7 +317,7 @@ export function useTasksControllerFindAllInfinite<
         TError,
         TData,
         QueryKey,
-        TasksControllerFindAllParams["skip"]
+        TasksControllerFindAllParams["cursor"]
       >
     >;
     request?: SecondParameter<typeof createInstance>;

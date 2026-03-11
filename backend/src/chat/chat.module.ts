@@ -9,5 +9,6 @@ import { ChatController } from './chat.controller';
   providers: [ChatGateway, ChatService],
   controllers: [ChatController],
   imports: [PrismaModule, ActivityModule],
+  exports: [ChatService],
 })
 export class ChatModule {}

@@ -106,10 +106,12 @@ export class GetMessagesQueryDto {
   cursor?: number;
 }
 export class CreateChatDto {
+  @ApiProperty({ description: 'Название чата' })
   @IsOptional()
   @IsString()
   title?: string;
 
+  @ApiProperty({ description: 'ID участников чата', type: [Number] })
   @IsArray()
   @IsInt({ each: true })
   memberIds: number[];
@@ -141,4 +143,11 @@ export class EditMessageDto {
 
   @IsString()
   text: string;
+}
+
+export class AddMembersDto {
+  @ApiProperty({ description: 'ID участников чата', type: [Number] })
+  @IsArray()
+  @IsInt({ each: true })
+  memberIds: number[];
 }

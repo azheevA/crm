@@ -158,7 +158,7 @@ export const getCompanyControllerFindAllQueryKey = (
 export const getCompanyControllerFindAllInfiniteQueryOptions = <
   TData = InfiniteData<
     Awaited<ReturnType<typeof companyControllerFindAll>>,
-    CompanyControllerFindAllParams["skip"]
+    CompanyControllerFindAllParams["cursor"]
   >,
   TError = ErrorType<unknown>,
 >(
@@ -170,7 +170,7 @@ export const getCompanyControllerFindAllInfiniteQueryOptions = <
         TError,
         TData,
         QueryKey,
-        CompanyControllerFindAllParams["skip"]
+        CompanyControllerFindAllParams["cursor"]
       >
     >;
     request?: SecondParameter<typeof createInstance>;
@@ -185,10 +185,10 @@ export const getCompanyControllerFindAllInfiniteQueryOptions = <
   const queryFn: QueryFunction<
     Awaited<ReturnType<typeof companyControllerFindAll>>,
     QueryKey,
-    CompanyControllerFindAllParams["skip"]
+    CompanyControllerFindAllParams["cursor"]
   > = ({ signal, pageParam }) =>
     companyControllerFindAll(
-      { ...params, skip: pageParam || params?.["skip"] },
+      { ...params, cursor: pageParam || params?.["cursor"] },
       requestOptions,
       signal,
     );
@@ -198,7 +198,7 @@ export const getCompanyControllerFindAllInfiniteQueryOptions = <
     TError,
     TData,
     QueryKey,
-    CompanyControllerFindAllParams["skip"]
+    CompanyControllerFindAllParams["cursor"]
   > & { queryKey: DataTag<QueryKey, TData, TError> };
 };
 
@@ -210,7 +210,7 @@ export type CompanyControllerFindAllInfiniteQueryError = ErrorType<unknown>;
 export function useCompanyControllerFindAllInfinite<
   TData = InfiniteData<
     Awaited<ReturnType<typeof companyControllerFindAll>>,
-    CompanyControllerFindAllParams["skip"]
+    CompanyControllerFindAllParams["cursor"]
   >,
   TError = ErrorType<unknown>,
 >(
@@ -222,7 +222,7 @@ export function useCompanyControllerFindAllInfinite<
         TError,
         TData,
         QueryKey,
-        CompanyControllerFindAllParams["skip"]
+        CompanyControllerFindAllParams["cursor"]
       >
     > &
       Pick<
@@ -243,7 +243,7 @@ export function useCompanyControllerFindAllInfinite<
 export function useCompanyControllerFindAllInfinite<
   TData = InfiniteData<
     Awaited<ReturnType<typeof companyControllerFindAll>>,
-    CompanyControllerFindAllParams["skip"]
+    CompanyControllerFindAllParams["cursor"]
   >,
   TError = ErrorType<unknown>,
 >(
@@ -255,7 +255,7 @@ export function useCompanyControllerFindAllInfinite<
         TError,
         TData,
         QueryKey,
-        CompanyControllerFindAllParams["skip"]
+        CompanyControllerFindAllParams["cursor"]
       >
     > &
       Pick<
@@ -276,7 +276,7 @@ export function useCompanyControllerFindAllInfinite<
 export function useCompanyControllerFindAllInfinite<
   TData = InfiniteData<
     Awaited<ReturnType<typeof companyControllerFindAll>>,
-    CompanyControllerFindAllParams["skip"]
+    CompanyControllerFindAllParams["cursor"]
   >,
   TError = ErrorType<unknown>,
 >(
@@ -288,7 +288,7 @@ export function useCompanyControllerFindAllInfinite<
         TError,
         TData,
         QueryKey,
-        CompanyControllerFindAllParams["skip"]
+        CompanyControllerFindAllParams["cursor"]
       >
     >;
     request?: SecondParameter<typeof createInstance>;
@@ -304,7 +304,7 @@ export function useCompanyControllerFindAllInfinite<
 export function useCompanyControllerFindAllInfinite<
   TData = InfiniteData<
     Awaited<ReturnType<typeof companyControllerFindAll>>,
-    CompanyControllerFindAllParams["skip"]
+    CompanyControllerFindAllParams["cursor"]
   >,
   TError = ErrorType<unknown>,
 >(
@@ -316,7 +316,7 @@ export function useCompanyControllerFindAllInfinite<
         TError,
         TData,
         QueryKey,
-        CompanyControllerFindAllParams["skip"]
+        CompanyControllerFindAllParams["cursor"]
       >
     >;
     request?: SecondParameter<typeof createInstance>;

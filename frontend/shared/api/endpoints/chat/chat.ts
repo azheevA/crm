@@ -5,31 +5,36 @@
  * Этот API работает с несколькими сущностями
  * OpenAPI spec version: 1.0
  */
-import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation, useQuery } from "@tanstack/react-query";
 import type {
   DataTag,
   DefinedInitialDataOptions,
   DefinedUseInfiniteQueryResult,
   DefinedUseQueryResult,
   InfiniteData,
+  MutationFunction,
   QueryClient,
   QueryFunction,
   QueryKey,
   UndefinedInitialDataOptions,
   UseInfiniteQueryOptions,
   UseInfiniteQueryResult,
+  UseMutationOptions,
+  UseMutationResult,
   UseQueryOptions,
   UseQueryResult,
 } from "@tanstack/react-query";
 
 import type {
+  AddMembersDto,
   ChatControllerGetMessagesParams,
   ChatResponseDto,
+  CreateChatDto,
   MessageResponseDto,
 } from "../../model";
 
 import { createInstance } from "../../instance";
-import type { ErrorType } from "../../instance";
+import type { ErrorType, BodyType } from "../../instance";
 
 type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
 
@@ -361,7 +366,7 @@ export const getChatControllerGetMessagesQueryKey = (
 export const getChatControllerGetMessagesInfiniteQueryOptions = <
   TData = InfiniteData<
     Awaited<ReturnType<typeof chatControllerGetMessages>>,
-    ChatControllerGetMessagesParams["skip"]
+    ChatControllerGetMessagesParams["cursor"]
   >,
   TError = ErrorType<unknown>,
 >(
@@ -373,7 +378,7 @@ export const getChatControllerGetMessagesInfiniteQueryOptions = <
         TError,
         TData,
         QueryKey,
-        ChatControllerGetMessagesParams["skip"]
+        ChatControllerGetMessagesParams["cursor"]
       >
     >;
     request?: SecondParameter<typeof createInstance>;
@@ -388,10 +393,10 @@ export const getChatControllerGetMessagesInfiniteQueryOptions = <
   const queryFn: QueryFunction<
     Awaited<ReturnType<typeof chatControllerGetMessages>>,
     QueryKey,
-    ChatControllerGetMessagesParams["skip"]
+    ChatControllerGetMessagesParams["cursor"]
   > = ({ signal, pageParam }) =>
     chatControllerGetMessages(
-      { ...params, skip: pageParam || params?.["skip"] },
+      { ...params, cursor: pageParam || params?.["cursor"] },
       requestOptions,
       signal,
     );
@@ -401,7 +406,7 @@ export const getChatControllerGetMessagesInfiniteQueryOptions = <
     TError,
     TData,
     QueryKey,
-    ChatControllerGetMessagesParams["skip"]
+    ChatControllerGetMessagesParams["cursor"]
   > & { queryKey: DataTag<QueryKey, TData, TError> };
 };
 
@@ -413,7 +418,7 @@ export type ChatControllerGetMessagesInfiniteQueryError = ErrorType<unknown>;
 export function useChatControllerGetMessagesInfinite<
   TData = InfiniteData<
     Awaited<ReturnType<typeof chatControllerGetMessages>>,
-    ChatControllerGetMessagesParams["skip"]
+    ChatControllerGetMessagesParams["cursor"]
   >,
   TError = ErrorType<unknown>,
 >(
@@ -425,7 +430,7 @@ export function useChatControllerGetMessagesInfinite<
         TError,
         TData,
         QueryKey,
-        ChatControllerGetMessagesParams["skip"]
+        ChatControllerGetMessagesParams["cursor"]
       >
     > &
       Pick<
@@ -446,7 +451,7 @@ export function useChatControllerGetMessagesInfinite<
 export function useChatControllerGetMessagesInfinite<
   TData = InfiniteData<
     Awaited<ReturnType<typeof chatControllerGetMessages>>,
-    ChatControllerGetMessagesParams["skip"]
+    ChatControllerGetMessagesParams["cursor"]
   >,
   TError = ErrorType<unknown>,
 >(
@@ -458,7 +463,7 @@ export function useChatControllerGetMessagesInfinite<
         TError,
         TData,
         QueryKey,
-        ChatControllerGetMessagesParams["skip"]
+        ChatControllerGetMessagesParams["cursor"]
       >
     > &
       Pick<
@@ -479,7 +484,7 @@ export function useChatControllerGetMessagesInfinite<
 export function useChatControllerGetMessagesInfinite<
   TData = InfiniteData<
     Awaited<ReturnType<typeof chatControllerGetMessages>>,
-    ChatControllerGetMessagesParams["skip"]
+    ChatControllerGetMessagesParams["cursor"]
   >,
   TError = ErrorType<unknown>,
 >(
@@ -491,7 +496,7 @@ export function useChatControllerGetMessagesInfinite<
         TError,
         TData,
         QueryKey,
-        ChatControllerGetMessagesParams["skip"]
+        ChatControllerGetMessagesParams["cursor"]
       >
     >;
     request?: SecondParameter<typeof createInstance>;
@@ -507,7 +512,7 @@ export function useChatControllerGetMessagesInfinite<
 export function useChatControllerGetMessagesInfinite<
   TData = InfiniteData<
     Awaited<ReturnType<typeof chatControllerGetMessages>>,
-    ChatControllerGetMessagesParams["skip"]
+    ChatControllerGetMessagesParams["cursor"]
   >,
   TError = ErrorType<unknown>,
 >(
@@ -519,7 +524,7 @@ export function useChatControllerGetMessagesInfinite<
         TError,
         TData,
         QueryKey,
-        ChatControllerGetMessagesParams["skip"]
+        ChatControllerGetMessagesParams["cursor"]
       >
     >;
     request?: SecondParameter<typeof createInstance>;
@@ -688,3 +693,189 @@ export function useChatControllerGetMessages<
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+/**
+ * @summary Создать новый чат
+ */
+export const chatControllerCreate = (
+  createChatDto: BodyType<CreateChatDto>,
+  options?: SecondParameter<typeof createInstance>,
+  signal?: AbortSignal,
+) => {
+  return createInstance<void>(
+    {
+      url: `/api/chat`,
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      data: createChatDto,
+      signal,
+    },
+    options,
+  );
+};
+
+export const getChatControllerCreateMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof chatControllerCreate>>,
+    TError,
+    { data: BodyType<CreateChatDto> },
+    TContext
+  >;
+  request?: SecondParameter<typeof createInstance>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof chatControllerCreate>>,
+  TError,
+  { data: BodyType<CreateChatDto> },
+  TContext
+> => {
+  const mutationKey = ["chatControllerCreate"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof chatControllerCreate>>,
+    { data: BodyType<CreateChatDto> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return chatControllerCreate(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type ChatControllerCreateMutationResult = NonNullable<
+  Awaited<ReturnType<typeof chatControllerCreate>>
+>;
+export type ChatControllerCreateMutationBody = BodyType<CreateChatDto>;
+export type ChatControllerCreateMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Создать новый чат
+ */
+export const useChatControllerCreate = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof chatControllerCreate>>,
+      TError,
+      { data: BodyType<CreateChatDto> },
+      TContext
+    >;
+    request?: SecondParameter<typeof createInstance>;
+  },
+  queryClient?: QueryClient,
+): UseMutationResult<
+  Awaited<ReturnType<typeof chatControllerCreate>>,
+  TError,
+  { data: BodyType<CreateChatDto> },
+  TContext
+> => {
+  return useMutation(
+    getChatControllerCreateMutationOptions(options),
+    queryClient,
+  );
+};
+/**
+ * @summary Добавить участников в чат
+ */
+export const chatControllerAddMembers = (
+  chatId: string,
+  addMembersDto: BodyType<AddMembersDto>,
+  options?: SecondParameter<typeof createInstance>,
+  signal?: AbortSignal,
+) => {
+  return createInstance<void>(
+    {
+      url: `/api/chat/${chatId}/members`,
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      data: addMembersDto,
+      signal,
+    },
+    options,
+  );
+};
+
+export const getChatControllerAddMembersMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof chatControllerAddMembers>>,
+    TError,
+    { chatId: string; data: BodyType<AddMembersDto> },
+    TContext
+  >;
+  request?: SecondParameter<typeof createInstance>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof chatControllerAddMembers>>,
+  TError,
+  { chatId: string; data: BodyType<AddMembersDto> },
+  TContext
+> => {
+  const mutationKey = ["chatControllerAddMembers"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof chatControllerAddMembers>>,
+    { chatId: string; data: BodyType<AddMembersDto> }
+  > = (props) => {
+    const { chatId, data } = props ?? {};
+
+    return chatControllerAddMembers(chatId, data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type ChatControllerAddMembersMutationResult = NonNullable<
+  Awaited<ReturnType<typeof chatControllerAddMembers>>
+>;
+export type ChatControllerAddMembersMutationBody = BodyType<AddMembersDto>;
+export type ChatControllerAddMembersMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Добавить участников в чат
+ */
+export const useChatControllerAddMembers = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof chatControllerAddMembers>>,
+      TError,
+      { chatId: string; data: BodyType<AddMembersDto> },
+      TContext
+    >;
+    request?: SecondParameter<typeof createInstance>;
+  },
+  queryClient?: QueryClient,
+): UseMutationResult<
+  Awaited<ReturnType<typeof chatControllerAddMembers>>,
+  TError,
+  { chatId: string; data: BodyType<AddMembersDto> },
+  TContext
+> => {
+  return useMutation(
+    getChatControllerAddMembersMutationOptions(options),
+    queryClient,
+  );
+};
