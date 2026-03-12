@@ -93,4 +93,12 @@ export class ChatController {
 
     return this.chatService.addMembers(Number(chatId), dto);
   }
+  @Get(':id')
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Получить детали чата' })
+  @ApiOkResponse({ type: ChatResponseDto })
+  getChatDetails(@Param('id') id: string) {
+    return this.chatService.getChatById(Number(id));
+  }
 }

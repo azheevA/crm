@@ -390,6 +390,27 @@ paths:
       summary: Добавить участников в чат
       tags:
         - Chat
+  /api/chat/{id}:
+    get:
+      operationId: ChatController_getChatDetails
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatResponseDto'
+      security:
+        - bearer: []
+      summary: Получить детали чата
+      tags:
+        - Chat
   /api/activity:
     get:
       operationId: ActivityController_findAll

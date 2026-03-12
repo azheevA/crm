@@ -299,4 +299,19 @@ export class ChatService {
       this.chatGateway.emitChatAdded(id, chatId);
     }
   }
+  async getChatById(id: number) {
+    const chat = await this.prisma.chat.findUnique({
+      where: { id },
+      include: {
+        members: {
+          include: {
+            user: {
+              include: { avatar: true },
+            },
+          },
+        },
+      },
+    });
+    return chat;
+  }
 }
