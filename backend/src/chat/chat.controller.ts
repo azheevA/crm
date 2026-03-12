@@ -6,7 +6,6 @@ import {
   Param,
   Post,
   Query,
-  Req,
   UseGuards,
 } from '@nestjs/common';
 import { ChatService } from './chat.service';
@@ -28,10 +27,6 @@ import {
 } from './chat.dto';
 import { AuthGuard, type SessionData } from 'src/auth/auth.guard';
 import { sessionInfo } from 'src/auth/session-info.decorator';
-
-interface JwtRequest extends Request {
-  user: { id: number; email: string };
-}
 
 @ApiTags('Chat')
 @Controller('chat')
@@ -79,16 +74,19 @@ export class ChatController {
     return this.chatService.createChat(session.id, dto);
   }
   @Post(':chatId/members')
+  @UseGuards(AuthGuard)
   @ApiOperation({ summary: 'Добавить участников в чат' })
   @ApiBody({ type: AddMembersDto })
   @ApiResponse({ status: 201, description: 'Участники добавлены' })
   async addMembers(
-    @Req() req: JwtRequest,
+    @sessionInfo() session: SessionData,
     @Param('chatId') chatId: string,
     @Body() dto: AddMembersDto,
   ) {
-    const userId = (req.user as { id: number }).id;
-    const isAdmin = await this.chatService.checkAdmin(userId, Number(chatId));
+    const isAdmin = await this.chatService.checkAdmin(
+      session.id,
+      Number(chatId),
+    );
     if (!isAdmin) {
       throw new ForbiddenException('Вы не можете добавлять участников');
     }

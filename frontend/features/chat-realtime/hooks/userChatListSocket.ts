@@ -6,16 +6,18 @@ export const useChatListSocket = () => {
   const queryClient = useQueryClient();
 
   useEffect(() => {
-    const handleChatUpdate = () => {
+    const handleUpdate = () => {
       queryClient.invalidateQueries({
         queryKey: ["chatControllerGetMyChats"],
       });
     };
 
-    socket.on("chatUpdated", handleChatUpdate);
+    socket.on("chatUpdated", handleUpdate);
+    socket.on("chatAdded", handleUpdate);
 
     return () => {
-      socket.off("chatUpdated", handleChatUpdate);
+      socket.off("chatUpdated", handleUpdate);
+      socket.off("chatAdded", handleUpdate);
     };
-  }, []);
+  }, [queryClient]);
 };

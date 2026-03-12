@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { useParams } from "next/navigation";
 
 interface Props {
   chat: {
@@ -11,10 +14,15 @@ interface Props {
 }
 
 export const ChatItem = ({ chat }: Props) => {
+  const params = useParams();
+  const active = Number(params?.id) === chat.id;
+
   return (
     <Link
       href={`/chat/${chat.id}`}
-      className="p-4 border-b hover:bg-gray-100 cursor-pointer"
+      className={`block p-4 border-b hover:bg-gray-100 ${
+        active ? "bg-gray-200" : ""
+      }`}
     >
       <div className="font-semibold">{chat.title ?? "Чат"}</div>
 

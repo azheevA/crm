@@ -10,22 +10,24 @@ export const useChatSocketSync = (chatId: number) => {
   const queryClient = useQueryClient();
 
   useEffect(() => {
-    socket.connect();
+    if (!socket.connected) {
+      socket.connect();
+    }
 
-    const handleConnect = () => {
-      console.log("SOCKET CONNECTED", socket.id);
+    const join = () => {
+      console.log("Emit joinChat for:", chatId);
       socket.emit("joinChat", { chatId });
     };
 
-    const handleDisconnect = () => {
-      console.log("SOCKET DISCONNECTED");
+    const handleConnect = () => {
+      console.log("Socket connected, joining room...");
+      join();
     };
 
     const handleNewMessage = (
       newMessage: ChatControllerGetMessagesInfiniteQueryResult["data"][number],
     ) => {
-      console.log("NEW MESSAGE", newMessage);
-
+      console.log("New message received via socket:", newMessage);
       const queryKey = getChatControllerGetMessagesInfiniteQueryKey({
         chatId,
         limit: 20,
@@ -34,33 +36,37 @@ export const useChatSocketSync = (chatId: number) => {
       queryClient.setQueryData<
         InfiniteData<ChatControllerGetMessagesInfiniteQueryResult>
       >(queryKey, (oldData) => {
-        if (!oldData) return oldData;
+        if (!oldData) {
+          queryClient.invalidateQueries({ queryKey });
+          return oldData;
+        }
 
-        const firstPage = oldData.pages[0];
+        const lastPage = oldData.pages[0];
 
         return {
           ...oldData,
           pages: [
             {
-              ...firstPage,
-              data: [newMessage, ...firstPage.data],
+              ...lastPage,
+              data: [newMessage, ...lastPage.data],
             },
             ...oldData.pages.slice(1),
           ],
         };
       });
     };
+    if (socket.connected) {
+      join();
+    }
 
     socket.on("connect", handleConnect);
     socket.on("recMessage", handleNewMessage);
-    socket.on("disconnect", handleDisconnect);
 
     return () => {
+      console.log("Leaving chat:", chatId);
       socket.emit("leaveChat", { chatId });
-
       socket.off("connect", handleConnect);
       socket.off("recMessage", handleNewMessage);
-      socket.off("disconnect", handleDisconnect);
     };
   }, [chatId, queryClient]);
 };

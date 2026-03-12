@@ -288,7 +288,9 @@ export class ChatService {
       data: dto.memberIds.map((userId) => ({
         chatId,
         userId,
+        role: 'MEMBER',
       })),
+      skipDuplicates: true,
     });
     this.notifyUsersAboutChat(chatId, dto.memberIds);
   }

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useChatControllerAddMembers } from "@/shared/api/endpoints/chat/chat";
-import { UserList } from "@/widget/user-list/ui/UserList";
+import { UserList } from "@/widgets/user-list/ui/UserList";
 import { useQueryClient } from "@tanstack/react-query";
 interface Props {
   chatId: number;
@@ -32,6 +32,11 @@ export const AddMembersModal = ({ chatId }: Props) => {
           queryClient.invalidateQueries({
             queryKey: ["chatControllerGetMyChats"],
           });
+          setMembers([]);
+          console.log("Участники добавлены");
+        },
+        onError: (error) => {
+          alert("Ошибка при добавлении: " + error.message);
         },
       },
     );
