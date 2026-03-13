@@ -17,6 +17,8 @@ import { Input } from "@/shared/ui/input";
 import { useAuthControllerSignIn } from "@/shared/api/endpoints/auth/auth";
 import { useRouter } from "next/navigation";
 import { ROUTES } from "../../model/constant";
+import { useQueryClient } from "@tanstack/react-query";
+import { QUERY_KEYS } from "@/shared/api/query-keys";
 
 const loginSchema = z.object({
   email: z.string().email("Неверный формат почты"),
@@ -24,10 +26,12 @@ const loginSchema = z.object({
 });
 
 export const SignInForm = () => {
+  const queryClient = useQueryClient();
   const router = useRouter();
   const { mutate, isPending } = useAuthControllerSignIn({
     mutation: {
-      onSuccess: (data) => {
+      onSuccess: async (data) => {
+        await queryClient.invalidateQueries({ queryKey: QUERY_KEYS.me });
         router.push(ROUTES.HOME);
         console.log("Успешный вход", data);
       },

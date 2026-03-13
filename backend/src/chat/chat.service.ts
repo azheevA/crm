@@ -132,7 +132,7 @@ export class ChatService {
       },
     });
   }
-  async getMessage(messageId: number) {
+  async getOneMessage(messageId: number) {
     return this.prisma.message.findUnique({
       where: { id: messageId },
       select: { chatId: true },

@@ -11,7 +11,20 @@ interface Props {
 export const AddMembersModal = ({ chatId }: Props) => {
   const [members, setMembers] = useState<number[]>([]);
   const queryClient = useQueryClient();
-  const { mutate } = useChatControllerAddMembers();
+  const { mutate, isPending } = useChatControllerAddMembers({
+    mutation: {
+      onSuccess: async () => {
+        await queryClient.invalidateQueries({
+          queryKey: ["chatControllerGetMyChats"],
+        });
+        setMembers([]);
+        console.log("Данные чата успешно обновлены");
+      },
+      onError: (error) => {
+        console.error("Ошибка при добавлении участников:", error);
+      },
+    },
+  });
 
   const toggleUser = (userId: number) => {
     setMembers((prev) =>
@@ -52,7 +65,7 @@ export const AddMembersModal = ({ chatId }: Props) => {
         onClick={handleAdd}
         className="mt-3 bg-green-500 text-white px-3 py-1"
       >
-        Добавить
+        {isPending ? "Добавление..." : `Добавить (${members.length})`}
       </button>
     </div>
   );

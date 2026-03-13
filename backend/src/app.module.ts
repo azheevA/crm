@@ -23,9 +23,8 @@ import { TasksModule } from './tasks/tasks.module';
     }),
     ScheduleModule.forRoot(),
     ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', 'uploads'),
-      serveRoot: '/static',
-      exclude: ['/api*'],
+      rootPath: join(process.cwd(), 'uploads'),
+      serveRoot: '/uploads',
     }),
     PrismaModule,
     AuthModule,

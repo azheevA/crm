@@ -166,7 +166,7 @@ export class ChatGateway implements OnGatewayConnection {
 
     const reaction = await this.chatService.addReaction(userId, dto);
 
-    const message = await this.chatService.getMessage(dto.messageId);
+    const message = await this.chatService.getOneMessage(dto.messageId);
 
     if (!message) return;
 

@@ -38,7 +38,7 @@ import { User } from '@prisma/generated';
 
 const multerOptions = {
   storage: diskStorage({
-    destination: './user-uploads',
+    destination: './uploads/users',
     filename: (req, file, callback) => {
       const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
       callback(null, `avatar-${uniqueSuffix}${extname(file.originalname)}`);
