@@ -6,10 +6,12 @@
  * OpenAPI spec version: 1.0
  */
 import type { AuthorDto } from "./authorDto";
+import type { AvatarDto } from "./avatarDto";
 
 export interface ChatResponseDto {
   id: number;
   title?: string;
   isGroup: boolean;
+  avatar?: AvatarDto;
   members: AuthorDto[];
 }

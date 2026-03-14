@@ -18,6 +18,7 @@ import {
 import { ActivityService } from 'src/activity/activity.service';
 import { Message, ActivityType, ChatMember, Prisma } from '@prisma/generated';
 import { ChatGateway } from './chat.gateway';
+import { PhotoService } from 'src/photo/photo.service';
 
 export type ChatWithDetails = Prisma.ChatGetPayload<{
   include: {
@@ -33,6 +34,7 @@ export class ChatService {
   constructor(
     private readonly prisma: PrismaService,
     private activityService: ActivityService,
+    private photoService: PhotoService,
     @Inject(forwardRef(() => ChatGateway))
     private readonly chatGateway: ChatGateway,
   ) {}
@@ -144,11 +146,11 @@ export class ChatService {
       include: {
         chat: {
           include: {
+            avatar: true,
             lastMessage: {
-              include: {
-                author: true,
-              },
+              include: { author: true },
             },
+            // ...
           },
         },
       },
@@ -313,5 +315,25 @@ export class ChatService {
       },
     });
     return chat;
+  }
+  async updateChatAvatar(
+    userId: number,
+    chatId: number,
+    file: Express.Multer.File,
+  ) {
+    const isAdmin = await this.checkAdmin(userId, chatId);
+    if (!isAdmin) {
+      throw new ForbiddenException(
+        'Только администратор может менять аватарку',
+      );
+    }
+
+    const photo = await this.photoService.uploadChatAvatar(chatId, file);
+
+    return this.prisma.chat.update({
+      where: { id: chatId },
+      data: { avatarId: photo.id },
+      include: { avatar: true },
+    });
   }
 }

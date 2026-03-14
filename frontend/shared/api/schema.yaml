@@ -390,11 +390,38 @@ paths:
       summary: Добавить участников в чат
       tags:
         - Chat
-  /api/chat/{id}:
-    get:
-      operationId: ChatController_getChatDetails
+  /api/chat/{chatId}/avatar:
+    patch:
+      operationId: ChatController_uploadAvatar
       parameters:
-        - name: id
+        - name: chatId
+          required: true
+          in: path
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: ''
+      security:
+        - bearer: []
+      summary: Загрузить аватарку чата
+      tags:
+        - Chat
+  /api/chat/{chatId}:
+    get:
+      operationId: ChatController_getChat
+      parameters:
+        - name: chatId
           required: true
           in: path
           schema:
@@ -408,7 +435,7 @@ paths:
                 $ref: '#/components/schemas/ChatResponseDto'
       security:
         - bearer: []
-      summary: Получить детали чата
+      summary: Получить чат по id
       tags:
         - Chat
   /api/activity:
@@ -1006,6 +1033,8 @@ components:
           type: string
         isGroup:
           type: boolean
+        avatar:
+          $ref: '#/components/schemas/AvatarDto'
         members:
           type: array
           items:

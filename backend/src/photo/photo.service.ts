@@ -105,4 +105,23 @@ export class PhotoService implements OnModuleInit {
 
     return this.prisma.photo.delete({ where: { id: photoId } });
   }
+  async uploadChatAvatar(chatId: number, file: Express.Multer.File) {
+    const oldPhoto = await this.prisma.photo.findUnique({
+      where: { chatId },
+    });
+
+    if (oldPhoto) {
+      await this.deletePhysicalFile(oldPhoto.filename, 'chat');
+      await this.prisma.photo.delete({ where: { id: oldPhoto.id } });
+    }
+
+    return this.prisma.photo.create({
+      data: {
+        url: `/uploads/chat/${file.filename}`,
+        filename: file.filename,
+        originalName: file.originalname,
+        chatId: chatId,
+      },
+    });
+  }
 }

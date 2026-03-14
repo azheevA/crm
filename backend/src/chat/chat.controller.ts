@@ -14,6 +14,7 @@ import {
   ApiBody,
   ApiOkResponse,
   ApiOperation,
+  ApiConsumes,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
@@ -27,11 +28,19 @@ import {
 } from './chat.dto';
 import { AuthGuard, type SessionData } from 'src/auth/auth.guard';
 import { sessionInfo } from 'src/auth/session-info.decorator';
+import { PhotoService } from 'src/photo/photo.service';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { UseInterceptors, UploadedFile, Patch } from '@nestjs/common';
+import { diskStorage } from 'multer';
+import { extname } from 'path';
 
 @ApiTags('Chat')
 @Controller('chat')
 export class ChatController {
-  constructor(private readonly chatService: ChatService) {}
+  constructor(
+    private readonly chatService: ChatService,
+    private photo: PhotoService,
+  ) {}
 
   @Get('my-chats')
   @UseGuards(AuthGuard)
@@ -93,12 +102,64 @@ export class ChatController {
 
     return this.chatService.addMembers(Number(chatId), dto);
   }
-  @Get(':id')
+  @Patch(':chatId/avatar')
   @UseGuards(AuthGuard)
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Получить детали чата' })
+  @ApiOperation({ summary: 'Загрузить аватарку чата' })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
+  })
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: diskStorage({
+        destination: './uploads/chat',
+        filename: (req, file, cb) => {
+          const uniqueSuffix =
+            Date.now() + '-' + Math.round(Math.random() * 1e9);
+          cb(null, `${uniqueSuffix}${extname(file.originalname)}`);
+        },
+      }),
+    }),
+  )
+  async uploadAvatar(
+    @sessionInfo() session: SessionData,
+    @Param('chatId') chatId: string,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    return this.chatService.updateChatAvatar(session.id, Number(chatId), file);
+  }
+  @Get(':chatId')
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Получить чат по id' })
   @ApiOkResponse({ type: ChatResponseDto })
-  getChatDetails(@Param('id') id: string) {
-    return this.chatService.getChatById(Number(id));
+  async getChat(
+    @sessionInfo() session: SessionData,
+    @Param('chatId') chatId: string,
+  ) {
+    const chat = await this.chatService.getChatById(Number(chatId));
+
+    if (!chat) {
+      throw new ForbiddenException();
+    }
+
+    const isMember = chat.members.some(
+      (member) => member.userId === session.id,
+    );
+
+    if (!isMember) {
+      throw new ForbiddenException('Вы не участник чата');
+    }
+
+    return chat;
   }
 }

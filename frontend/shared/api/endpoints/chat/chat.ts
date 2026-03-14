@@ -28,6 +28,7 @@ import type {
 import type {
   AddMembersDto,
   ChatControllerGetMessagesParams,
+  ChatControllerUploadAvatarBody,
   ChatResponseDto,
   CreateChatDto,
   MessageResponseDto,
@@ -880,38 +881,134 @@ export const useChatControllerAddMembers = <
   );
 };
 /**
- * @summary Получить детали чата
+ * @summary Загрузить аватарку чата
  */
-export const chatControllerGetChatDetails = (
-  id: string,
+export const chatControllerUploadAvatar = (
+  chatId: string,
+  chatControllerUploadAvatarBody: BodyType<ChatControllerUploadAvatarBody>,
   options?: SecondParameter<typeof createInstance>,
   signal?: AbortSignal,
 ) => {
-  return createInstance<ChatResponseDto>(
-    { url: `/api/chat/${id}`, method: "GET", signal },
+  const formData = new FormData();
+  if (chatControllerUploadAvatarBody.file !== undefined) {
+    formData.append(`file`, chatControllerUploadAvatarBody.file);
+  }
+
+  return createInstance<void>(
+    {
+      url: `/api/chat/${chatId}/avatar`,
+      method: "PATCH",
+      data: formData,
+      signal,
+    },
     options,
   );
 };
 
-export const getChatControllerGetChatDetailsInfiniteQueryKey = (id: string) => {
-  return ["infinite", `/api/chat/${id}`] as const;
+export const getChatControllerUploadAvatarMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof chatControllerUploadAvatar>>,
+    TError,
+    { chatId: string; data: BodyType<ChatControllerUploadAvatarBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof createInstance>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof chatControllerUploadAvatar>>,
+  TError,
+  { chatId: string; data: BodyType<ChatControllerUploadAvatarBody> },
+  TContext
+> => {
+  const mutationKey = ["chatControllerUploadAvatar"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof chatControllerUploadAvatar>>,
+    { chatId: string; data: BodyType<ChatControllerUploadAvatarBody> }
+  > = (props) => {
+    const { chatId, data } = props ?? {};
+
+    return chatControllerUploadAvatar(chatId, data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
 };
 
-export const getChatControllerGetChatDetailsQueryKey = (id: string) => {
-  return [`/api/chat/${id}`] as const;
+export type ChatControllerUploadAvatarMutationResult = NonNullable<
+  Awaited<ReturnType<typeof chatControllerUploadAvatar>>
+>;
+export type ChatControllerUploadAvatarMutationBody =
+  BodyType<ChatControllerUploadAvatarBody>;
+export type ChatControllerUploadAvatarMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Загрузить аватарку чата
+ */
+export const useChatControllerUploadAvatar = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof chatControllerUploadAvatar>>,
+      TError,
+      { chatId: string; data: BodyType<ChatControllerUploadAvatarBody> },
+      TContext
+    >;
+    request?: SecondParameter<typeof createInstance>;
+  },
+  queryClient?: QueryClient,
+): UseMutationResult<
+  Awaited<ReturnType<typeof chatControllerUploadAvatar>>,
+  TError,
+  { chatId: string; data: BodyType<ChatControllerUploadAvatarBody> },
+  TContext
+> => {
+  return useMutation(
+    getChatControllerUploadAvatarMutationOptions(options),
+    queryClient,
+  );
+};
+/**
+ * @summary Получить чат по id
+ */
+export const chatControllerGetChat = (
+  chatId: string,
+  options?: SecondParameter<typeof createInstance>,
+  signal?: AbortSignal,
+) => {
+  return createInstance<ChatResponseDto>(
+    { url: `/api/chat/${chatId}`, method: "GET", signal },
+    options,
+  );
 };
 
-export const getChatControllerGetChatDetailsInfiniteQueryOptions = <
-  TData = InfiniteData<
-    Awaited<ReturnType<typeof chatControllerGetChatDetails>>
-  >,
+export const getChatControllerGetChatInfiniteQueryKey = (chatId: string) => {
+  return ["infinite", `/api/chat/${chatId}`] as const;
+};
+
+export const getChatControllerGetChatQueryKey = (chatId: string) => {
+  return [`/api/chat/${chatId}`] as const;
+};
+
+export const getChatControllerGetChatInfiniteQueryOptions = <
+  TData = InfiniteData<Awaited<ReturnType<typeof chatControllerGetChat>>>,
   TError = ErrorType<unknown>,
 >(
-  id: string,
+  chatId: string,
   options?: {
     query?: Partial<
       UseInfiniteQueryOptions<
-        Awaited<ReturnType<typeof chatControllerGetChatDetails>>,
+        Awaited<ReturnType<typeof chatControllerGetChat>>,
         TError,
         TData
       >
@@ -922,50 +1019,47 @@ export const getChatControllerGetChatDetailsInfiniteQueryOptions = <
   const { query: queryOptions, request: requestOptions } = options ?? {};
 
   const queryKey =
-    queryOptions?.queryKey ??
-    getChatControllerGetChatDetailsInfiniteQueryKey(id);
+    queryOptions?.queryKey ?? getChatControllerGetChatInfiniteQueryKey(chatId);
 
   const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof chatControllerGetChatDetails>>
-  > = ({ signal }) => chatControllerGetChatDetails(id, requestOptions, signal);
+    Awaited<ReturnType<typeof chatControllerGetChat>>
+  > = ({ signal }) => chatControllerGetChat(chatId, requestOptions, signal);
 
   return {
     queryKey,
     queryFn,
-    enabled: !!id,
+    enabled: !!chatId,
     ...queryOptions,
   } as UseInfiniteQueryOptions<
-    Awaited<ReturnType<typeof chatControllerGetChatDetails>>,
+    Awaited<ReturnType<typeof chatControllerGetChat>>,
     TError,
     TData
   > & { queryKey: DataTag<QueryKey, TData, TError> };
 };
 
-export type ChatControllerGetChatDetailsInfiniteQueryResult = NonNullable<
-  Awaited<ReturnType<typeof chatControllerGetChatDetails>>
+export type ChatControllerGetChatInfiniteQueryResult = NonNullable<
+  Awaited<ReturnType<typeof chatControllerGetChat>>
 >;
-export type ChatControllerGetChatDetailsInfiniteQueryError = ErrorType<unknown>;
+export type ChatControllerGetChatInfiniteQueryError = ErrorType<unknown>;
 
-export function useChatControllerGetChatDetailsInfinite<
-  TData = InfiniteData<
-    Awaited<ReturnType<typeof chatControllerGetChatDetails>>
-  >,
+export function useChatControllerGetChatInfinite<
+  TData = InfiniteData<Awaited<ReturnType<typeof chatControllerGetChat>>>,
   TError = ErrorType<unknown>,
 >(
-  id: string,
+  chatId: string,
   options: {
     query: Partial<
       UseInfiniteQueryOptions<
-        Awaited<ReturnType<typeof chatControllerGetChatDetails>>,
+        Awaited<ReturnType<typeof chatControllerGetChat>>,
         TError,
         TData
       >
     > &
       Pick<
         DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof chatControllerGetChatDetails>>,
+          Awaited<ReturnType<typeof chatControllerGetChat>>,
           TError,
-          Awaited<ReturnType<typeof chatControllerGetChatDetails>>
+          Awaited<ReturnType<typeof chatControllerGetChat>>
         >,
         "initialData"
       >;
@@ -975,26 +1069,24 @@ export function useChatControllerGetChatDetailsInfinite<
 ): DefinedUseInfiniteQueryResult<TData, TError> & {
   queryKey: DataTag<QueryKey, TData, TError>;
 };
-export function useChatControllerGetChatDetailsInfinite<
-  TData = InfiniteData<
-    Awaited<ReturnType<typeof chatControllerGetChatDetails>>
-  >,
+export function useChatControllerGetChatInfinite<
+  TData = InfiniteData<Awaited<ReturnType<typeof chatControllerGetChat>>>,
   TError = ErrorType<unknown>,
 >(
-  id: string,
+  chatId: string,
   options?: {
     query?: Partial<
       UseInfiniteQueryOptions<
-        Awaited<ReturnType<typeof chatControllerGetChatDetails>>,
+        Awaited<ReturnType<typeof chatControllerGetChat>>,
         TError,
         TData
       >
     > &
       Pick<
         UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof chatControllerGetChatDetails>>,
+          Awaited<ReturnType<typeof chatControllerGetChat>>,
           TError,
-          Awaited<ReturnType<typeof chatControllerGetChatDetails>>
+          Awaited<ReturnType<typeof chatControllerGetChat>>
         >,
         "initialData"
       >;
@@ -1004,17 +1096,15 @@ export function useChatControllerGetChatDetailsInfinite<
 ): UseInfiniteQueryResult<TData, TError> & {
   queryKey: DataTag<QueryKey, TData, TError>;
 };
-export function useChatControllerGetChatDetailsInfinite<
-  TData = InfiniteData<
-    Awaited<ReturnType<typeof chatControllerGetChatDetails>>
-  >,
+export function useChatControllerGetChatInfinite<
+  TData = InfiniteData<Awaited<ReturnType<typeof chatControllerGetChat>>>,
   TError = ErrorType<unknown>,
 >(
-  id: string,
+  chatId: string,
   options?: {
     query?: Partial<
       UseInfiniteQueryOptions<
-        Awaited<ReturnType<typeof chatControllerGetChatDetails>>,
+        Awaited<ReturnType<typeof chatControllerGetChat>>,
         TError,
         TData
       >
@@ -1026,20 +1116,18 @@ export function useChatControllerGetChatDetailsInfinite<
   queryKey: DataTag<QueryKey, TData, TError>;
 };
 /**
- * @summary Получить детали чата
+ * @summary Получить чат по id
  */
 
-export function useChatControllerGetChatDetailsInfinite<
-  TData = InfiniteData<
-    Awaited<ReturnType<typeof chatControllerGetChatDetails>>
-  >,
+export function useChatControllerGetChatInfinite<
+  TData = InfiniteData<Awaited<ReturnType<typeof chatControllerGetChat>>>,
   TError = ErrorType<unknown>,
 >(
-  id: string,
+  chatId: string,
   options?: {
     query?: Partial<
       UseInfiniteQueryOptions<
-        Awaited<ReturnType<typeof chatControllerGetChatDetails>>,
+        Awaited<ReturnType<typeof chatControllerGetChat>>,
         TError,
         TData
       >
@@ -1050,8 +1138,8 @@ export function useChatControllerGetChatDetailsInfinite<
 ): UseInfiniteQueryResult<TData, TError> & {
   queryKey: DataTag<QueryKey, TData, TError>;
 } {
-  const queryOptions = getChatControllerGetChatDetailsInfiniteQueryOptions(
-    id,
+  const queryOptions = getChatControllerGetChatInfiniteQueryOptions(
+    chatId,
     options,
   );
 
@@ -1065,15 +1153,15 @@ export function useChatControllerGetChatDetailsInfinite<
   return { ...query, queryKey: queryOptions.queryKey };
 }
 
-export const getChatControllerGetChatDetailsQueryOptions = <
-  TData = Awaited<ReturnType<typeof chatControllerGetChatDetails>>,
+export const getChatControllerGetChatQueryOptions = <
+  TData = Awaited<ReturnType<typeof chatControllerGetChat>>,
   TError = ErrorType<unknown>,
 >(
-  id: string,
+  chatId: string,
   options?: {
     query?: Partial<
       UseQueryOptions<
-        Awaited<ReturnType<typeof chatControllerGetChatDetails>>,
+        Awaited<ReturnType<typeof chatControllerGetChat>>,
         TError,
         TData
       >
@@ -1084,47 +1172,47 @@ export const getChatControllerGetChatDetailsQueryOptions = <
   const { query: queryOptions, request: requestOptions } = options ?? {};
 
   const queryKey =
-    queryOptions?.queryKey ?? getChatControllerGetChatDetailsQueryKey(id);
+    queryOptions?.queryKey ?? getChatControllerGetChatQueryKey(chatId);
 
   const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof chatControllerGetChatDetails>>
-  > = ({ signal }) => chatControllerGetChatDetails(id, requestOptions, signal);
+    Awaited<ReturnType<typeof chatControllerGetChat>>
+  > = ({ signal }) => chatControllerGetChat(chatId, requestOptions, signal);
 
   return {
     queryKey,
     queryFn,
-    enabled: !!id,
+    enabled: !!chatId,
     ...queryOptions,
   } as UseQueryOptions<
-    Awaited<ReturnType<typeof chatControllerGetChatDetails>>,
+    Awaited<ReturnType<typeof chatControllerGetChat>>,
     TError,
     TData
   > & { queryKey: DataTag<QueryKey, TData, TError> };
 };
 
-export type ChatControllerGetChatDetailsQueryResult = NonNullable<
-  Awaited<ReturnType<typeof chatControllerGetChatDetails>>
+export type ChatControllerGetChatQueryResult = NonNullable<
+  Awaited<ReturnType<typeof chatControllerGetChat>>
 >;
-export type ChatControllerGetChatDetailsQueryError = ErrorType<unknown>;
+export type ChatControllerGetChatQueryError = ErrorType<unknown>;
 
-export function useChatControllerGetChatDetails<
-  TData = Awaited<ReturnType<typeof chatControllerGetChatDetails>>,
+export function useChatControllerGetChat<
+  TData = Awaited<ReturnType<typeof chatControllerGetChat>>,
   TError = ErrorType<unknown>,
 >(
-  id: string,
+  chatId: string,
   options: {
     query: Partial<
       UseQueryOptions<
-        Awaited<ReturnType<typeof chatControllerGetChatDetails>>,
+        Awaited<ReturnType<typeof chatControllerGetChat>>,
         TError,
         TData
       >
     > &
       Pick<
         DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof chatControllerGetChatDetails>>,
+          Awaited<ReturnType<typeof chatControllerGetChat>>,
           TError,
-          Awaited<ReturnType<typeof chatControllerGetChatDetails>>
+          Awaited<ReturnType<typeof chatControllerGetChat>>
         >,
         "initialData"
       >;
@@ -1134,24 +1222,24 @@ export function useChatControllerGetChatDetails<
 ): DefinedUseQueryResult<TData, TError> & {
   queryKey: DataTag<QueryKey, TData, TError>;
 };
-export function useChatControllerGetChatDetails<
-  TData = Awaited<ReturnType<typeof chatControllerGetChatDetails>>,
+export function useChatControllerGetChat<
+  TData = Awaited<ReturnType<typeof chatControllerGetChat>>,
   TError = ErrorType<unknown>,
 >(
-  id: string,
+  chatId: string,
   options?: {
     query?: Partial<
       UseQueryOptions<
-        Awaited<ReturnType<typeof chatControllerGetChatDetails>>,
+        Awaited<ReturnType<typeof chatControllerGetChat>>,
         TError,
         TData
       >
     > &
       Pick<
         UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof chatControllerGetChatDetails>>,
+          Awaited<ReturnType<typeof chatControllerGetChat>>,
           TError,
-          Awaited<ReturnType<typeof chatControllerGetChatDetails>>
+          Awaited<ReturnType<typeof chatControllerGetChat>>
         >,
         "initialData"
       >;
@@ -1161,15 +1249,15 @@ export function useChatControllerGetChatDetails<
 ): UseQueryResult<TData, TError> & {
   queryKey: DataTag<QueryKey, TData, TError>;
 };
-export function useChatControllerGetChatDetails<
-  TData = Awaited<ReturnType<typeof chatControllerGetChatDetails>>,
+export function useChatControllerGetChat<
+  TData = Awaited<ReturnType<typeof chatControllerGetChat>>,
   TError = ErrorType<unknown>,
 >(
-  id: string,
+  chatId: string,
   options?: {
     query?: Partial<
       UseQueryOptions<
-        Awaited<ReturnType<typeof chatControllerGetChatDetails>>,
+        Awaited<ReturnType<typeof chatControllerGetChat>>,
         TError,
         TData
       >
@@ -1181,18 +1269,18 @@ export function useChatControllerGetChatDetails<
   queryKey: DataTag<QueryKey, TData, TError>;
 };
 /**
- * @summary Получить детали чата
+ * @summary Получить чат по id
  */
 
-export function useChatControllerGetChatDetails<
-  TData = Awaited<ReturnType<typeof chatControllerGetChatDetails>>,
+export function useChatControllerGetChat<
+  TData = Awaited<ReturnType<typeof chatControllerGetChat>>,
   TError = ErrorType<unknown>,
 >(
-  id: string,
+  chatId: string,
   options?: {
     query?: Partial<
       UseQueryOptions<
-        Awaited<ReturnType<typeof chatControllerGetChatDetails>>,
+        Awaited<ReturnType<typeof chatControllerGetChat>>,
         TError,
         TData
       >
@@ -1203,7 +1291,7 @@ export function useChatControllerGetChatDetails<
 ): UseQueryResult<TData, TError> & {
   queryKey: DataTag<QueryKey, TData, TError>;
 } {
-  const queryOptions = getChatControllerGetChatDetailsQueryOptions(id, options);
+  const queryOptions = getChatControllerGetChatQueryOptions(chatId, options);
 
   const query = useQuery(queryOptions, queryClient) as UseQueryResult<
     TData,

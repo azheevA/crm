@@ -42,6 +42,8 @@ model Chat {
   messages Message[]    @relation("ChatMessages")
   inviteToChat ChatInvite[] @relation("chatInvite")
 
+  avatarId Int?   @unique
+  avatar   Photo? @relation("ChatAvatar", fields: [avatarId], references: [id])
 
   lastMessageId Int?
   lastMessage   Message? @relation("ChatLastMessage", fields: [lastMessageId], references: [id])
@@ -193,6 +195,9 @@ model Photo {
   filename     String
   originalName String
   createdAt    DateTime @default(now())
+
+  chatId Int?  @unique
+  chat   Chat? @relation("ChatAvatar")
 
   userId Int?  @unique
   user   User? @relation("UserAvatar", fields: [userId], references: [id], onDelete: Cascade)

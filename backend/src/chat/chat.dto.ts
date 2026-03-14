@@ -78,6 +78,9 @@ export class ChatResponseDto {
   @ApiProperty()
   isGroup: boolean;
 
+  @ApiPropertyOptional({ type: AvatarDto })
+  avatar?: AvatarDto;
+
   @ApiProperty({ type: [AuthorDto] })
   members: AuthorDto[];
 }
