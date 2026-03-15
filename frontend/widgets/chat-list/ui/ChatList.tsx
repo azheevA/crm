@@ -32,7 +32,9 @@ export const ChatList = () => {
       <ScrollArea className="flex-1">
         <div className="flex flex-col">
           {chats?.length ? (
-            chats.map((item) => <ChatItem key={item.id} chat={item} />)
+            chats.map((chatItem) => (
+              <ChatItem key={chatItem.id} chat={chatItem} />
+            ))
           ) : (
             <div className="p-8 text-center text-zinc-500 text-sm">
               Чатов пока нет

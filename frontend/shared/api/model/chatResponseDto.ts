@@ -5,13 +5,15 @@
  * Этот API работает с несколькими сущностями
  * OpenAPI spec version: 1.0
  */
-import type { AuthorDto } from "./authorDto";
 import type { AvatarDto } from "./avatarDto";
+import type { ChatMemberDto } from "./chatMemberDto";
+import type { MessageDto } from "./messageDto";
 
 export interface ChatResponseDto {
   id: number;
   title?: string;
   isGroup: boolean;
+  lastMessage: MessageDto | null;
   avatar?: AvatarDto;
-  members: AuthorDto[];
+  members: ChatMemberDto[];
 }

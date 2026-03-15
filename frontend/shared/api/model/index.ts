@@ -17,6 +17,7 @@ export * from "./avatarDto";
 export * from "./changePasswordDto";
 export * from "./chatControllerGetMessagesParams";
 export * from "./chatControllerUploadAvatarBody";
+export * from "./chatMemberDto";
 export * from "./chatResponseDto";
 export * from "./companyControllerFindAll200";
 export * from "./companyControllerFindAllParams";

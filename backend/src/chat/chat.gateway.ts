@@ -61,7 +61,7 @@ export class ChatGateway implements OnGatewayConnection {
       client.data.user = { id: payload.id };
 
       const userChats = await this.chatService.getUserChats(payload.id);
-      const roomIds = userChats.map((m) => `chat_${m.chat.id}`);
+      const roomIds = userChats.map((chat) => `chat_${chat.id}`);
 
       await client.join(roomIds);
       await client.join(`user_${payload.id}`);

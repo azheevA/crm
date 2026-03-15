@@ -82,12 +82,15 @@ export const ChatWindow = ({ chatId }: Props) => {
               <div className="flex -space-x-1.5">
                 {chatDetails?.members?.slice(0, 3).map((member) => (
                   <Avatar
-                    key={member.id}
+                    key={member.userId}
                     className="w-5 h-5 border border-white"
                   >
-                    <AvatarImage src={getFullImageUrl(member.avatar?.url)} />
+                    <AvatarImage
+                      src={getFullImageUrl(member.user.avatar?.url)}
+                    />
+
                     <AvatarFallback className="text-[7px]">
-                      {member.name?.slice(0, 2).toUpperCase()}
+                      {member.user.name?.slice(0, 2).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
                 ))}
@@ -99,7 +102,6 @@ export const ChatWindow = ({ chatId }: Props) => {
             </div>
           </div>
         </div>
-
         <button
           onClick={() => setShowAddMembers(true)}
           className="p-2 hover:bg-gray-200 rounded-full transition-colors"

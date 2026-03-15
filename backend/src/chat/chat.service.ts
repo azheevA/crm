@@ -141,19 +141,28 @@ export class ChatService {
     });
   }
   async getUserChats(userId: number) {
-    return this.prisma.chatMember.findMany({
-      where: { userId },
+    return this.prisma.chat.findMany({
+      where: {
+        members: {
+          some: { userId: userId },
+        },
+      },
       include: {
-        chat: {
+        avatar: true,
+        lastMessage: {
           include: {
-            avatar: true,
-            lastMessage: {
-              include: { author: true },
+            author: { select: { id: true, name: true, avatar: true } },
+          },
+        },
+        members: {
+          include: {
+            user: {
+              include: { avatar: true },
             },
-            // ...
           },
         },
       },
+      orderBy: { createdAt: 'desc' },
     });
   }
   async isChatMember(userId: number, chatId: number): Promise<boolean> {
@@ -164,25 +173,24 @@ export class ChatService {
   }
   async createChat(ownerId: number, dto: CreateChatDto) {
     const members = [...new Set([ownerId, ...dto.memberIds])];
-
-    return this.prisma.$transaction(async (tx) => {
-      const chat = await tx.chat.create({
-        data: {
-          title: dto.title,
-          isGroup: members.length > 2,
-          members: {
-            create: members.map((userId) => ({
-              userId,
-              role: userId === ownerId ? 'OWNER' : 'MEMBER',
-            })),
-          },
+    return this.prisma.chat.create({
+      data: {
+        title: dto.title,
+        isGroup: members.length > 2,
+        members: {
+          create: members.map((userId) => ({
+            userId,
+            role: userId === ownerId ? 'OWNER' : 'MEMBER',
+          })),
         },
-        include: {
-          members: true,
+      },
+      include: {
+        avatar: true,
+        members: {
+          where: { userId: ownerId },
+          select: { role: true, unreadCount: true },
         },
-      });
-
-      return chat;
+      },
     });
   }
   async markAsRead(userId: number, dto: ReadMessagesDto) {
@@ -302,9 +310,21 @@ export class ChatService {
     }
   }
   async getChatById(id: number) {
-    const chat = await this.prisma.chat.findUnique({
+    return this.prisma.chat.findUnique({
       where: { id },
       include: {
+        avatar: true,
+        lastMessage: {
+          include: {
+            author: {
+              select: {
+                id: true,
+                name: true,
+                avatar: true,
+              },
+            },
+          },
+        },
         members: {
           include: {
             user: {
@@ -314,7 +334,6 @@ export class ChatService {
         },
       },
     });
-    return chat;
   }
   async updateChatAvatar(
     userId: number,

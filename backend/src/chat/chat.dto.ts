@@ -67,6 +67,16 @@ export class MessageDto {
   @ApiProperty()
   chatId: number;
 }
+export class ChatMemberDto {
+  @ApiProperty()
+  role: string;
+
+  @ApiProperty()
+  userId: number;
+
+  @ApiProperty({ type: () => AuthorDto })
+  user: AuthorDto;
+}
 
 export class ChatResponseDto {
   @ApiProperty()
@@ -78,11 +88,14 @@ export class ChatResponseDto {
   @ApiProperty()
   isGroup: boolean;
 
+  @ApiProperty({ type: () => MessageDto, nullable: true })
+  lastMessage?: MessageDto;
+
   @ApiPropertyOptional({ type: AvatarDto })
   avatar?: AvatarDto;
 
-  @ApiProperty({ type: [AuthorDto] })
-  members: AuthorDto[];
+  @ApiProperty({ type: [ChatMemberDto] })
+  members: ChatMemberDto[];
 }
 
 export class MessageResponseDto {

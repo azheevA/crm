@@ -1024,25 +1024,6 @@ components:
       required:
         - id
         - name
-    ChatResponseDto:
-      type: object
-      properties:
-        id:
-          type: number
-        title:
-          type: string
-        isGroup:
-          type: boolean
-        avatar:
-          $ref: '#/components/schemas/AvatarDto'
-        members:
-          type: array
-          items:
-            $ref: '#/components/schemas/AuthorDto'
-      required:
-        - id
-        - isGroup
-        - members
     MessageDto:
       type: object
       properties:
@@ -1063,6 +1044,43 @@ components:
         - createdAt
         - author
         - chatId
+    ChatMemberDto:
+      type: object
+      properties:
+        role:
+          type: string
+        userId:
+          type: number
+        user:
+          $ref: '#/components/schemas/AuthorDto'
+      required:
+        - role
+        - userId
+        - user
+    ChatResponseDto:
+      type: object
+      properties:
+        id:
+          type: number
+        title:
+          type: string
+        isGroup:
+          type: boolean
+        lastMessage:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/MessageDto'
+        avatar:
+          $ref: '#/components/schemas/AvatarDto'
+        members:
+          type: array
+          items:
+            $ref: '#/components/schemas/ChatMemberDto'
+      required:
+        - id
+        - isGroup
+        - lastMessage
+        - members
     MessageResponseDto:
       type: object
       properties:

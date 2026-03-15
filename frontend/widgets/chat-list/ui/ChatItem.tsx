@@ -16,11 +16,11 @@ export const ChatItem = ({ chat }: Props) => {
   const params = useParams();
 
   const active = Number(params?.id) === chat.id;
-
-  const otherMember = chat.members?.find((m) => m.id !== me?.id);
-
-  const displayTitle = chat.isGroup ? chat.title : otherMember?.name || "Чат";
-
+  const otherMember = chat.members?.find((m) => m.userId !== me?.id)?.user;
+  const displayTitle = chat?.avatar?.url
+    ? chat.title || "Групповой чат"
+    : otherMember?.name || "Чат";
+  const avatarUrl = chat?.avatar?.url;
   const displayAvatar = otherMember?.avatar?.url
     ? `http://localhost:3000${otherMember.avatar.url}`
     : null;
@@ -35,7 +35,14 @@ export const ChatItem = ({ chat }: Props) => {
     >
       <div className="relative">
         <Avatar className="h-12 w-12 border">
-          <AvatarImage src={displayAvatar ?? ""} className="object-cover" />
+          <AvatarImage
+            src={
+              chat?.avatar?.url
+                ? `http://localhost:3000${chat.avatar?.url}`
+                : (displayAvatar ?? "")
+            }
+            className="object-cover"
+          />
           <AvatarFallback>
             {displayTitle?.slice(0, 2).toUpperCase()}
           </AvatarFallback>
@@ -48,6 +55,10 @@ export const ChatItem = ({ chat }: Props) => {
             {displayTitle}
           </span>
         </div>
+        <p className="text-xs text-zinc-500 truncate">
+          {chat.lastMessage?.text}
+        </p>
+        <p>{avatarUrl}</p>
       </div>
     </Link>
   );

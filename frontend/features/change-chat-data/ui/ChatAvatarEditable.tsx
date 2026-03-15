@@ -27,7 +27,6 @@ export function ChatAvatarEditable({ chat, canEdit }: Props) {
     reader.onload = () => setImage(reader.result as string);
     reader.readAsDataURL(file);
   };
-  const avatartUrl = `http:localhost:5000${chat.avatar?.url}`;
 
   return (
     <div className="relative w-12 h-12 shrink-0">
@@ -46,7 +45,6 @@ export function ChatAvatarEditable({ chat, canEdit }: Props) {
           <ImagePlus size={18} className="text-white" />
         </div>
       )}
-      <p>{avatartUrl}</p>
       <input
         hidden
         type="file"
