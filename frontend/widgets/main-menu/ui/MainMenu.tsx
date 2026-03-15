@@ -12,6 +12,7 @@ import {
 } from "@/shared/ui/menubar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/shared/ui/avatar";
 import Link from "next/link";
+import { ThemeSwitcher } from "@/shared/ui/theme-switch";
 
 export function MainMenu() {
   const { data: user, isLoading } = useUserControllerGetMe({
@@ -36,6 +37,11 @@ export function MainMenu() {
           </MenubarTrigger>
         </MenubarMenu>
         <MenubarMenu>
+          <MenubarMenu>
+            <MenubarTrigger className="cursor-pointer font-medium" asChild>
+              <ThemeSwitcher />
+            </MenubarTrigger>
+          </MenubarMenu>
           <MenubarTrigger className="cursor-pointer flex items-center gap-2 px-3 transition-all hover:opacity-80">
             {isLoading ? (
               <div className="w-6 h-6 rounded-full bg-zinc-200 dark:bg-zinc-800 animate-pulse" />
