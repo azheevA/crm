@@ -1,9 +1,7 @@
-"use client"
-
-import * as React from "react"
-import { ScrollArea as ScrollAreaPrimitive } from "radix-ui"
-
-import { cn } from "@/shared/lib/utils"
+"use client";
+import * as React from "react";
+import { ScrollArea as ScrollAreaPrimitive } from "radix-ui";
+import { cn } from "@/shared/lib/utils";
 
 function ScrollArea({
   className,
@@ -18,14 +16,14 @@ function ScrollArea({
     >
       <ScrollAreaPrimitive.Viewport
         data-slot="scroll-area-viewport"
-        className="size-full rounded-[inherit] transition-[color,box-shadow] outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-1"
+        className="size-full rounded-[inherit] outline-none"
       >
         {children}
       </ScrollAreaPrimitive.Viewport>
       <ScrollBar />
       <ScrollAreaPrimitive.Corner />
     </ScrollAreaPrimitive.Root>
-  )
+  );
 }
 
 function ScrollBar({
@@ -38,21 +36,19 @@ function ScrollBar({
       data-slot="scroll-area-scrollbar"
       orientation={orientation}
       className={cn(
-        "flex touch-none p-px transition-colors select-none",
-        orientation === "vertical" &&
-          "h-full w-2.5 border-l border-l-transparent",
-        orientation === "horizontal" &&
-          "h-2.5 flex-col border-t border-t-transparent",
-        className
+        "flex touch-none p-0.5 transition-all duration-300 select-none hover:bg-white/5",
+        orientation === "vertical" && "h-full w-2 border-l border-white/5",
+        orientation === "horizontal" && "h-2 flex-col border-t border-white/5",
+        className,
       )}
       {...props}
     >
       <ScrollAreaPrimitive.ScrollAreaThumb
         data-slot="scroll-area-thumb"
-        className="relative flex-1 rounded-full bg-border"
+        className="relative flex-1 rounded-full bg-primary/20 transition-colors hover:bg-primary/50 shadow-[0_0_10px_rgba(var(--primary),0.2)]"
       />
     </ScrollAreaPrimitive.ScrollAreaScrollbar>
-  )
+  );
 }
 
-export { ScrollArea, ScrollBar }
+export { ScrollArea, ScrollBar };

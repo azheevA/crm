@@ -12,15 +12,23 @@ apiInstance.interceptors.request.use((config) => {
   }
   return config;
 });
-
+interface PromiseWithCancel<T> extends Promise<T> {
+  cancel?: () => void;
+}
 export const createInstance = async <T>(
   config: AxiosRequestConfig,
   options?: AxiosRequestConfig,
 ): Promise<T> => {
-  return apiInstance({
+  const source = axios.CancelToken.source();
+  const promise: PromiseWithCancel<T> = apiInstance({
     ...config,
     ...options,
+    cancelToken: source.token,
   }).then((r) => r.data);
+  promise.cancel = () => {
+    source.cancel("Запрос был удален");
+  };
+  return promise;
 };
 
 export type BodyType<Data> = Data;

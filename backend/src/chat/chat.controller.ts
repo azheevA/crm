@@ -1,9 +1,11 @@
 import {
   Body,
   Controller,
+  Delete,
   ForbiddenException,
   Get,
   Param,
+  ParseIntPipe,
   Post,
   Query,
   UseGuards,
@@ -161,5 +163,21 @@ export class ChatController {
     }
 
     return chat;
+  }
+  @Delete(':chatId')
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Полное удаление чата (только для владельца)' })
+  @ApiResponse({ status: 200, description: 'Чат успешно удален' })
+  @ApiResponse({
+    status: 403,
+    description: 'Только владелец может удалить чат',
+  })
+  @ApiResponse({ status: 404, description: 'Чат не найден' })
+  async deleteChat(
+    @sessionInfo() session: SessionData,
+    @Param('chatId', ParseIntPipe) chatId: number,
+  ) {
+    return this.chatService.deleteChat(session.id, chatId);
   }
 }

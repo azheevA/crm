@@ -438,6 +438,26 @@ paths:
       summary: Получить чат по id
       tags:
         - Chat
+    delete:
+      operationId: ChatController_deleteChat
+      parameters:
+        - name: chatId
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Чат успешно удален
+        '403':
+          description: Только владелец может удалить чат
+        '404':
+          description: Чат не найден
+      security:
+        - bearer: []
+      summary: Полное удаление чата (только для владельца)
+      tags:
+        - Chat
   /api/activity:
     get:
       operationId: ActivityController_findAll

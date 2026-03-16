@@ -355,4 +355,22 @@ export class ChatService {
       include: { avatar: true },
     });
   }
+  async deleteChat(userId: number, chatId: number) {
+    const member = await this.prisma.chatMember.findUnique({
+      where: { chatId_userId: { chatId, userId } },
+    });
+
+    if (!member || member.role !== 'OWNER') {
+      throw new ForbiddenException('Только владелец может удалить чат');
+    }
+    const members = await this.getChatMembers(chatId);
+    await this.prisma.chat.delete({
+      where: { id: chatId },
+    });
+    for (const m of members) {
+      this.chatGateway.emitChatDeleted(m.userId, chatId);
+    }
+
+    return { success: true };
+  }
 }

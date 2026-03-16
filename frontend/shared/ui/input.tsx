@@ -1,8 +1,8 @@
 "use client";
-
 import * as React from "react";
 import { cn } from "@/shared/lib/utils";
 import { Eye, EyeOff } from "lucide-react";
+
 interface InputProps extends React.ComponentProps<"input"> {
   error?: boolean;
 }
@@ -14,16 +14,20 @@ function Input({ className, type, ...props }: InputProps) {
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
+
   return (
-    <div className="relative w-full">
+    <div className="relative w-full group">
       <input
         type={isPassword && showPassword ? "text" : type}
         data-slot="input"
         className={cn(
-          "flex h-10 w-full rounded-xl border bg-white/40 dark:bg-zinc-950/40 px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 backdrop-blur-md transition-all",
-          "border-white/20 dark:border-zinc-800/50 shadow-sm focus:shadow-md focus:bg-white/60 dark:focus:bg-zinc-950/60",
-          "aria-invalid:border-destructive/50 dark:aria-invalid:border-red-500/50",
-          isPassword && "pr-10",
+          "flex h-11 w-full rounded-xl border bg-white/5 dark:bg-zinc-950/20 px-4 py-2 text-sm transition-all duration-300 backdrop-blur-xl",
+          "border-white/10 dark:border-zinc-800/50",
+          "placeholder:text-muted-foreground/50",
+          "focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary/50 focus:bg-white/10 dark:focus:bg-zinc-950/40",
+          "hover:border-white/20 dark:hover:border-zinc-700",
+          "aria-invalid:border-destructive/50 aria-invalid:ring-destructive/20",
+          isPassword && "pr-11",
           className,
         )}
         {...props}
@@ -32,15 +36,16 @@ function Input({ className, type, ...props }: InputProps) {
         <button
           type="button"
           onClick={togglePasswordVisibility}
-          className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200 transition-colors"
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground/50 hover:text-primary transition-colors p-1"
         >
           {showPassword ? (
-            <EyeOff className="size-4" />
+            <EyeOff className="size-4 animate-in fade-in" />
           ) : (
-            <Eye className="size-4" />
+            <Eye className="size-4 animate-in fade-in" />
           )}
         </button>
       )}
+      <div className="absolute inset-x-0 bottom-0 h-px bg-linear-to-r from-transparent via-primary/0 to-transparent group-focus-within:via-primary/50 transition-all duration-500" />
     </div>
   );
 }

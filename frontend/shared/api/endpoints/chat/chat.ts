@@ -1300,3 +1300,90 @@ export function useChatControllerGetChat<
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+/**
+ * @summary Полное удаление чата (только для владельца)
+ */
+export const chatControllerDeleteChat = (
+  chatId: string,
+  options?: SecondParameter<typeof createInstance>,
+  signal?: AbortSignal,
+) => {
+  return createInstance<void>(
+    { url: `/api/chat/${chatId}`, method: "DELETE", signal },
+    options,
+  );
+};
+
+export const getChatControllerDeleteChatMutationOptions = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof chatControllerDeleteChat>>,
+    TError,
+    { chatId: string },
+    TContext
+  >;
+  request?: SecondParameter<typeof createInstance>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof chatControllerDeleteChat>>,
+  TError,
+  { chatId: string },
+  TContext
+> => {
+  const mutationKey = ["chatControllerDeleteChat"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof chatControllerDeleteChat>>,
+    { chatId: string }
+  > = (props) => {
+    const { chatId } = props ?? {};
+
+    return chatControllerDeleteChat(chatId, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type ChatControllerDeleteChatMutationResult = NonNullable<
+  Awaited<ReturnType<typeof chatControllerDeleteChat>>
+>;
+
+export type ChatControllerDeleteChatMutationError = ErrorType<void>;
+
+/**
+ * @summary Полное удаление чата (только для владельца)
+ */
+export const useChatControllerDeleteChat = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof chatControllerDeleteChat>>,
+      TError,
+      { chatId: string },
+      TContext
+    >;
+    request?: SecondParameter<typeof createInstance>;
+  },
+  queryClient?: QueryClient,
+): UseMutationResult<
+  Awaited<ReturnType<typeof chatControllerDeleteChat>>,
+  TError,
+  { chatId: string },
+  TContext
+> => {
+  return useMutation(
+    getChatControllerDeleteChatMutationOptions(options),
+    queryClient,
+  );
+};

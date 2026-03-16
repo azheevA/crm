@@ -39,7 +39,10 @@ export default function ProfilePage() {
     <div className="min-h-screen bg-zinc-50/50 dark:bg-zinc-950 pt-24 pb-12 px-4">
       <div className="max-w-4xl mx-auto space-y-8">
         <section className="relative overflow-hidden rounded-3xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-xl shadow-zinc-200/50 dark:shadow-none">
-          <div className="absolute top-0 left-0 w-full h-32 bg-linear-to-r from-blue-600 to-indigo-600 opacity-10 dark:opacity-20" />
+          <div
+            className="absolute top-0 left-0 w-full h-32 bg-linear-to-r from-blue-500 via-indigo-500 to-purple-500 
+                  bg-size-[200%_200%] animate-gradient-x opacity-20 dark:opacity-30"
+          />
 
           <div className="relative px-8 pt-16 pb-8 flex flex-col md:flex-row items-center md:items-end gap-6">
             <ProfileAvatar user={user} />
@@ -66,7 +69,7 @@ export default function ProfilePage() {
               </Button>
             </div>
           </div>
-        </section>
+        </section>{" "}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="md:col-span-1 space-y-6">
             <Card className="rounded-3xl border-zinc-200 dark:border-zinc-800">

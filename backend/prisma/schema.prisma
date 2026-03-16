@@ -59,7 +59,7 @@ model ChatMember {
   chatId Int
   userId Int
 
-  chat Chat @relation(fields: [chatId], references: [id])
+  chat Chat @relation(fields: [chatId], references: [id], onDelete: Cascade)
   user User @relation(fields: [userId], references: [id])
 
   role ChatRole @default(MEMBER)
@@ -82,7 +82,7 @@ model Message {
   chatId   Int
   authorId Int
 
-  chat   Chat  @relation("ChatMessages", fields: [chatId], references: [id])
+  chat   Chat  @relation("ChatMessages", fields: [chatId], references: [id], onDelete: Cascade)
   author User @relation(fields: [authorId], references: [id])
 
   replyToId Int?
@@ -115,7 +115,7 @@ model Reaction {
 
   emoji String
 
-  message Message @relation(fields: [messageId], references: [id])
+  message Message @relation(fields: [messageId], references: [id], onDelete: Cascade)
   user    User    @relation(fields: [userId], references: [id])
 
   createdAt DateTime @default(now())
@@ -129,7 +129,7 @@ model ChatInvite {
   chat Chat @relation("chatInvite",fields: [chatId], references: [id])
 
   createdById Int
-  createdBy User @relation("userInvite",fields: [createdById], references: [id])
+  createdBy User @relation("userInvite",fields: [createdById], references: [id],onDelete: Cascade)
 
   code String @unique
 

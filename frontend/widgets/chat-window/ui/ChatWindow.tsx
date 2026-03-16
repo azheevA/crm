@@ -1,9 +1,9 @@
 "use client";
-
 import { MessageBubble } from "@/entities/messages/ui/MessageBubble";
 import { useCurrentUser } from "@/entities/user/hooks/useCurrentUser";
 import { AddMembersModal } from "@/features/add-chat-member/ui/AddChatMember";
 import { ChatAvatarEditable } from "@/features/change-chat-data/ui/ChatAvatarEditable";
+import { DeleteChatButton } from "@/features/change-chat-data/ui/ChatDeleteButton";
 import { getFullImageUrl } from "@/features/change-user-data/utils/get-url-image";
 import { useChatSocketSync } from "@/features/chat-realtime/hooks/useChatSocketSync";
 import { useReadMessages } from "@/features/chat-realtime/hooks/useReadMessages";
@@ -13,7 +13,10 @@ import {
   useChatControllerGetMessagesInfinite,
   useChatControllerGetChat,
 } from "@/shared/api/endpoints/chat/chat";
+
 import { Avatar, AvatarFallback, AvatarImage } from "@/shared/ui/avatar";
+import { Button } from "@/shared/ui/button";
+import { PlusIcon } from "lucide-react";
 import { useMemo, useState } from "react";
 
 interface Props {
@@ -50,19 +53,39 @@ export const ChatWindow = ({ chatId }: Props) => {
   }, [data]);
 
   const lastMessageId = messages[messages.length - 1]?.id;
+
   useReadMessages(chatId, lastMessageId);
 
-  const canEdit = useMemo(() => {
-    return true;
-  }, []);
-
   if (isMessagesLoading || isChatLoading) {
-    return <div className="p-8 text-center">Загрузка...</div>;
+    return (
+      <div className="flex h-full items-center justify-center">
+        <span className="text-sm text-muted-foreground animate-pulse">
+          Загрузка чата...
+        </span>
+      </div>
+    );
   }
 
   return (
-    <div className="flex flex-col h-full max-w-2xl mx-auto border rounded-xl shadow-sm bg-white overflow-hidden">
-      <div className="flex items-center justify-between p-4 border-b bg-gray-50/50">
+    <div
+      className="
+      flex flex-col h-full
+      bg-white/40 dark:bg-zinc-950/40
+      backdrop-blur-xl
+      border border-white/10
+      rounded-2xl
+      overflow-hidden
+    "
+    >
+      <div
+        className="
+        flex items-center justify-between
+        px-6 py-4
+        border-b border-white/10
+        bg-white/40 dark:bg-black/20
+        backdrop-blur
+      "
+      >
         <div className="flex items-center gap-4">
           <ChatAvatarEditable
             chat={{
@@ -70,55 +93,69 @@ export const ChatWindow = ({ chatId }: Props) => {
               title: chatDetails?.title,
               avatar: chatDetails?.avatar,
             }}
-            canEdit={canEdit}
+            canEdit
           />
 
           <div className="flex flex-col">
-            <h2 className="font-bold text-lg leading-tight">
-              {chatDetails?.title || "Чат"}
-            </h2>
+            <span className="font-semibold">
+              {chatDetails?.title || "Chat"}
+            </span>
 
             <div className="flex items-center gap-2 mt-1">
-              <div className="flex -space-x-1.5">
+              <div className="flex -space-x-2">
                 {chatDetails?.members?.slice(0, 3).map((member) => (
                   <Avatar
                     key={member.userId}
-                    className="w-5 h-5 border border-white"
+                    className="w-6 h-6 border border-background"
                   >
                     <AvatarImage
                       src={getFullImageUrl(member.user.avatar?.url)}
                     />
-
-                    <AvatarFallback className="text-[7px]">
+                    <AvatarFallback className="text-[9px]">
                       {member.user.name?.slice(0, 2).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
                 ))}
               </div>
 
-              <span className="text-[11px] text-gray-500">
+              <span className="text-xs text-muted-foreground">
                 {chatDetails?.members?.length ?? 0} участников
               </span>
             </div>
           </div>
         </div>
-        <button
-          onClick={() => setShowAddMembers(true)}
-          className="p-2 hover:bg-gray-200 rounded-full transition-colors"
-        >
-          +
-        </button>
+
+        <div className="flex items-center gap-2">
+          <DeleteChatButton chatId={chatId} />
+
+          <Button
+            variant="secondary"
+            size="icon"
+            onClick={() => setShowAddMembers(true)}
+          >
+            <PlusIcon size={16} />
+          </Button>
+        </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-4 bg-zinc-50/30">
+      <div
+        className="
+        flex-1 overflow-y-auto
+        px-6 py-6
+        space-y-6
+      "
+      >
         {hasNextPage && (
-          <button
-            onClick={() => fetchNextPage()}
-            disabled={isFetchingNextPage}
-            className="text-xs text-blue-500 font-medium self-center py-2"
-          >
-            {isFetchingNextPage ? "Загрузка..." : "Показать еще"}
-          </button>
+          <div className="flex justify-center">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => fetchNextPage()}
+              disabled={isFetchingNextPage}
+            >
+              {isFetchingNextPage ? "Загрузка..." : "Показать старые"}
+            </Button>
+          </div>
         )}
 
         {messages.map((msg) => (
@@ -130,26 +167,38 @@ export const ChatWindow = ({ chatId }: Props) => {
         ))}
 
         {typingUsers.length > 0 && (
-          <div className="text-[11px] text-gray-400 italic animate-pulse">
-            печатает...
-          </div>
+          <div className="text-xs text-primary animate-pulse">печатает...</div>
         )}
       </div>
 
-      <div className="border-t p-4 bg-white">
+      <div
+        className="
+        p-4
+        border-t border-white/10
+        bg-white/40 dark:bg-black/20
+        backdrop-blur
+      "
+      >
         <SendMessageForm chatId={chatId} sendTyping={sendTyping} />
       </div>
 
       {showAddMembers && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-          <div className="relative w-full max-w-md bg-white rounded-xl shadow-xl overflow-hidden">
-            <button
-              onClick={() => setShowAddMembers(false)}
-              className="absolute top-4 right-4 p-1 hover:bg-gray-100 rounded-full z-10"
-            >
-              ✕
-            </button>
-
+        <div
+          className="
+          fixed inset-0
+          flex items-center justify-center
+          bg-black/60 backdrop-blur-md
+        "
+        >
+          <div
+            className="
+            w-full max-w-md
+            bg-white dark:bg-zinc-900
+            border border-white/10
+            rounded-xl
+            p-6
+          "
+          >
             <AddMembersModal chatId={chatId} />
           </div>
         </div>

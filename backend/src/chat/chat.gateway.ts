@@ -197,4 +197,9 @@ export class ChatGateway implements OnGatewayConnection {
       chatId,
     });
   }
+  emitChatDeleted(userId: number, chatId: number) {
+    this.server.to(`user_${userId}`).emit('chatDeleted', {
+      chatId,
+    });
+  }
 }

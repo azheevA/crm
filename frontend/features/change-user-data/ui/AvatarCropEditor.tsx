@@ -1,10 +1,19 @@
 "use client";
+
 import Cropper from "react-easy-crop";
 import { useState } from "react";
 import { Button } from "@/shared/ui/button";
 import { getCroppedImg } from "../utils/crop-image";
-import type { Area } from "react-easy-crop";
 import { optimizeImage } from "../utils/optimized-image";
+import type { Area } from "react-easy-crop";
+
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/shared/ui/dialog";
+
 type Props = {
   image: string;
   onCancel: () => void;
@@ -18,6 +27,7 @@ export function AvatarCropEditor({ image, onCancel, onSave }: Props) {
 
   const handleSave = async () => {
     if (!pixels) return;
+
     const blob = await getCroppedImg(image, pixels);
     const optimized = await optimizeImage(blob);
 
@@ -29,37 +39,43 @@ export function AvatarCropEditor({ image, onCancel, onSave }: Props) {
   };
 
   return (
-    <div className="w-full max-w-md flex flex-col gap-4">
-      <div className="relative w-full h-64 rounded-xl overflow-hidden">
-        <Cropper
-          image={image}
-          crop={crop}
-          zoom={zoom}
-          aspect={1}
-          cropShape="round"
-          onCropChange={setCrop}
-          onZoomChange={setZoom}
-          onCropComplete={(_, pixels) => setPixels(pixels)}
+    <Dialog open={true} onOpenChange={(v) => !v && onCancel()}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Обрезать аватар</DialogTitle>
+        </DialogHeader>
+
+        <div className="relative w-full h-64 rounded-xl overflow-hidden bg-black">
+          <Cropper
+            image={image}
+            crop={crop}
+            zoom={zoom}
+            aspect={1}
+            cropShape="round"
+            onCropChange={setCrop}
+            onZoomChange={setZoom}
+            onCropComplete={(_, pixels) => setPixels(pixels)}
+          />
+        </div>
+
+        <input
+          type="range"
+          min={1}
+          max={3}
+          step={0.01}
+          value={zoom}
+          onChange={(e) => setZoom(Number(e.target.value))}
+          className="w-full"
         />
-      </div>
 
-      <input
-        type="range"
-        min={1}
-        max={3}
-        step={0.01}
-        value={zoom}
-        onChange={(e) => setZoom(Number(e.target.value))}
-        className="w-full"
-      />
+        <div className="flex justify-end gap-3 pt-2">
+          <Button variant="ghost" onClick={onCancel}>
+            Отмена
+          </Button>
 
-      <div className="flex gap-3 justify-end">
-        <Button variant="ghost" onClick={onCancel}>
-          Отмена
-        </Button>
-
-        <Button onClick={handleSave}>Сохранить</Button>
-      </div>
-    </div>
+          <Button onClick={handleSave}>Сохранить</Button>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }

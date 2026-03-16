@@ -1,9 +1,7 @@
 "use client";
-
 import * as React from "react";
 import { CheckIcon, ChevronRightIcon, CircleIcon } from "lucide-react";
 import { Menubar as MenubarPrimitive } from "radix-ui";
-
 import { cn } from "@/shared/lib/utils";
 
 function Menubar({
@@ -14,7 +12,7 @@ function Menubar({
     <MenubarPrimitive.Root
       data-slot="menubar"
       className={cn(
-        "flex h-10 items-center gap-1 rounded-full border border-white/20 dark:border-zinc-800/50 bg-white/60 dark:bg-zinc-950/60 p-1 shadow-lg backdrop-blur-xl",
+        "flex h-10 items-center gap-1 rounded-full border border-white/10 bg-white/5 dark:bg-zinc-950/40 p-1.5 shadow-[0_0_20px_rgba(0,0,0,0.1)] backdrop-blur-xl",
         className,
       )}
       {...props}
@@ -56,7 +54,8 @@ function MenubarTrigger({
     <MenubarPrimitive.Trigger
       data-slot="menubar-trigger"
       className={cn(
-        "flex items-center rounded-full px-3 py-1 text-sm font-medium outline-hidden select-none transition-colors focus:bg-white/20 focus:text-accent-foreground data-[state=open]:bg-white/20 data-[state=open]:text-accent-foreground cursor-pointer",
+        "flex items-center rounded-full px-4 py-1 text-xs font-bold tracking-wider uppercase outline-none select-none transition-all duration-300",
+        "hover:bg-primary/10 hover:text-primary focus:bg-primary/10 data-[state=open]:bg-primary/20 data-[state=open]:text-primary cursor-pointer",
         className,
       )}
       {...props}
@@ -79,7 +78,7 @@ function MenubarContent({
         alignOffset={alignOffset}
         sideOffset={sideOffset}
         className={cn(
-          "z-50 min-w-48 overflow-hidden rounded-xl border border-white/20 dark:border-zinc-800/50 bg-white/70 dark:bg-zinc-950/70 p-1 text-popover-foreground shadow-2xl backdrop-blur-2xl data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95",
+          "z-50 min-w-48 overflow-hidden rounded-2xl border border-white/10 bg-white/10 dark:bg-zinc-950/80 p-1.5 text-popover-foreground shadow-[0_10px_40px_rgba(0,0,0,0.3)] backdrop-blur-2xl animate-in fade-in-0 zoom-in-95",
           className,
         )}
         {...props}
@@ -103,7 +102,8 @@ function MenubarItem({
       data-inset={inset}
       data-variant={variant}
       className={cn(
-        "relative flex cursor-default items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-hidden select-none focus:bg-accent focus:text-accent-foreground data-disabled:pointer-events-none data-disabled:opacity-50 data-inset:pl-8 data-[variant=destructive]:text-destructive data-[variant=destructive]:focus:bg-destructive/10 data-[variant=destructive]:focus:text-destructive dark:data-[variant=destructive]:focus:bg-destructive/20 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-'])]:text-muted-foreground data-[variant=destructive]:*:[svg]:text-destructive!",
+        "relative flex cursor-default items-center gap-2 rounded-xl px-3 py-2 text-xs font-medium outline-none select-none transition-colors",
+        "focus:bg-primary focus:text-primary-foreground data-[variant=destructive]:text-destructive data-[variant=destructive]:focus:bg-destructive/10",
         className,
       )}
       {...props}
@@ -121,15 +121,15 @@ function MenubarCheckboxItem({
     <MenubarPrimitive.CheckboxItem
       data-slot="menubar-checkbox-item"
       className={cn(
-        "relative flex cursor-default items-center gap-2 rounded-xs py-1.5 pr-2 pl-8 text-sm outline-hidden select-none focus:bg-accent focus:text-accent-foreground data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+        "relative flex cursor-default items-center gap-2 rounded-xl py-2 pr-2 pl-9 text-xs outline-none select-none focus:bg-primary/10 focus:text-primary",
         className,
       )}
       checked={checked}
       {...props}
     >
-      <span className="pointer-events-none absolute left-2 flex size-3.5 items-center justify-center">
+      <span className="absolute left-3 flex size-3.5 items-center justify-center">
         <MenubarPrimitive.ItemIndicator>
-          <CheckIcon className="size-4" />
+          <CheckIcon className="size-4 stroke-3" />
         </MenubarPrimitive.ItemIndicator>
       </span>
       {children}
@@ -146,14 +146,14 @@ function MenubarRadioItem({
     <MenubarPrimitive.RadioItem
       data-slot="menubar-radio-item"
       className={cn(
-        "relative flex cursor-default items-center gap-2 rounded-xs py-1.5 pr-2 pl-8 text-sm outline-hidden select-none focus:bg-accent focus:text-accent-foreground data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+        "relative flex cursor-default items-center gap-2 rounded-xl py-2 pr-2 pl-9 text-xs outline-none select-none focus:bg-primary/10 focus:text-primary",
         className,
       )}
       {...props}
     >
-      <span className="pointer-events-none absolute left-2 flex size-3.5 items-center justify-center">
+      <span className="absolute left-3 flex size-3.5 items-center justify-center">
         <MenubarPrimitive.ItemIndicator>
-          <CircleIcon className="size-2 fill-current" />
+          <CircleIcon className="size-2 fill-current shadow-[0_0_8px_rgba(var(--primary),0.5)]" />
         </MenubarPrimitive.ItemIndicator>
       </span>
       {children}
@@ -173,7 +173,7 @@ function MenubarLabel({
       data-slot="menubar-label"
       data-inset={inset}
       className={cn(
-        "px-2 py-1.5 text-sm font-medium data-inset:pl-8",
+        "px-3 py-2 text-[10px] font-bold uppercase tracking-widest text-muted-foreground/50",
         className,
       )}
       {...props}
@@ -188,7 +188,7 @@ function MenubarSeparator({
   return (
     <MenubarPrimitive.Separator
       data-slot="menubar-separator"
-      className={cn("-mx-1 my-1 h-px bg-border", className)}
+      className={cn("-mx-1 my-1 h-px bg-white/5", className)}
       {...props}
     />
   );
@@ -202,7 +202,7 @@ function MenubarShortcut({
     <span
       data-slot="menubar-shortcut"
       className={cn(
-        "ml-auto text-xs tracking-widest text-muted-foreground",
+        "ml-auto text-[10px] tracking-[0.2em] font-bold text-muted-foreground/40",
         className,
       )}
       {...props}
@@ -229,13 +229,13 @@ function MenubarSubTrigger({
       data-slot="menubar-sub-trigger"
       data-inset={inset}
       className={cn(
-        "flex cursor-default items-center rounded-sm px-2 py-1.5 text-sm outline-none select-none focus:bg-accent focus:text-accent-foreground data-inset:pl-8 data-[state=open]:bg-accent data-[state=open]:text-accent-foreground",
+        "flex cursor-default items-center rounded-xl px-3 py-2 text-xs font-medium outline-none select-none focus:bg-primary/10 focus:text-primary data-[state=open]:bg-primary/10",
         className,
       )}
       {...props}
     >
       {children}
-      <ChevronRightIcon className="ml-auto h-4 w-4" />
+      <ChevronRightIcon className="ml-auto h-4 w-4 opacity-50" />
     </MenubarPrimitive.SubTrigger>
   );
 }
@@ -248,7 +248,7 @@ function MenubarSubContent({
     <MenubarPrimitive.SubContent
       data-slot="menubar-sub-content"
       className={cn(
-        "z-50 min-w-32 origin-(--radix-menubar-content-transform-origin) overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-lg data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95",
+        "z-50 min-w-32 overflow-hidden rounded-2xl border border-white/10 bg-white/10 dark:bg-zinc-950/90 p-1.5 text-popover-foreground shadow-2xl backdrop-blur-2xl animate-in fade-in-0 zoom-in-95",
         className,
       )}
       {...props}

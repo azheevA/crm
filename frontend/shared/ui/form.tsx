@@ -1,5 +1,4 @@
 "use client";
-
 import * as React from "react";
 import type { Label as LabelPrimitive } from "radix-ui";
 import { Slot } from "radix-ui";
@@ -12,7 +11,6 @@ import {
   type FieldPath,
   type FieldValues,
 } from "react-hook-form";
-
 import { cn } from "@/shared/lib/utils";
 import { Label } from "@/shared/ui/label";
 
@@ -80,7 +78,7 @@ function FormItem({ className, ...props }: React.ComponentProps<"div">) {
     <FormItemContext.Provider value={{ id }}>
       <div
         data-slot="form-item"
-        className={cn("grid gap-2.5", className)}
+        className={cn("grid gap-2", className)}
         {...props}
       />
     </FormItemContext.Provider>
@@ -98,9 +96,9 @@ function FormLabel({
       data-slot="form-label"
       data-error={!!error}
       className={cn(
-        "text-sm font-semibold tracking-wide transition-colors",
-        "text-zinc-700 dark:text-zinc-300",
-        "data-[error=true]:text-destructive/90 dark:data-[error=true]:text-red-400",
+        "text-xs font-bold uppercase tracking-widest transition-colors",
+        "text-foreground/70",
+        "data-[error=true]:text-destructive shadow-destructive/20",
         className,
       )}
       htmlFor={formItemId}
@@ -123,10 +121,7 @@ function FormControl({ ...props }: React.ComponentProps<typeof Slot.Root>) {
           : `${formDescriptionId} ${formMessageId}`
       }
       aria-invalid={!!error}
-      className={cn(
-        "transition-all duration-200",
-        error && "animate-in shake-1",
-      )}
+      className={cn("transition-all duration-300")}
       {...props}
     />
   );
@@ -139,7 +134,7 @@ function FormDescription({ className, ...props }: React.ComponentProps<"p">) {
     <p
       data-slot="form-description"
       id={formDescriptionId}
-      className={cn("text-sm text-muted-foreground", className)}
+      className={cn("text-[10px] text-muted-foreground/60 italic", className)}
       {...props}
     />
   );
@@ -158,7 +153,7 @@ function FormMessage({ className, ...props }: React.ComponentProps<"p">) {
       data-slot="form-message"
       id={formMessageId}
       className={cn(
-        "text-[0.8rem] font-medium text-destructive dark:text-red-400 animate-in fade-in slide-in-from-top-1",
+        "text-[11px] font-semibold text-destructive animate-in fade-in slide-in-from-left-2",
         className,
       )}
       {...props}

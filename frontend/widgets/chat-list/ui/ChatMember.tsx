@@ -15,30 +15,55 @@ interface Props {
 }
 
 export const ChatMembers = ({ members }: Props) => {
+  const visible = members.slice(0, 5);
+  const rest = members.length - 5;
+
   return (
-    <div className="flex -space-x-2 overflow-hidden py-2">
-      <TooltipProvider>
-        {members.map((member) => (
-          <Tooltip key={member.id}>
-            <TooltipTrigger asChild>
-              <Avatar className="inline-block border-2 border-white w-8 h-8">
-                <AvatarImage src={member.avatar?.url} />
-                <AvatarFallback>
-                  {member.name.slice(0, 2).toUpperCase()}
-                </AvatarFallback>
-              </Avatar>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>{member.name}</p>
-            </TooltipContent>
-          </Tooltip>
-        ))}
-      </TooltipProvider>
-      {members.length > 5 && (
-        <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gray-100 border-2 border-white text-xs font-medium text-gray-500">
-          +{members.length - 5}
+    <TooltipProvider>
+      <div className="flex items-center py-2">
+        <div className="flex -space-x-3">
+          {visible.map((member) => (
+            <Tooltip key={member.id}>
+              <TooltipTrigger asChild>
+                <Avatar
+                  className="
+                  h-8 w-8
+                  border border-white/20
+                  backdrop-blur
+                  bg-white/30 dark:bg-white/5
+                  shadow-[0_0_10px_rgba(0,0,0,0.15)]
+                  hover:scale-110
+                  transition
+                "
+                >
+                  <AvatarImage src={member.avatar?.url} />
+                  <AvatarFallback>
+                    {member.name.slice(0, 2).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+              </TooltipTrigger>
+
+              <TooltipContent side="bottom">{member.name}</TooltipContent>
+            </Tooltip>
+          ))}
+
+          {rest > 0 && (
+            <div
+              className="
+              flex items-center justify-center
+              h-8 w-8
+              rounded-full
+              text-xs font-medium
+              border border-white/20
+              bg-white/30 dark:bg-white/5
+              backdrop-blur
+            "
+            >
+              +{rest}
+            </div>
+          )}
         </div>
-      )}
-    </div>
+      </div>
+    </TooltipProvider>
   );
 };
