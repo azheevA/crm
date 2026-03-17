@@ -36,7 +36,9 @@ export const ChatMembers = ({ members }: Props) => {
                   transition
                 "
                 >
-                  <AvatarImage src={member.avatar?.url} />
+                  <AvatarImage
+                    src={`http://localhost:3000${member.avatar?.url}`}
+                  />
                   <AvatarFallback>
                     {member.name.slice(0, 2).toUpperCase()}
                   </AvatarFallback>

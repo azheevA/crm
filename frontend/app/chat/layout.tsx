@@ -21,20 +21,20 @@ export default function ChatLayout({
         className="
         w-[320px]
         flex flex-col
-        border-r border-white/10
+        border-r border-white/70
         bg-white/40 dark:bg-zinc-950/40
-        backdrop-blur-xl
+        backdrop-blur-xl shadow-xl shadow-black/40
       "
       >
-        <div className="p-5 border-b border-white/10">
-          <h1 className="text-xl font-semibold">Чаты</h1>
+        <div className="p-5 border-b border-white/10 ">
+          <h1 className="text-3xl text-center font-semibold">Чаты</h1>
         </div>
 
         <div className="p-4">
           <CreateChatModal />
         </div>
 
-        <div className="flex-1 overflow-y-auto">
+        <div className="flex-1 overflow-y-auto p-4">
           <ChatList />
         </div>
       </aside>

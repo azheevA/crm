@@ -173,10 +173,10 @@ export const ChatWindow = ({ chatId }: Props) => {
 
       <div
         className="
-        p-4
-        border-t border-white/10
+        p-4 mx-2
+        border-t border-white/20
         bg-white/40 dark:bg-black/20
-        backdrop-blur
+        backdrop-blur shadow-2xl shadow-black rounded-2xl
       "
       >
         <SendMessageForm chatId={chatId} sendTyping={sendTyping} />
@@ -185,21 +185,18 @@ export const ChatWindow = ({ chatId }: Props) => {
       {showAddMembers && (
         <div
           className="
-          fixed inset-0
-          flex items-center justify-center
-          bg-black/60 backdrop-blur-md
-        "
+                      fixed inset-0 z-50
+                      flex items-center justify-center
+                    bg-black/60 backdrop-blur-md
+                      p-4
+                    "
+          onClick={() => setShowAddMembers(false)}
         >
-          <div
-            className="
-            w-full max-w-md
-            bg-white dark:bg-zinc-900
-            border border-white/10
-            rounded-xl
-            p-6
-          "
-          >
-            <AddMembersModal chatId={chatId} />
+          <div onClick={(e) => e.stopPropagation()} className="w-full max-w-md">
+            <AddMembersModal
+              chatId={chatId}
+              onClose={() => setShowAddMembers(false)}
+            />
           </div>
         </div>
       )}

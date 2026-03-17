@@ -14,7 +14,9 @@ const MessageBubbleMemo = ({ message, isMe }: MessageBubbleProps) => {
   return (
     <div className={`flex gap-3 ${isMe ? "flex-row-reverse" : ""}`}>
       <Avatar>
-        <AvatarImage src={message.author.avatar?.url} />
+        <AvatarImage
+          src={`http://localhost:3000${message.author.avatar?.url}`}
+        />
         <AvatarFallback>{message.author.name.slice(0, 2)}</AvatarFallback>
       </Avatar>
 

@@ -4,6 +4,7 @@ import { useState, KeyboardEvent } from "react";
 import { socket } from "@/shared/api/socket";
 import { SendHorizontalIcon } from "lucide-react";
 import { Button } from "@/shared/ui/button";
+import { Input } from "@/shared/ui/input";
 
 interface Props {
   chatId: number;
@@ -34,10 +35,10 @@ export const SendMessageForm = ({ chatId, sendTyping }: Props) => {
   return (
     <div
       className="flex items-center gap-2 p-2 rounded-2xl border border-white/10
-    bg-white/30 dark:bg-zinc-950/40 backdrop-blur-xl
+    bg-white/50 dark:bg-zinc-950/40 backdrop-blur-xl shadow-2xl shadow-black 
     focus-within:ring-2 focus-within:ring-primary/40 transition"
     >
-      <input
+      <Input
         value={text}
         onKeyDown={handleKeyDown}
         onChange={(e) => {
@@ -46,7 +47,7 @@ export const SendMessageForm = ({ chatId, sendTyping }: Props) => {
         }}
         placeholder="Напишите сообщение..."
         className="flex-1 bg-transparent px-3 py-2 text-sm outline-none
-        placeholder:text-muted-foreground"
+        placeholder:text-muted-foreground "
       />
 
       <Button
@@ -54,7 +55,7 @@ export const SendMessageForm = ({ chatId, sendTyping }: Props) => {
         onClick={handleSend}
         disabled={!text.trim()}
         className="rounded-xl
-        bg-primary text-primary-foreground
+       text-primary-foreground
         hover:shadow-[0_0_15px_rgba(var(--primary),0.7)]
         transition-all"
       >

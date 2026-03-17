@@ -43,7 +43,6 @@ export const CreateChatModal = () => {
           Дайте чату название и выберите участников
         </p>
       </div>
-
       <div className="space-y-4">
         <div className="grid gap-2">
           <Label htmlFor="chat-title">Название</Label>

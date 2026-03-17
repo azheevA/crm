@@ -30,7 +30,7 @@ export const ChatList = () => {
       className="
       flex flex-col h-full
       bg-white/40 dark:bg-zinc-950/40
-      backdrop-blur-xl
+      backdrop-blur-xl rounded-2xl shadow-xl
       border-r border-white/10
     "
     >
@@ -66,8 +66,9 @@ export const ChatList = () => {
         "
         >
           <div className="flex items-center justify-center gap-2 text-xs text-primary">
-            <span className="h-2 w-2 rounded-full bg-primary animate-pulse" />
-            {chats.length} активных чатов
+            <span className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
+            {chats.length}{" "}
+            {chats.length !== 1 ? "активных чата" : "активный чат"}
           </div>
         </div>
       )}

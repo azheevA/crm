@@ -43,7 +43,9 @@ export const ChatItem = ({ chat }: Props) => {
             : "border-white/20",
         )}
       >
-        <AvatarImage src={chat?.avatar?.url || displayAvatar} />
+        <AvatarImage
+          src={`http://localhost:3000${chat?.avatar?.url}` || displayAvatar}
+        />
         <AvatarFallback>
           {displayTitle.slice(0, 2).toUpperCase()}
         </AvatarFallback>
