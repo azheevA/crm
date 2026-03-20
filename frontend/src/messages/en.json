@@ -1,0 +1,24 @@
+{
+  "HomePage": {
+    "title": "Home",
+    "features": {
+      "f1": {
+        "title": "Fast",
+        "desc": "Instant loading thanks to Server Components."
+      },
+      "f2": {
+        "title": "Flexible",
+        "desc": "Easy setup for any market or language."
+      },
+      "f3": {
+        "title": "Design",
+        "desc": "Beautiful interface adapted for all devices."
+      }
+    }
+  },
+  "NavBar": {
+    "stack": "stack",
+    "projects": "projects",
+    "contact": "contact"
+  }
+}
